@@ -1,0 +1,152 @@
+---
+title: "R Notebook"
+author: "Akos Furton"
+output: html_notebook
+---
+
+### TO DO: follow her slides as exactly as possible until about slide 20 of session 3 slides.
+
+For this analysis, we chose the cracker product category. We will study product2, product3, product4, and product5 out of the possible products in the category.
+
+```{r}
+library(readxl)
+library(MASS)
+```
+
+Product 6 is a subproduct of Product 1. Therefore we exclude product 1 and product 6 from our analysis as they are potentially problematic.
+
+```{r}
+product2 <- read_excel('Crackers.xlsx', sheet = 2, col_names = TRUE)
+product3 <- read_excel('Crackers.xlsx', sheet = 3, col_names = TRUE)
+product4 <- read_excel('Crackers.xlsx', sheet = 4, col_names = TRUE)
+product5 <- read_excel('Crackers.xlsx', sheet = 5, col_names = TRUE)
+```
+
+Calculate the average price for each product on a weekly basis.
+```{r}
+#we calculate a product's average price as the total sales / total volume sold
+product2$price <- product2$Value_Euros / product2$Volume
+product2$log.p <- log(product2$price)
+product2$log.q <- log(product2$Volume)
+
+### TO DO. Calcuate baseline using moving average. 
+
+### TO DO. to see if the product is in promotion. see if the price is more than 1sd away from the mean price. see if the volume is more than 1sd away from the mean volume. (also look at volume one period later) also graph the product sales and prices over time to visually inspect jumps.
+
+## Threshold for promotion: x% below the mean price.
+
+#check if times of promotion are the same as times of GRP != 0
+
+## we expect usually 2 week promotions every 2months or so. about 30% of the time we expect the product to be in promotion state.
+
+#we calculate a product's baseline price as the baseline sales / baseline volume
+product2$baseline_price <- product2$Value_Baseline / product2$Volume_Baseline
+product2$log.bp <- log(product2$baseline_price)
+
+### TO DO. This might not be needed...
+
+#we define a product's promotion value as the difference between its baseline price and its actual sale price
+product2$promotion <- product2$baseline_price - product2$price
+product2$log.promo <- product2$log.bp - product2$log.p
+
+product3$price <- product3$Value_Euros / product3$Volume
+product3$log.p <- log(product3$price)
+product3$log.q <- log(product3$Volume)
+product3$baseline_price <- product3$Value_Baseline / product3$Volume_Baseline
+product3$log.bp <- log(product3$baseline_price)
+product3$promotion <- product3$baseline_price - product3$price
+product3$log.promo <- product3$log.bp - product3$log.p
+
+product4$price <- product4$Value_Euros / product4$Volume
+product4$log.p <- log(product4$price)
+product4$log.q <- log(product4$Volume)
+product4$baseline_price <- product4$Value_Baseline / product4$Volume_Baseline
+product4$log.bp <- log(product4$baseline_price)
+product4$promotion <- product4$baseline_price - product4$price
+product4$log.promo <- product4$log.bp - product4$log.p
+
+product5$price <- product5$Value_Euros / product5$Volume
+product5$log.p <- log(product5$price)
+product5$log.q <- log(product5$Volume)
+product5$baseline_price <- product5$Value_Baseline / product5$Volume_Baseline
+product5$log.bp <- log(product5$baseline_price)
+product5$promotion <- product5$baseline_price - product5$price
+product5$log.promo <- product5$log.bp - product5$log.p
+```
+
+```{r}
+#we identify moments of deep promotion as when the product's promotion is greater than twice its average promotional value
+deepdiscount2 <- mean(product2$promotion) + 2 * sd(product2$promotion)
+deepdiscount3 <- mean(product3$promotion) + 2 * sd(product3$promotion)
+deepdiscount4 <- mean(product4$promotion) + 2 * sd(product4$promotion)
+deepdiscount5 <- mean(product5$promotion) + 2 * sd(product5$promotion)
+
+log.deepdiscount2 <- mean(product2$log.promo) + 2 * sd(product2$log.promo)
+log.deepdiscount3 <- mean(product3$log.promo) + 2 * sd(product3$log.promo)
+log.deepdiscount4 <- mean(product4$log.promo) + 2 * sd(product4$log.promo)
+log.deepdiscount5 <- mean(product5$log.promo) + 2 * sd(product5$log.promo)
+
+
+product2$deep.discount <- ifelse(product2$promotion > deepdiscount2, 1, 0)
+product3$deep.discount <- ifelse(product3$promotion > deepdiscount3, 1, 0)
+product4$deep.discount <- ifelse(product4$promotion > deepdiscount4, 1, 0)
+product5$deep.discount <- ifelse(product5$promotion > deepdiscount5, 1, 0)
+
+product2$log.deep.discount <- ifelse(product2$log.promo > log.deepdiscount2, 1, 0)
+product3$log.deep.discount <- ifelse(product3$log.promo > log.deepdiscount3, 1, 0)
+product4$log.deep.discount <- ifelse(product4$log.promo > log.deepdiscount4, 1, 0)
+product5$log.deep.discount <- ifelse(product5$log.promo > log.deepdiscount5, 1, 0)
+
+```
+
+```{r}
+### Don't do this!!
+
+#we only take the data where the product is not in deep promotional state
+product2 <- product2[product2$deep.discount != 1 || product2$log.deep.discount != 1,]
+product3 <- product3[product3$deep.discount != 1 || product3$log.deep.discount != 1,]
+product4 <- product4[product4$deep.discount != 1 || product4$log.deep.discount != 1,]
+product5 <- product5[product5$deep.discount != 1 || product5$log.deep.discount != 1,]
+```
+
+
+
+#TO DO: try all functional forms for forward backward stepwise
+### pick model with best RMSE (don't use R^2)
+
+### TO DO: variables to include. price, discount status, distribution, grp, see how GRP corresponds to promotion status, promo periods could also be defined as times with GRP status > 0. We can use this as a moving average flag. Promotion status is a binary dummy variable.
+```{r}
+regression.2 <- lm(Volume ~ price + Average_Number_SKUs +  Average_Distribution, data = product2)
+
+elasticity.2 <- summary(regression.2)$coefficients[2] * mean(product2$price) / mean(product2$Volume)
+
+
+regression.2.semilog <- lm(log.q ~ price + Average_Number_SKUs +  Average_Distribution, data = product2)
+
+elasticity.2.semilog <- summary(regression.2.semilog)$coefficients[2] * mean(product2$price)
+
+regression.2.log <- lm(log.q ~ log.p + Average_Number_SKUs +  Average_Distribution, data = product2)
+
+elasticity.2.log <- summary(regression.2.log)$coefficients[2]
+
+elasticity.2
+elasticity.2.semilog
+elasticity.2.log
+
+
+```
+
+### try to follow professor's sides as closely as possible
+
+### after calculating elasticities and cross elasticities, create a elasticity matrix by running models and using elasticity formulas.
+
+### create clout and vulnerability matrix
+
+
+## writeup = process and analysis of results (competitive environment).  
+
+
+
+
+
+
