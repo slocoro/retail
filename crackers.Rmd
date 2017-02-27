@@ -11,6 +11,7 @@ For this analysis, we chose the cracker product category. We will study product2
 ```{r}
 library(readxl)
 library(MASS)
+library(ggplot2)
 ```
 
 Product 6 is a subproduct of Product 1. Therefore we exclude product 1 and product 6 from our analysis as they are potentially problematic.
@@ -26,20 +27,77 @@ Calculate the average price for each product on a weekly basis.
 ```{r}
 #we calculate a product's average price as the total sales / total volume sold
 product2$price <- product2$Value_Euros / product2$Volume
+product3$price <- product3$Value_Euros / product3$Volume
+product4$price <- product4$Value_Euros / product4$Volume
+product5$price <- product5$Value_Euros / product5$Volume
 product2$log.p <- log(product2$price)
 product2$log.q <- log(product2$Volume)
 
 ### TO DO. Calcuate baseline using moving average. 
+product2[,"Promotion"]<-0
+product3[,"Promotion"]<-0
+product4[,"Promotion"]<-0
+product5[,"Promotion"]<-0
+
+product2[,"Volatility"]<-0
+product3[,"Volatility"]<-0.0
+product4[,"Volatility"]<-0.0
+product5[,"Volatility"]<-0.0
+for(i in 1:nrow(product2))
+{
+  if(abs(product2[i,"price"]-mean(product2$price))>=sd(product2$price)) product2[i,"Promotion"]<-1
+  product2[i,"Volatility"]<- abs(product2[i,"price"]-mean(product2$price))/product2[i,"price"]
+  if(abs(product3[i,"price"]-mean(product3$price))>=sd(product3$price)) product3[i,"Promotion"]<-1
+  product3[i,"Volatility"]<- abs(product3[i,"price"]-mean(product3$price))/product3[i,"price"]
+  if(abs(product4[i,"price"]-mean(product4$price))>=sd(product4$price)) product4[i,"Promotion"]<-1
+  product4[i,"Volatility"]<- abs(product4[i,"price"]-mean(product4$price))/product4[i,"price"]
+  if(abs(product5[i,"price"]-mean(product5$price))>=sd(product5$price)) product5[i,"Promotion"]<-1
+  product5[i,"Volatility"]<- abs(product5[i,"price"]-mean(product5$price))/product5[i,"price"]
+}
+### calculate average volatility to reason for discount 5% seems fair
+
 
 ### TO DO. to see if the product is in promotion. see if the price is more than 1sd away from the mean price. see if the volume is more than 1sd away from the mean volume. (also look at volume one period later) also graph the product sales and prices over time to visually inspect jumps.
 
 ## Threshold for promotion: x% below the mean price.
 
 #check if times of promotion are the same as times of GRP != 0
+### not really the case (18% of all promition occur together with GRP, 25% for product4)
+nrow(product3[product3["Promotion"]==1 & product3["GRP"]>1,])/nrow(product3[product3["Promotion"]==1,])
+nrow(product4[product4["Promotion"]==1 & product4["GRP"]>1,])/nrow(product4[product4["Promotion"]==1,])
 
 ## we expect usually 2 week promotions every 2months or so. about 30% of the time we expect the product to be in promotion state.
 
+#not verified 25.4%
+nrow(product2[product2["Promotion"]==1,])/nrow(product2)
+#verified 30.4%
+nrow(product3[product3["Promotion"]==1,])/nrow(product3)
+#verified 30.4%
+nrow(product4[product4["Promotion"]==1,])/nrow(product4)
+#not verified 21.9%
+nrow(product5[product5["Promotion"]==1,])/nrow(product5)
+
 #we calculate a product's baseline price as the baseline sales / baseline volume
+# using moving average
+
+for(i in 1:nrow(product2))
+{
+  b = i
+  e = nrow(product2)-i
+  ###in the middle
+  if(b>=12 & e>= 12) print(product2[(i-12):(i+12),"Promotion"])
+  ###within the first 12 but greater than i = 1
+  else if(b<12 & b>1 & e>= 24) print(product2[(i-b):(i+24-b),"Promotion"])
+  ###before the end
+  else if(e < 12) print(product2[(i-12-(12-e)):(i+e),"Promotion"])
+  ###very first
+  else if(b<12 & e>= 24) print(product2[i:(i+24),"Promotion"])
+}
+
+
+
+
+
 product2$baseline_price <- product2$Value_Baseline / product2$Volume_Baseline
 product2$log.bp <- log(product2$baseline_price)
 
