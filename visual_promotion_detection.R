@@ -214,8 +214,8 @@ sum(product5$promo)/ nrow(product5)
 
 # add the baseline in excel and read the data again
 # write.csv(product2, file = "product2.csv")
-write.csv(product3, file = "product3.csv")
-write.csv(product4, file = "product4.csv")
+# write.csv(product3, file = "product3.csv")
+# write.csv(product4, file = "product4.csv")
 # write.csv(product5, file = "product5.csv")
 
 # load files with baseline
