@@ -130,14 +130,17 @@ product2[12:22, "promo"] <- 1
 product2[45:59, "promo"] <- 1
 product2[77:85, "promo"] <- 1
 
-product3$promo <- ifelse(product3$GRP != 0, 1, product3$promo)
+product3$ad <- ifelse(product3$GRP != 0, 1, 0)
 product3[18:31, "promo"] <- 1
 product3[48:55, "promo"] <- 1
 product3[80:89, "promo"] <- 1
 product3[99:105, "promo"] <- 1
 
-product4$promo <- ifelse(product4$GRP != 0, 1, product4$promo)
+product4$ad <- ifelse(product4$GRP != 0, 1, 0)
 product4[42:54, "promo"] <- 1
+product4[64, "promo"] <- 1
+product4[79:81, "promo"] <- 1
+product4[98:102, "promo"] <- 1
 
 # no GRP
 product5[17:35, "promo"] <- 1
@@ -200,8 +203,8 @@ sum(product5$promo)/ nrow(product5)
 
 # add the baseline in excel and read the data again
 # write.csv(product2, file = "product2.csv")
-# write.csv(product3, file = "product3.csv")
-# write.csv(product4, file = "product4.csv")
+write.csv(product3, file = "product3.csv")
+write.csv(product4, file = "product4.csv")
 # write.csv(product5, file = "product5.csv")
 
 # load files with baseline
@@ -218,23 +221,29 @@ prod3$baseline <- ifelse(is.na(prod3$baseline), prod3$Volume, prod3$baseline)
 prod4$baseline <- ifelse(is.na(prod4$baseline), prod4$Volume, prod4$baseline)
 prod5$baseline <- ifelse(is.na(prod5$baseline), prod5$Volume, prod5$baseline)
 
+# add column for sum of lift and volume for the plot
+prod2$lift_plot <- ifelse(is.na(prod2$weekly_lift), prod2$Volume + 0,  prod2$Volume + prod2$weekly_lift)
+prod3$lift_plot <- ifelse(is.na(prod3$weekly_lift), prod3$Volume + 0,  prod3$Volume + prod3$weekly_lift)
+prod4$lift_plot <- ifelse(is.na(prod4$weekly_lift), prod4$Volume + 0,  prod4$Volume + prod4$weekly_lift)
+prod5$lift_plot <- ifelse(is.na(prod5$weekly_lift), prod5$Volume + 0,  prod5$Volume + prod5$weekly_lift)
+
 # plot baseline and lift
 
 # product 2
-plot(prod2$week_Number, prod2$baseline, type="l", lwd=2, ylim = c(0, max(prod2$Volume)))
-lines(prod2$weekly_lift + prod2$baseline, lwd=2, col = 11)
+plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11)
+lines(prod2$baseline, lwd=2)
 
 # product 3
-plot(prod3$week_Number, prod3$baseline, type="l", lwd=2, ylim = c(0, max(prod3$Volume)))
-lines(prod3$weekly_lift + prod3$baseline, lwd=2, col = 11)
+plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod3$lift_plot)), col = 11)
+lines(prod3$baseline, lwd=2)
 
 # product 4
-plot(prod4$week_Number, prod4$baseline, type="l", lwd=2, ylim = c(0, max(prod4$Volume)))
-lines(prod4$weekly_lift + prod4$baseline, lwd=2, col = 11)
+plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod4$lift_plot)), col = 11)
+lines(prod4$baseline, lwd=2)
 
 # product 5
-plot(prod5$week_Number, prod5$baseline, type="l", lwd=2, ylim = c(0, max(prod5$Volume)))
-lines(prod5$weekly_lift + prod5$baseline, lwd=2, col = 11)
+plot(prod5$week_Number, prod5$lift_plot, type="l", lwd=2, ylim = c(0, max(prod5$lift_plot)), col = 11)
+lines(prod5$baseline, lwd=2)
 
 # graph 2,3,5 look reasonably ok, graph 4 looks a bit strange because has negative lift
 # and irregular promos
