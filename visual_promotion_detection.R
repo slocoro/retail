@@ -38,8 +38,19 @@ product2$price <- product2$Value_Euros / product2$Volume
 product3$price <- product3$Value_Euros / product3$Volume
 product4$price <- product4$Value_Euros / product4$Volume
 product5$price <- product5$Value_Euros / product5$Volume
+
 product2$log.p <- log(product2$price)
 product2$log.q <- log(product2$Volume)
+
+product3$log.p <- log(product3$price)
+product3$log.q <- log(product3$Volume)
+
+product4$log.p <- log(product4$price)
+product4$log.q <- log(product4$Volume)
+
+product5$log.p <- log(product5$price)
+product5$log.q <- log(product5$Volume)
+
 
 # add average price and threshold, first threshold is 1 sd below mean
 product2$average_Price <- mean(product2$price)
