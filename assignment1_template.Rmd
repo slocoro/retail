@@ -1,0 +1,25 @@
+---
+title: "Team Assignment 1"
+author: "Group 6"
+date: "February 28, 2017"
+output: 
+  pdf_document: 
+    toc: yes
+fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Introduction
+
+This report aims to understand the market of four chosen Fast-Moving Consumer Goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from Cookies category are chosen to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the result will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands.
+
+# 2. Methodology
+
+Our methodology will be divided into 2 parts, data transformation and regression model. Due to limited information on the dataset, we will need to perform several transformation to the data. The following part will explain the model used in the report. Linear regression models are predominantly chosen to make an inference about the relationship between price and quantity.
+
+## 2.1. Data Transformation
+
+The objective of this part is to provide the models with the most appropriate features and to separate the effect of different demand factors of each product.  
