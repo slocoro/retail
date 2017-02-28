@@ -130,12 +130,13 @@ product2[12:22, "promo"] <- 1
 product2[45:59, "promo"] <- 1
 product2[77:85, "promo"] <- 1
 
-product3$promo <- ifelse(product3$GRP != 0, 1, 0)
+product3$promo <- ifelse(product3$GRP != 0, 1, product3$promo)
 product3[18:31, "promo"] <- 1
 product3[48:55, "promo"] <- 1
+product3[80:89, "promo"] <- 1
 product3[99:105, "promo"] <- 1
 
-product4$promo <- ifelse(product4$GRP != 0, 1, 0)
+product4$promo <- ifelse(product4$GRP != 0, 1, product4$promo)
 product4[42:54, "promo"] <- 1
 
 # no GRP
