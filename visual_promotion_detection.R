@@ -219,7 +219,7 @@ sum(product5$promo)/ nrow(product5)
 # write.csv(product5, file = "product5.csv")
 
 # load files with baseline
-setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group")
+setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group/Data 1")
 
 prod2 <- read.csv("product2.csv")
 prod3 <- read.csv("product3.csv")

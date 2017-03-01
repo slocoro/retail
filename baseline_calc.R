@@ -205,6 +205,13 @@ mtext("Volume",side=4,line=3)
 legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
 
 
+# proportion of promotions during two year period, after adding manually
+sum(product2$promo)/ nrow(product2)
+sum(product3$promo)/ nrow(product3)
+sum(product4$promo)/ nrow(product4)
+sum(product5$promo)/ nrow(product5)
+
+
 ## calculate baseline using a regression
 
 # first eliminate all the promo weeks
@@ -351,7 +358,7 @@ product5$baseline <- p5_int +
 
 # reload data
 
-setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group")
+setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group/Data 2")
 
 prod2 <- read.csv("product2_newb.csv")
 prod3 <- read.csv("product3_newb.csv")

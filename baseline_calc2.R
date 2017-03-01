@@ -137,8 +137,13 @@ sum(product2$promo)/ nrow(product2)
 # also set promo to one when GRP is available
 
 # no GRP
-product2[12:22, "promo"] <- 1
-product2[45:59, "promo"] <- 1
+product2[1:6, "promo"] <- 1
+product2[11:15, "promo"] <- 1
+product2[18:21, "promo"] <- 1
+product2[24:26, "promo"] <- 1
+product2[29:30, "promo"] <- 1
+product2[63:65, "promo"] <- 1
+product2[69:70, "promo"] <- 1
 product2[77:85, "promo"] <- 1
 
 product3$ad <- ifelse(product3$GRP != 0, 1, 0)
@@ -203,6 +208,13 @@ plot(product5$week_Number, product5$Volume, type="l",col="red",xaxt="n",yaxt="n"
 axis(4)
 mtext("Volume",side=4,line=3)
 legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+
+
+# proportion of promotions during two year period, after adding manually
+sum(product2$promo)/ nrow(product2)
+sum(product3$promo)/ nrow(product3)
+sum(product4$promo)/ nrow(product4)
+sum(product5$promo)/ nrow(product5)
 
 
 ## calculate baseline using a regression
@@ -351,12 +363,12 @@ product5$baseline <- p5_int +
 
 # reload data
 
-setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group")
+setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group/Data 3")
 
-prod2 <- read.csv("product2_newb.csv")
-prod3 <- read.csv("product3_newb.csv")
-prod4 <- read.csv("product4_newb.csv")
-prod5 <- read.csv("product5_newb.csv")
+prod2 <- read.csv("product2_newb2.csv")
+prod3 <- read.csv("product3_newb2.csv")
+prod4 <- read.csv("product4_newb2.csv")
+prod5 <- read.csv("product5_newb2.csv")
 
 # use code from "visual_promotion_detection" to plot lift
 
@@ -395,7 +407,6 @@ legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=
 plot(prod5$week_Number, prod5$lift_plot, type="l", lwd=2, ylim = c(0, max(prod5$lift_plot)), col = 11)
 lines(prod5$baseline, lwd=2)
 legend("topright",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
-
 
 # graph for product 2 looks kind of shit. might need to revise here the promos are
 
