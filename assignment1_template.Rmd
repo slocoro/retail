@@ -22,4 +22,21 @@ Our methodology will be divided into 2 parts, data transformation and regression
 
 ## 2.1. Data Transformation
 
-The objective of this part is to provide the models with the most appropriate features and to separate the effect of different demand factors of each product.  
+The objective of this part is to provide the models with the most appropriate features and to separate the effect of different demand factors of each product. Prices of each brand are derived from dividing the sales value of each week by the sales volume. Since the relationship between volume and price is not known, the two variables should be converted to their log forms to adjust for models with different functional forms.
+
+The next step is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` and `Product 5` data does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise.  
+
+## 2.2. Regression Model
+
+
+
+# 3. Results and Discussion
+
+
+
+
+# 4. Conclusion
+
+
+
+# Appendices
