@@ -205,32 +205,166 @@ mtext("Volume",side=4,line=3)
 legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
 
 
-# proportion of promotions during two year period, after adding manually
-sum(product2$promo)/ nrow(product2)
-sum(product3$promo)/ nrow(product3)
-sum(product4$promo)/ nrow(product4)
-sum(product5$promo)/ nrow(product5)
-# between 30-42%
+## calculate baseline using a regression
 
-# add the baseline in excel and read the data again
-# write.csv(product2, file = "product2.csv")
-# write.csv(product3, file = "product3.csv")
-# write.csv(product4, file = "product4.csv")
-# write.csv(product5, file = "product5.csv")
+# first eliminate all the promo weeks
+p2noPromo <- filter(product2, promo == 0)
+p3noPromo <- filter(product3, promo == 0)
+p4noPromo <- filter(product4, promo == 0)
+p5noPromo <- filter(product5, promo == 0)
 
-# load files with baseline
+# drop all columns that won't be used for the regression
+# didn't include Value because its used to calculate price therefore seems wrong to include it
+p2reg <- select(p2noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+p3reg <- select(p3noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+p4reg <- select(p4noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+p5reg <- select(p5noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+
+# baseline regressions
+
+#### product 2
+null_2 <- lm(Volume ~ 1, data = p2reg)
+full_2 <- lm(Volume ~ ., data = p2reg)
+
+step(null_2, scope = list (upper = full_2), data = p2reg, direction = "both")
+
+# best
+best2 <- lm(Volume ~ price + Average_Distribution + Average_Number_SKUs + week_Number, data = p2reg)
+summary(best2)
+
+#### product 3
+null_3 <- lm(Volume ~ 1, data = p3reg)
+full_3 <- lm(Volume ~ ., data = p3reg)
+
+step(null_3, scope = list (upper = full_3), data = p3reg, direction = "both")
+
+# best
+best3 <- lm(Volume ~ Average_Distribution + week_Number + Average_Number_SKUs + price, data = p3reg)
+summary(best3)
+
+#### product 4
+null_4 <- lm(Volume ~ 1, data = p4reg)
+full_4 <- lm(Volume ~ ., data = p4reg)
+
+step(null_4, scope = list (upper = full_4), data = p4reg, direction = "both")
+
+# best
+best4 <- lm(Volume ~ Average_Distribution + price + Average_Number_SKUs +  week_Number, data = p4reg)
+summary(best4)
+
+#### product 5
+null_5 <- lm(Volume ~ 1, data = p5reg)
+full_5 <- lm(Volume ~ ., data = p5reg)
+
+step(null_5, scope = list (upper = full_5), data = p5reg, direction = "both")
+
+# best
+best5 <- lm(Volume ~ Average_Distribution + price + week_Number, data = p5reg)
+summary(best5)
+
+
+# calculate new baseline prices
+
+# product 2
+p2_int <- best2$coefficients[1]
+p2_price_coeff <- best2$coefficients[2]
+p2_avd_coeff <- best2$coefficients[3]
+p2_avsku_coeff <- best2$coefficients[4]
+p2_week_coeff <- best2$coefficients[5]
+
+product2$baseline <- p2_int + 
+  product2$price * p2_price_coeff +
+  product2$Average_Distribution * p2_avd_coeff + 
+  product2$Average_Number_SKUs * p2_avsku_coeff +
+  product2$week_Number * p2_week_coeff
+
+# product 3
+p3_int <- best3$coefficients[1]
+p3_price_coeff <- best3$coefficients[5]
+p3_avd_coeff <- best3$coefficients[2]
+p3_avsku_coeff <- best3$coefficients[4]
+p3_week_coeff <- best3$coefficients[3]
+
+product3$baseline <- p3_int + 
+  product3$price * p3_price_coeff +
+  product3$Average_Distribution * p3_avd_coeff + 
+  product3$Average_Number_SKUs * p3_avsku_coeff +
+  product3$week_Number * p3_week_coeff
+
+
+# product 4
+p4_int <- best4$coefficients[1]
+p4_price_coeff <- best4$coefficients[3]
+p4_avd_coeff <- best4$coefficients[2]
+p4_avsku_coeff <- best4$coefficients[4]
+p4_week_coeff <- best4$coefficients[5]
+
+product4$baseline <- p4_int + 
+  product4$price * p4_price_coeff +
+  product4$Average_Distribution * p4_avd_coeff + 
+  product4$Average_Number_SKUs * p4_avsku_coeff +
+  product4$week_Number * p4_week_coeff
+
+# product 5
+
+p5_int <- best5$coefficients[1]
+p5_price_coeff <- best5$coefficients[3]
+p5_avd_coeff <- best5$coefficients[2]
+p5_week_coeff <- best5$coefficients[4]
+
+product5$baseline <- p5_int + 
+  product5$price * p5_price_coeff +
+  product5$Average_Distribution * p5_avd_coeff + 
+  product5$week_Number * p5_week_coeff
+
+# calculate weekly and total lift in Excel
+# setwd("/Users/Steven/Desktop/Data")
+# 
+# write.csv(product2, file = "product2_newb.csv")
+# write.csv(product3, file = "product3_newb.csv")
+# write.csv(product4, file = "product4_newb.csv")
+# write.csv(product5, file = "product5_newb.csv")
+
+# reload data
+
 setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group")
 
-prod2 <- read.csv("product2.csv")
-prod3 <- read.csv("product3.csv")
-prod4 <- read.csv("product4.csv")
-prod5 <- read.csv("product5.csv")
+prod2 <- read.csv("product2_newb.csv")
+prod3 <- read.csv("product3_newb.csv")
+prod4 <- read.csv("product4_newb.csv")
+prod5 <- read.csv("product5_newb.csv")
+
+# use code from "visual_promotion_detection" to plot lift
 
 # fill baseline column with regular volumes
-prod2$baseline <- ifelse(is.na(prod2$baseline), prod2$Volume, prod2$baseline)
-prod3$baseline <- ifelse(is.na(prod3$baseline), prod3$Volume, prod3$baseline)
-prod4$baseline <- ifelse(is.na(prod4$baseline), prod4$Volume, prod4$baseline)
-prod5$baseline <- ifelse(is.na(prod5$baseline), prod5$Volume, prod5$baseline)
+prod2$baseline <- ifelse(prod2$promo == 0, prod2$Volume, prod2$baseline)
+prod3$baseline <- ifelse(prod3$promo == 0, prod3$Volume, prod3$baseline)
+prod4$baseline <- ifelse(prod4$promo == 0, prod4$Volume, prod4$baseline)
+prod5$baseline <- ifelse(prod5$promo == 0, prod5$Volume, prod5$baseline)
 
 # add column for sum of lift and volume for the plot
 prod2$lift_plot <- ifelse(is.na(prod2$weekly_lift), prod2$Volume + 0,  prod2$Volume + prod2$weekly_lift)
@@ -250,10 +384,12 @@ plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod3$
 lines(prod3$baseline, lwd=2)
 legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
 
+
 # product 4
 plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod4$lift_plot)), col = 11)
 lines(prod4$baseline, lwd=2)
 legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
+
 
 # product 5
 plot(prod5$week_Number, prod5$lift_plot, type="l", lwd=2, ylim = c(0, max(prod5$lift_plot)), col = 11)
@@ -261,9 +397,11 @@ lines(prod5$baseline, lwd=2)
 legend("topright",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
 
 
-# graph 2,3,5 look reasonably ok, graph 4 looks a bit strange because has negative lift
-# and irregular promos
-# graphs don't look exactly like hers which kinda sucks too
+# graph for product 2 looks kind of shit. might need to revise here the promos are
+
+
+
+
 
 
 
