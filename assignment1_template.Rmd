@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. Introduction
 
-This report aims to understand the market of four chosen Fast-Moving Consumer Goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from Cookies category are chosen to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the result will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands.
+This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category are chosen to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
 
 # 2. Methodology
 
