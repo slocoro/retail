@@ -319,7 +319,7 @@ rmse(exp(fitted(p6_log)) - products$Volume_6)
 ```
 
 
-After running all model with different functional forms, different functional form models have the lowest RMSE for different products. `Product 2` and `Product 6` linear models are the most efficient as shown in **Appendix 1**. We should calculate the average price and quantity of each product over 105 weeks and compute the elasticities. The formula used to obtain these would be the following.
+After running all model with different functional forms, different functional form models have the lowest RMSE for different products. `Product 2` and `Product 6` linear models are the most efficient as shown in **Appendix 1** and **Appendix 4**. We should calculate the average price and quantity of each product over 105 weeks and compute the elasticities. The formula used to obtain these would be the following.
 
 \begin{eqnarray*}
 e_{ii} = a_1 \times \frac{\bar{P}_i}{\bar{Q}_i} \\
@@ -406,3 +406,10 @@ As expected, `Product 2` has the highest vulnerability because it seems to be th
 
 
 # Appendices
+
+## Appendix 1
+
+```{r, echo=FALSE, results='asis', message=FALSE}
+stargazer(p2_linear, p2_semilog, p2_log, column.labels = c("Linear", "Semi-Log", "Log-Log"), no.space = T, digits = 2, omit.stat=c("LL","f"), ci=FALSE, se=NULL)
+```
+
