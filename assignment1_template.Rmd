@@ -12,9 +12,14 @@ fontsize: 11pt
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r library, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+library(stargazer)
+```
+
+
 # 1. Introduction
 
-This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category are chosen to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
+This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category, i.e. `Product 2`, `Product 3`, `Product 4`, and `Product 5`, are selected to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
 
 # 2. Methodology
 
@@ -32,15 +37,41 @@ After separating all possible factors that could affect the price and volume, we
 
 ## 2.2. Regression Model
 
-Firstly, To get the elasticity of each product and its cross elasticity against other products, we computed three models with different functional forms (Linear, Semi-Log, and Log-Log). `Volume` of the evaluated brand is the dependent variable and its `Price` and promotions (`ad` and `promo`) are our first three independent variables. Then, the prices of other products and their promotion campagins are added to the model to capture the cross-elasticity of the selected product. The process is identical for different functional forms. In general, the Full Model for `Product 2` looks like the following, but the Reduced Model are different for each product depending on the significant variables.
+Firstly, To get the elasticity of each product and its cross elasticity against other products, we computed three models with different functional forms (Linear, Semi-Log, and Log-Log). `Volume` of the evaluated brand is the dependent variable and its `price` and promotions (`ad` and `promo`) are our first three independent variables. Then, the prices of other products and their promotion campagins are added to the model to capture the cross-elasticity of the selected product. The process is identical for different functional forms. In general, the Full Model for `Product 2` looks like the following, but the Reduced Model are different for each product depending on the significant variables.
 
 \begin{eqnarray*}
-\widehat{volume_2} = & price_2 + ad_2 + promo_2 + \sum_{i=3}^5 (price_i + ad_i + promo_i)
+\widehat{volume_2} = & a_0 + a_1 price_2 + a_2 ad_2 + a_3 promo_2 + \sum_{i=3}^5 (b_1 price_i + b_2 ad_i + b_3 promo_i)
 \end{eqnarray*}
 
 Secondly, stepwise selections are needed to omit non-significant variables from the model to get better estimation. Then, the three different functional models of each brand are compared against each other by computing their root-mean-square error (RMSE) or the difference between predicted values of `Volume` and the observed values. The model with the lowest RMSE is selected to calculate the elasticity and cross-elasticity of the product. Subsequently, the elasticity matrix can be obtained.
 
 # 3. Results and Discussion
+
+After running all model with different functional forms, Linear models have the lowest RMSE for all products. Thus, they will be selected to calculate the price elasticity and cross-elasticity of each product. The formula used to obtain this would be the following.
+
+\begin{eqnarray*}
+e_{ii} = a_1 \times \frac{\bar{P}_i}{\bar{Q}_i} \\
+e_{ij} = b_1 \times \frac{\bar{P}_j}{\bar{Q}_i}
+\end{eqnarray*}
+
+Then, we should calculate the average price and quantity of each product over 105 weeks and compute the elasticity. The elasticity matrix and the clout and vulnerability of each product are shown below.
+
+\begin{center}
+Table 1: Elasticity matrix of Crackers brands
+\end{center}
+| Elasticity | Product 2 | Product 3 |     Product 4     | Product 5 |
+|:----------:|:---------:|:---------:|:-----------------:|:---------:|
+|  Product 2 |   -2.40   |    0.00   |       -0.42       |    0.00   |
+|  Product 3 |    0.00   |   -0.06   |        0.00       |    0.00   |
+|  Product 4 |    0.00   |    0.00   |       -2.37       |    0.00   |
+|  Product 5 |    0.00   |    0.00   |       -0.61       |   -2.04   |
+
+|           |    Clout     | Vulnerability |
+|:---------:|:------------:|:-------------:|
+| Product 2 |     0.00     |     -0.42     |
+| Product 3 |     0.00     |      0.00     |
+| Product 4 |    -1.03     |      0.00     |
+| Product 5 |     0.00     |     -0.61     |
 
 
 
