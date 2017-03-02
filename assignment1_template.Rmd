@@ -319,21 +319,21 @@ rmse(exp(fitted(p6_log)) - products$Volume_6)
 ```
 
 
-After running all model with different functional forms, different functional form models have the lowest RMSE for different products. `Product 2` and `Product 6` linear models are the most efficient as shown in **Appendix 1** and **Appendix 4**. We should calculate the average price and quantity of each product over 105 weeks and compute the elasticities. The formula used to obtain these would be the following.
+After running all model with different functional forms, different functional form models have the lowest RMSE for different products. `Product 2` and `Product 6` linear models are the most efficient when the log form are converted back to level form. We should calculate the average price and quantity of each product over 105 weeks and compute the elasticities. The formula used to obtain these would be the following.
 
 \begin{eqnarray*}
 e_{ii} = a_1 \times \frac{\bar{P}_i}{\bar{Q}_i} \\
 e_{ij} = b_1 \times \frac{\bar{P}_j}{\bar{Q}_i}
 \end{eqnarray*}
 
-The Semi-Log model for `Product 3` has the lowest RMSE amongst the three in **Appendix 2**. The price elasticity formula is expressed below.
+The Semi-Log model for `Product 3` has the lowest RMSE amongst the three. The price elasticity formula is expressed below.
 
 \begin{eqnarray*}
 e_{ii} = a_1 \times \bar{P}_i \\
 e_{ij} = b_1 \times \bar{P}_j
 \end{eqnarray*}
 
-The best model for `Product 4` is the Log-Log model (see **Appendix 3**). Hence, the elasticities are the coefficient of the corresponding price variables. Then, the elasticity matrix and the clout and vulnerability of each product are shown below.
+The best model for `Product 4` is the Log-Log model. Hence, the elasticities are the coefficient of the corresponding price variables. Then, the elasticity matrix and the clout and vulnerability of each product are shown below.
 
 ```{r elasticity, echo=FALSE, results='asis'}
 # elasticity / cross elasticity matrix
@@ -405,11 +405,26 @@ As expected, `Product 2` has the highest vulnerability because it seems to be th
 
 
 
+\pagebreak
+
 # Appendices
 
-## Appendix 1
 
-```{r, echo=FALSE, results='asis', message=FALSE}
-stargazer(p2_linear, p2_semilog, p2_log, column.labels = c("Linear", "Semi-Log", "Log-Log"), no.space = T, digits = 2, omit.stat=c("LL","f"), ci=FALSE, se=NULL)
+```{r, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+stargazer(p2_linear, p2_semilog, p2_log, column.labels = c("Linear", "Semi-Log", "Log-Log"), no.space = T, digits = 2, omit.stat=c("LL","f"), ci=FALSE, title = "Product 2 Regression Models", header = FALSE)
 ```
 
+
+```{r, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+stargazer(p3_linear, p3_semilog, p3_log, column.labels = c("Linear", "Semi-Log", "Log-Log"), no.space = T, digits = 2, omit.stat=c("LL","f"), ci=FALSE, title = "Product 3 Regression Models", header = FALSE)
+```
+
+
+```{r, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+stargazer(p4_linear, p4_semilog, p4_log, column.labels = c("Linear", "Semi-Log", "Log-Log"), no.space = T, digits = 2, omit.stat=c("LL","f"), ci=FALSE, title = "Product 4 Regression Models", header = FALSE)
+```
+
+
+```{r, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+stargazer(p6_linear, p6_semilog, p6_log, column.labels = c("Linear", "Semi-Log", "Log-Log"), no.space = T, digits = 2, omit.stat=c("LL","f"), ci=FALSE, title = "Product 6 Regression Models", header = FALSE)
+```
