@@ -1,7 +1,6 @@
 ---
 title: "Team Assignment 1"
 author: "Group 6"
-date: "February 28, 2017"
 output: 
   pdf_document
 fontsize: 11pt
@@ -14,6 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r library, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 library(stargazer)
 library(knitr)
+library(readxl)
+library(MASS)
+library(dplyr)
+library(tidyr)
 ```
 
 
@@ -86,9 +89,648 @@ The objective of this part is to separate the effect of promotion and observe wh
 
 After separating all possible factors that could affect the price and volume, we need to verify the effect of promotion and discount for each product. This can be obtained by calculating the baseline sales volume and the lift. We estimate the weeks where there were advertising campaign for all products, particularly the two products without GRP data, to get the best representation of when the lift occurred.
 
+```{r, include=FALSE, results='hide'}
+# import data
+product2 <- read_excel('Crackers.xlsx', sheet = 2, col_names = TRUE)
+product3 <- read_excel('Crackers.xlsx', sheet = 3, col_names = TRUE)
+product4 <- read_excel('Crackers.xlsx', sheet = 4, col_names = TRUE)
+product6 <- read_excel('Crackers.xlsx', sheet = 6, col_names = TRUE)
+
+# separate "Week" column
+product2 <- product2 %>% 
+  separate(Week, c("S", "week"), " ")
+product3 <- product3 %>% 
+  separate(Week, c("S", "week"), " ")
+product4 <- product4 %>% 
+  separate(Week, c("S", "week"), " ")
+product6 <- product6 %>% 
+  separate(Week, c("S", "week"), " ")
+
+
+# convert week into data format
+product2$week <- as.Date(product2$week, "%d/%m/%y")
+product3$week <- as.Date(product3$week, "%d/%m/%y")
+product4$week <- as.Date(product4$week, "%d/%m/%y")
+product6$week <- as.Date(product6$week, "%d/%m/%y")
+
+# add week number
+product2$week_Number <- 1:nrow(product2)
+product3$week_Number <- 1:nrow(product3)
+product4$week_Number <- 1:nrow(product4)
+product6$week_Number <- 1:nrow(product6)
+
+# calculate prices and log prices
+product2$price <- product2$Value_Euros / product2$Volume
+product3$price <- product3$Value_Euros / product3$Volume
+product4$price <- product4$Value_Euros / product4$Volume
+product6$price <- product6$Value_Euros / product6$Volume
+
+product2$log.p <- log(product2$price)
+product2$log.q <- log(product2$Volume)
+
+product3$log.p <- log(product3$price)
+product3$log.q <- log(product3$Volume)
+
+product4$log.p <- log(product4$price)
+product4$log.q <- log(product4$Volume)
+
+product6$log.p <- log(product6$price)
+product6$log.q <- log(product6$Volume)
+
+
+# add average price and threshold, first threshold is 1 sd below mean
+product2$average_Price <- mean(product2$price)
+product2$threshold1 <- mean(product2$price) - sd(product2$price)
+product2$promo <- ifelse(product2$price < product2$threshold1, 1, 0)
+
+product3$average_Price <- mean(product3$price)
+product3$threshold1 <- mean(product3$price) - sd(product3$price)
+product3$promo <- ifelse(product3$price < product3$threshold1, 1, 0)
+
+product4$average_Price <- mean(product4$price)
+product4$threshold1 <- mean(product4$price) - sd(product4$price)
+product4$promo <- ifelse(product4$price < product4$threshold1, 1, 0)
+
+product6$average_Price <- mean(product6$price)
+product6$threshold1 <- mean(product6$price) - sd(product6$price)
+product6$promo <- ifelse(product6$price < product6$threshold1, 1, 0)
+
+# # plot sales and price for each product
+# 
+# # product 2
+# par(mar=c(5,4,4,5)+.1)
+# plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,3))
+# #lines(product2$average_Price, lty=2, lwd=2)
+# lines(product2$threshold1, lty=2, lwd=2)
+# lines(product2$promo)   # c is the promotion dummy from the other RMD
+# par(new=TRUE)
+# plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
+# axis(4)
+# mtext("Volume",side=4,line=3)
+# legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+# 
+# # product 3
+# par(mar=c(5,4,4,5)+.1)
+# plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,5.5))
+# lines(product3$threshold1, lty=2, lwd=2)
+# lines(product3$promo)
+# par(new=TRUE)
+# plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
+# axis(4)
+# mtext("Volume",side=4,line=3)
+# legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+# 
+# # product 4
+# par(mar=c(5,4,4,5)+.1)
+# plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,7))
+# lines(product4$threshold1, lty=2, lwd=2)
+# lines(product4$promo)
+# par(new=TRUE)
+# plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
+# axis(4)
+# mtext("Volume",side=4,line=3)
+# legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+# 
+# # product 6
+# par(mar=c(5,4,4,5)+.1)
+# plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,6))
+# lines(product6$threshold1, lty=2, lwd=2)
+# lines(product6$promo)
+# par(new=TRUE)
+# plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
+# axis(4)
+# mtext("Volume",side=4,line=3)
+# legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+
+
+### ratio of sd to mean
+# sd(product2$price)/mean(product2$price)
+# 3.5% seems a bit low for a promotion. think 2 for 1...
+
+# number of promotions during two year period, using 1 sd method
+# sum(product2$promo)/ nrow(product2)
+# 15%, seems way too low
+
+# average size of promotion ~24%
+# http://www.mosaicmarketing.co.uk/single-post/2016/11/30/FMCG-brands-cut-price-promotions---a-bit
+
+# possible method to identify the promotions periods:
+# find price promotions with threshold method (need to find a way to define base price)
+# then look at magnitude of sales and identify where sales have a similar magnitude to the 
+# price promo and deduce that those are other types of promo (feat or aisle)
+
+# attempt at adding the promotions manually (feature and aisle which is not visible in price)
+# also set promo to one when GRP is available
+
+# no GRP
+product2[1:6, "promo"] <- 1
+product2[11:15, "promo"] <- 1
+product2[18:21, "promo"] <- 1
+product2[24:26, "promo"] <- 1
+product2[29:30, "promo"] <- 1
+product2[63:65, "promo"] <- 1
+product2[69:70, "promo"] <- 1
+product2[77:85, "promo"] <- 1
+
+product3$ad <- ifelse(product3$GRP != 0, 1, 0)
+product3[11:15, "promo"] <- 1
+product3[18:22, "promo"] <- 1
+product3[25:32, "promo"] <- 1
+product3[48:55, "promo"] <- 1
+product3[80:89, "promo"] <- 1
+product3[99:105, "promo"] <- 1
+
+product4$ad <- ifelse(product4$GRP != 0, 1, 0)
+product4[42:54, "promo"] <- 1
+product4[64, "promo"] <- 1
+product4[79:81, "promo"] <- 1
+product4[98:102, "promo"] <- 1
+
+# no GRP
+product6$ad <- ifelse(product6$GRP != 0, 1, 0)
+product6[1:4, "promo"] <- 1
+product6[11:18, "promo"] <- 1
+product6[24:26, "promo"] <- 1
+product6[30:31, "promo"] <- 1
+product6[39, "promo"] <- 1
+product6[46:52, "promo"] <- 1
+product6[64:66, "promo"] <- 1
+product6[76:79, "promo"] <- 1
+product6[99, "promo"] <- 1
+product6[104:105, "promo"] <- 1
+
+# view new graphs with added promotions periods
+
+# # product 2
+# par(mar=c(5,4,4,5)+.1)
+# plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,max(product2$price)), lwd = 1.5,
+#      main = "Product 2 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(1,11,18,24,29,34,46,49,58,63,69,77,103), 
+#      ybottom = -1, xright = c(6,15,21, 26,30,35,47,52,59,65,70,85,105), 
+#      ytop = 5, col = "lightgrey", border = NA, density = 100)
+# lines(product2$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5, cex.axis=0.6)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume", side=4,line=3,cex.lab=0.6, cex = 0.6)
+# legend("bottomright",col=c("blue","red", "black"), 
+#        lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
+# 
+# # product 3
+# par(mar=c(5,4,4,5)+.1)
+# plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,max(product3$price)), lwd = 1.5,
+#      main = "Product 3 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(0.5, 11,18,25,48,70,80,96), 
+#      ybottom = -1, xright = c(1.5, 15,22,32,55,71,89,105), 
+#      ytop = 7, col = "lightgrey", border = NA, density = 100)
+# lines(product3$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume",side=4,line=3, cex = 0.6)
+# legend("bottomright",col=c("blue","red", "black"), 
+#        lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
+# 
+# # product 4
+# par(mar=c(5,4,4,5)+.1)
+# plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,max(product4$price)), lwd = 1.5,
+#      main = "Product 4 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(4.5,11,19,24,29,42,63.5,78,88.5,97), 
+#      ybottom = -1, xright = c(5.5,15,21,26,30,54,64.5,81,89.5,103), 
+#      ytop = 8, col = "lightgrey", border = NA, density = 100)
+# lines(product4$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume",side=4,line=3, cex = 0.6)
+# legend("bottomright",col=c("blue","red", "black"), 
+#        lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
+# 
+# # product 6
+# par(mar=c(5,4,4,5)+.1)
+# plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,max(product6$price)), lwd = 1.5,
+#      main = "Product 6 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(1,11,24,30,38.5,46,64,76,90.5,98.5,104), 
+#      ybottom = -1, xright = c(4,18,26,31,39.5,52,66,79,91.5,99.5,105), 
+#      ytop = 7, col = "lightgrey", border = NA, density = 100)
+# lines(product6$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume",side=4,line=3, cex = 0.6)
+# legend("bottomright",col=c("blue","red", "black"), 
+#        lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
+
+
+# # proportion of promotions during two year period, after adding manually
+# sum(product2$promo)/ nrow(product2)
+# sum(product3$promo)/ nrow(product3)
+# sum(product4$promo)/ nrow(product4)
+# sum(product6$promo)/ nrow(product6)
+
+
+## calculate baseline using a regression
+
+# first eliminate all the promo weeks
+p2noPromo <- filter(product2, promo == 0)
+p3noPromo <- filter(product3, promo == 0)
+p4noPromo <- filter(product4, promo == 0)
+p6noPromo <- filter(product6, promo == 0)
+
+# drop all columns that won't be used for the regression
+# didn't include Value because its used to calculate price therefore seems wrong to include it
+p2reg <- select(p2noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+p3reg <- select(p3noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+p4reg <- select(p4noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+p6reg <- select(p6noPromo, 
+                Volume,
+                Average_Number_SKUs,
+                Average_Distribution,
+                week_Number,
+                price)
+
+
+# baseline regressions
+
+#### product 2
+null_2 <- lm(Volume ~ 1, data = p2reg)
+full_2 <- lm(Volume ~ ., data = p2reg)
+
+step(null_2, scope = list (upper = full_2), data = p2reg, direction = "both")
+
+# best
+best2 <- lm(Volume ~ price + Average_Distribution + Average_Number_SKUs + week_Number, data = p2reg)
+#summary(best2)
+
+#### product 3
+null_3 <- lm(Volume ~ 1, data = p3reg)
+full_3 <- lm(Volume ~ ., data = p3reg)
+
+step(null_3, scope = list (upper = full_3), data = p3reg, direction = "both")
+
+# best
+best3 <- lm(Volume ~ Average_Distribution + week_Number + Average_Number_SKUs + price, data = p3reg)
+#summary(best3)
+
+#### product 4
+null_4 <- lm(Volume ~ 1, data = p4reg)
+full_4 <- lm(Volume ~ ., data = p4reg)
+
+step(null_4, scope = list (upper = full_4), data = p4reg, direction = "both")
+
+# best
+best4 <- lm(Volume ~ Average_Distribution + price + Average_Number_SKUs +  week_Number, data = p4reg)
+#summary(best4)
+
+#### product 5
+null_6 <- lm(Volume ~ 1, data = p6reg)
+full_6 <- lm(Volume ~ ., data = p6reg)
+
+step(null_6, scope = list (upper = full_6), data = p6reg, direction = "both")
+
+# best
+best6 <- lm(formula = Volume ~ Average_Number_SKUs + price + Average_Distribution + 
+              week_Number, data = p6reg)
+#summary(best6)
+
+
+# calculate new baseline prices
+
+# product 2
+p2_int <- best2$coefficients[1]
+p2_price_coeff <- best2$coefficients[2]
+p2_avd_coeff <- best2$coefficients[3]
+p2_avsku_coeff <- best2$coefficients[4]
+p2_week_coeff <- best2$coefficients[5]
+
+product2$baseline <- p2_int + 
+  product2$price * p2_price_coeff +
+  product2$Average_Distribution * p2_avd_coeff + 
+  product2$Average_Number_SKUs * p2_avsku_coeff +
+  product2$week_Number * p2_week_coeff
+
+# product 3
+p3_int <- best3$coefficients[1]
+p3_price_coeff <- best3$coefficients[5]
+p3_avd_coeff <- best3$coefficients[2]
+p3_avsku_coeff <- best3$coefficients[4]
+p3_week_coeff <- best3$coefficients[3]
+
+product3$baseline <- p3_int + 
+  product3$price * p3_price_coeff +
+  product3$Average_Distribution * p3_avd_coeff + 
+  product3$Average_Number_SKUs * p3_avsku_coeff +
+  product3$week_Number * p3_week_coeff
+
+
+# product 4
+p4_int <- best4$coefficients[1]
+p4_price_coeff <- best4$coefficients[3]
+p4_avd_coeff <- best4$coefficients[2]
+p4_avsku_coeff <- best4$coefficients[4]
+p4_week_coeff <- best4$coefficients[5]
+
+product4$baseline <- p4_int + 
+  product4$price * p4_price_coeff +
+  product4$Average_Distribution * p4_avd_coeff + 
+  product4$Average_Number_SKUs * p4_avsku_coeff +
+  product4$week_Number * p4_week_coeff
+
+# product 6
+
+p6_int <- best6$coefficients[1]
+p6_price_coeff <- best6$coefficients[3]
+p6_avd_coeff <- best6$coefficients[4]
+p6_avsku_coeff <- best6$coefficients[2]
+p6_week_coeff <- best6$coefficients[5]
+
+product6$baseline <- p6_int + 
+  product6$price * p6_price_coeff +
+  product6$Average_Distribution * p6_avd_coeff + 
+  product6$week_Number * p6_week_coeff +
+  product6$Average_Number_SKUs * p6_avsku_coeff
+
+
+# calculate weekly and total lift in Excel
+# setwd("/Users/Steven/Desktop/Data")
+# 
+# write.csv(product2, file = "product2_newb.csv")
+# write.csv(product3, file = "product3_newb.csv")
+# write.csv(product4, file = "product4_newb.csv")
+# write.csv(product6, file = "product6_newb.csv")
+
+# reload data
+setwd("Data 5")
+
+prod2 <- read.csv("product2_newb4.csv")
+prod3 <- read.csv("product3_newb4.csv")
+prod4 <- read.csv("product4_newb4.csv")
+prod6 <- read.csv("product6_newb4.csv")
+
+# use code from "visual_promotion_detection" to plot lift
+
+# fill baseline column with regular volumes
+prod2$baseline <- ifelse(prod2$promo == 0, prod2$Volume, prod2$baseline)
+prod3$baseline <- ifelse(prod3$promo == 0, prod3$Volume, prod3$baseline)
+prod4$baseline <- ifelse(prod4$promo == 0, prod4$Volume, prod4$baseline)
+prod6$baseline <- ifelse(prod6$promo == 0, prod6$Volume, prod6$baseline)
+
+# add column for sum of lift and volume for the plot
+prod2$lift_plot <- ifelse(is.na(prod2$weekly_lift), prod2$Volume + 0,  prod2$Volume + prod2$weekly_lift)
+prod3$lift_plot <- ifelse(is.na(prod3$weekly_lift), prod3$Volume + 0,  prod3$Volume + prod3$weekly_lift)
+prod4$lift_plot <- ifelse(is.na(prod4$weekly_lift), prod4$Volume + 0,  prod4$Volume + prod4$weekly_lift)
+prod6$lift_plot <- ifelse(is.na(prod6$weekly_lift), prod6$Volume + 0,  prod6$Volume + prod6$weekly_lift)
+# # plot baseline and lift
+# 
+# # product 2
+# plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+#      main= "Product 2 Baseline Sales and Lift",
+#      xlab= "Week", ylab= "Volume")
+# lines(prod2$baseline, lwd=2)
+# legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
+# 
+# # product 3
+# plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod3$lift_plot)), col = 11, 
+#      main= "Product 3 Baseline Sales and Lift", 
+#      xlab= "Week", ylab= "Volume")
+# lines(prod3$baseline, lwd=2)
+# legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
+# 
+# 
+# # product 4
+# plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod4$lift_plot)), col = 11, 
+#      main= "Product 4 Baseline Sales and Lift", 
+#      xlab= "Week", ylab= "Volume")
+# lines(prod4$baseline, lwd=2)
+# legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
+# 
+# 
+# # product 5
+# plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod6$lift_plot)), col = 11, 
+#      main= "Product 6 Baseline Sales and Lift", 
+#      xlab= "Week", ylab= "Volume")
+# lines(prod6$baseline, lwd=2)
+# legend("topright",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
+
+
+
+
+# make 2x2 plot for price, volume, promotion
+
+# par(mfrow=c(2,2))
+# 
+# # product 2
+# par(mar=c(5,4,4,5)+.1)
+# plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,max(product2$price)), lwd = 1.5,
+#      main = "Product 2", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(1,11,18,24,29,34,46,49,58,63,69,77,103), 
+#      ybottom = -1, xright = c(6,15,21, 26,30,35,47,52,59,65,70,85,105), 
+#      ytop = 8, col = "lightgrey", border = NA, density = 100)
+# lines(product2$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5, cex.axis=0.6)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume", side=4,line=3,cex.lab=0.6, cex = 0.6)
+# 
+# 
+# # product 3
+# par(mar=c(5,4,4,5)+.1)
+# plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,max(product3$price)), lwd = 1.5,
+#      main = "Product 3", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(0.5, 11,18,25,48,70,80,96), 
+#      ybottom = -1, xright = c(1.5, 15,22,32,55,71,89,105), 
+#      ytop = 8, col = "lightgrey", border = NA, density = 100)
+# lines(product3$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume",side=4,line=3, cex = 0.6)
+# 
+# 
+# # product 4
+# par(mar=c(5,4,4,5)+.1)
+# plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,max(product4$price)), lwd = 1.5,
+#      main = "Product 4", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(4.5,11,19,24,29,42,63.5,78,88.5,97), 
+#      ybottom = -1, xright = c(5.5,15,21,26,30,54,64.5,81,89.5,103), 
+#      ytop = 8, col = "lightgrey", border = NA, density = 100)
+# lines(product4$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume",side=4,line=3, cex = 0.6)
+# 
+# 
+# # product 6
+# par(mar=c(5,4,4,5)+.1)
+# plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,max(product6$price)), lwd = 1.5,
+#      main = "Product 6", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+# rect(xleft = c(1,11,24,30,38.5,46,64,76,90.5,98.5,104), 
+#      ybottom = -1, xright = c(4,18,26,31,39.5,52,66,79,91.5,99.5,105), 
+#      ytop = 8, col = "lightgrey", border = NA, density = 100)
+# lines(product6$threshold1, lty=2, lwd=2)
+# par(new=TRUE)
+# plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+# axis(4, cex.axis=0.6, cex.lab=0.6)
+# mtext("Volume",side=4,line=3, cex = 0.6)
+
+
+# 2x2 plot of baseline and lift
+
+# par(mfrow=c(2,2))
+# 
+# # product 2
+# plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+#      main= "Product 2",
+#      xlab= "Week", ylab= "Volume")
+# lines(prod2$baseline, lwd=2)
+# 
+# 
+# # product 3
+# plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+#      main= "Product 3", 
+#      xlab= "Week", ylab= "Volume")
+# lines(prod3$baseline, lwd=2)
+# 
+# 
+# # product 4
+# plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+#      main= "Product 4", 
+#      xlab= "Week", ylab= "Volume")
+# lines(prod4$baseline, lwd=2)
+# 
+# 
+# # product 5
+# plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+#      main= "Product 6", 
+#      xlab= "Week", ylab= "Volume")
+# lines(prod6$baseline, lwd=2)
+
+
+
+
+```
+
+
+```{r echo = FALSE}
+par(mfrow=c(2,2))
+
+# product 2
+par(mar=c(5,4,4,5)+.1)
+plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,max(product2$price)), lwd = 1.5,
+     main = "Product 2", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(1,11,18,24,29,34,46,49,58,63,69,77,103), 
+     ybottom = -1, xright = c(6,15,21, 26,30,35,47,52,59,65,70,85,105), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product2$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5, cex.axis=0.6)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume", side=4,line=3,cex.lab=0.6, cex = 0.6)
+
+
+# product 3
+par(mar=c(5,4,4,5)+.1)
+plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,max(product3$price)), lwd = 1.5,
+     main = "Product 3", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(0.5, 11,18,25,48,70,80,96), 
+     ybottom = -1, xright = c(1.5, 15,22,32,55,71,89,105), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product3$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+
+
+# product 4
+par(mar=c(5,4,4,5)+.1)
+plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,max(product4$price)), lwd = 1.5,
+     main = "Product 4", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(4.5,11,19,24,29,42,63.5,78,88.5,97), 
+     ybottom = -1, xright = c(5.5,15,21,26,30,54,64.5,81,89.5,103), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product4$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+
+
+# product 6
+par(mar=c(5,4,4,5)+.1)
+plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,max(product6$price)), lwd = 1.5,
+     main = "Product 6", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(1,11,24,30,38.5,46,64,76,90.5,98.5,104), 
+     ybottom = -1, xright = c(4,18,26,31,39.5,52,66,79,91.5,99.5,105), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product6$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+
+```
+
+
+
 # 4. Baseline and Lift Calculation
 
-**{Sally's part}**
+Volume baseline and the lift in sales are calculated for each of the product. For each product, filter the data to have only non promotional periods containing volume of sales and all the relevant factors affecting it (week number, average number of SKUs, average distribution, and price of product).
+
+The four relevant factors affecting volume of sales are being regressed to the volume of sales by a linear model. However, only significant factors  need to be included in the model hence automatic model selection are performed to select best linear model. Lastly, using the best model selected, volume baseline is derived by putting the values of independent variables into the model.
+
+Besides volume baseline, for promotional periods there are usually lift in sales. Lift in the volume of sales is basically indicates how much the volume of sales increased from its baseline as an effect of promotions. Hence lift is calculated by subtracting actual volume with volume baseline.
+
+```{r, echo=FALSE}
+# 2x2 plot of baseline and lift
+
+par(mfrow=c(2,2))
+
+# product 2
+plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
+     main= "Product 2",
+     xlab= "Week", ylab= "Volume")
+lines(prod2$baseline, lwd=2)
+
+# # product 3
+plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
+     main= "Product 3",
+     xlab= "Week", ylab= "Volume")
+lines(prod3$baseline, lwd=2)
+ 
+# # product 4
+plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
+     main= "Product 4",
+     xlab= "Week", ylab= "Volume")
+lines(prod4$baseline, lwd=2)
+
+# # product 5
+plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
+     main= "Product 6",
+     xlab= "Week", ylab= "Volume")
+lines(prod6$baseline, lwd=2)
+
+```
+
 
 
 # 5. Regression Model
@@ -364,9 +1006,6 @@ elasticity.matrix <- matrix(c(elasticity.22, elasticity.23, elasticity.24, elast
                               elasticity.62, elasticity.63, elasticity.64, elasticity.66),
                             nrow = 4, ncol = 4, byrow = TRUE)
 rownames(elasticity.matrix) <- c('Product 2','Product 3','Product 4','Product 6')
-
-kable(elasticity.matrix, col.names = c('Product 2','Product 3','Product 4','Product 6'), row.names = T, digits = 3, caption = "Elasticity matrix of Crackers brands")
-
 ```
 
 ```{r cv table, echo=FALSE, results='asis'}
@@ -386,19 +1025,118 @@ vulnerability = c(vulnerability.2, vulnerability.3, vulnerability.4, vulnerabili
 clout = c(clout.2, clout.3, clout.4, clout.6)
 avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
 df <- data.frame(product, vulnerability, clout, avg_volume)
-
-kable(df[,-4], col.names = c("Product", "Vulnerability", "Clout"), caption = "Clout and Vulnerability")
 ```
 
 The price elasticity of each product seems suitable for FMCG products. Their demand are elastic as expected from the market where there are many alternatives. However, the market has different products that appeals several customer segments. Usign the clout and vulnerability table, we could locate the position of each brand within the market.
 
 ```{r cloutvuln plot, echo=FALSE}
+
+par(mfrow=c(1,2))
+
+product = c(2,3,4,6)
+vulnerability = c(vulnerability.2, vulnerability.3, vulnerability.4, vulnerability.6)
+clout = c(clout.2, clout.3, clout.4, clout.6)
+avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
+df <- data.frame(product, vulnerability, clout, avg_volume)
+
 radius <- sqrt(df$avg_volume / pi)
 symbols(df$vulnerability, df$clout, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market")
 text(df$vulnerability, df$clout, df$product, cex=1.5)
+
+# running regression using all predictors to see how it compares
+
+p2_linear_all <- lm(Volume_2 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+p3_linear_all <- lm(Volume_3 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+p4_linear_all <- lm(Volume_4 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+p6_linear_all <- lm(Volume_6 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+
+# elasticity and cross elasticity calculations
+
+elasticity.22.all <- summary(p2_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_2)
+elasticity.23.all <- summary(p2_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_2)
+elasticity.24.all <- summary(p2_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_2)
+elasticity.26.all <- summary(p2_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_2)
+elasticity.32.all <- summary(p3_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_3)
+elasticity.33.all <- summary(p3_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_3)
+elasticity.34.all <- summary(p3_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_3)
+elasticity.36.all <- summary(p3_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_3)
+elasticity.42.all <- summary(p4_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_3)
+elasticity.43.all <- summary(p4_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_4)
+elasticity.44.all <- summary(p4_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_4)
+elasticity.46.all <- summary(p4_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_4)
+elasticity.62.all <- summary(p6_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_6)
+elasticity.63.all <- summary(p6_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_6)
+elasticity.64.all <- summary(p6_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_6)
+elasticity.66.all <- summary(p6_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_6)
+
+
+
+elasticity.matrix.all <- matrix(c(elasticity.22.all, elasticity.23.all, elasticity.24.all, elasticity.26.all,
+                                  elasticity.32.all, elasticity.33.all, elasticity.34.all, elasticity.36.all,
+                                  elasticity.42.all, elasticity.43.all, elasticity.44.all, elasticity.46.all,
+                                  elasticity.62.all, elasticity.63.all, elasticity.64.all, elasticity.66.all),
+                                nrow = 4, ncol = 4, byrow = TRUE)
+
+
+colnames(elasticity.matrix.all) <- c('Product 2','Product 3','Product 4','Product 6')
+rownames(elasticity.matrix.all) <- c('Product 2','Product 3','Product 4','Product 6')
+
+# clout vulnerability table and plot
+
+clout.2.all <- elasticity.32.all + elasticity.42.all + elasticity.62.all
+clout.3.all <- elasticity.23.all + elasticity.43.all + elasticity.63.all
+clout.4.all <- elasticity.24.all + elasticity.34.all + elasticity.64.all
+clout.6.all <- elasticity.26.all + elasticity.36.all + elasticity.46.all
+
+vulnerability.2.all <- elasticity.23.all + elasticity.24.all + elasticity.26.all
+vulnerability.3.all <- elasticity.32.all + elasticity.34.all + elasticity.36.all
+vulnerability.4.all <- elasticity.42.all + elasticity.43.all + elasticity.46.all
+vulnerability.6.all <- elasticity.26.all + elasticity.62.all + elasticity.64.all
+
+product = c(2,3,4,6)
+
+vulnerability.all = c(vulnerability.2.all, vulnerability.3.all, vulnerability.4.all, vulnerability.6.all)
+clout.all = c(clout.2.all, clout.3.all, clout.4.all, clout.6.all)
+
+avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
+df <- data.frame(product, vulnerability.all, clout.all, avg_volume)
+
+radius <- sqrt(df$avg_volume / pi)
+symbols(df$vulnerability.all, df$clout.all, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market with all Variables")
+text(df$vulnerability.all, df$clout.all, df$product, cex=1.5)
+
+kable(list(elasticity.matrix, elasticity.matrix.all), col.names = c('Product 2','Product 3','Product 4','Product 6'), digits = 3)
 ```
 
+
+
 As expected, `Product 2` has the highest vulnerability because it seems to be the cheapest brand in the market and it has no power to affect other brands if it lower the price. However, if the other products lower their prices, customers are more likely to switch to different brands with better quality. `Product 3` seems to be the standard brand-name cracker that everyone loves. Price change does not affect other products although it is quite vulnerable to `Product 6` change of price as they seem to appeal to the same segment. However, `Product 6` price changes have the biggest impact on `Product 2`. Although their average price difference is wide, `Product 6` seems to be the most probable 
+
+When examining the elasticity matrices, we notice a number of trends. In the elasticity matrix calculated with all potential variables, even those that are insignificant at a 5% significance level, we notice that products 2, 3, and 6 have similar elasticities. With a price elasticity of around -2.2, these crackers are quite elastic to demand. Product 4 has a much higher price elasticity at `r elasticity.44.all`. As a more premium good, its sales are more price sensitive as consumers may be inclined to switch to it when it does not have as much of a price premium. Conversely, when product 4 increases its price, customers do not buy it because they cannot justify the even higher price premium.
+
+With regards to the cross elasticities, many of the products have not effect on each other as their prices change. While there exist a few negative cross elasticities, most of them are essentially 0 so we can treat them as such. Notable cross elasticities include product 6's effect on product 3. As two similarly priced products, when the niche product 6 lowers in price, product 3's sales suffer. Customers may be incentivized to try the niche product at a lower price point, compared to the simlarly priced standard crackers. A similar effect occurs with product 3's effect on product 2. When product 3's price drops, the low price option of product 2 has less sales. Customers are willing to upgrade to a higher priced product when the price difference is not as much. Product 6 has a very strong effect on the volume of product 2 as well. This is the same effect as with product 3, but not the additional niche factor of product 6 comes into play. Customers are quite likely to try the niche crackers when they are not much more expensive than the standard cheap crackers. Finally, it is interesting to note that product 4's effect on product 2 is actually negative, with a cross elasticity of `r elasticity.24.all`. This means that as product 4, the expensive crackers, and product 2, the cheap crackers, can be seen as somewhat complementary goods. As product 4's price decreases, product 2's sales volume actually increases. This could potentially make sense because people see the expensive cracker on sale, but upon further examination end up purchasing the cheap creacker. The negative cross price elasticity could also arise due to inconsistencies when aggregating the data to a weekly level. The aggregation would mask sales and promotions that could only be seen on a more detailed level, such as with daily store level sales data.
+
+In the elasticity matrix calculated when we discard insignificant predictors, the general picture remains the same. Product 2, the lowest priced product in our analysis, has the lowest elasticity at `r elasticity.22`. Product 4, the highest priced, has the highest elasticity at `r elasticity.44`. The only non-zero cross elasticities are product 6's effect on product 3, where people switch to the niche product when it becomes cheaper than the standard offering. The other non-zero cross elasticity is product 4's effect on product 2. Since it is negative, when product 4 decreases in price people are more inclined to buy crackers as a whole. When such customers actually decide which cracker to buy, they end up choosing the cheapest option. Therefore, sales of product 2 are boosted.
+
+When analyzing the clout and vulnerability matrices, we examine both the scenario where we include insignificant predictors and the one where only significant predictors are included. When we include all predictors, we see that product 2 has low clout and high vulnerability. This makes sense because it is a low priced good that people only buy when they cannot afford the more expensive options. This product competes solely on price. Product 3 has a higher clout and lower vulnerability. As the standard offering, it can somewhat affect the sales of other products but is also vulnerable to their price changes. Product 4, the high priced offering has a very low vulnerability and also low clout. Because no crackers operate in the premium market is is not vulnerable to poaching customers. Premium customers will only buy product 4. Conversely, because it is a premium product it cannot change the sales of the other products because only premium customers buy product 4. Finally, product 6 has a high clout and high vulnerability. As a niche offering, its price changes can alter its sales volumes significantly. These changes will directly affect the lower priced offerings in the market. However, it is also quite vulnerable because people will only purchase a niche cracker when it has a notable price advantage relative to the standard offerings.
+
+The clout / vulnerability matrix looks quite similar when we only include significant predictors in the analysis. All products have low clout in the market except for the niche product 6. This is the only product that affects others' sales volumes. People will switch to the niche offering when it has a low price premium compared to standard products. Additionally, the lower priced products are more vulnerable to others' price changes. Since they compete on price rather than differentiation, when the competition changes its pricing structure, low priced goods suffer.
 
 
 # 7. Conclusion
