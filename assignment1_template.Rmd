@@ -3,8 +3,7 @@ title: "Team Assignment 1"
 author: "Group 6"
 date: "February 28, 2017"
 output: 
-  pdf_document: 
-    toc: yes
+  pdf_document
 fontsize: 11pt
 ---
 
@@ -56,6 +55,11 @@ rmse <- function(error)
 
 This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category, i.e. `Product 2`, `Product 3`, `Product 4`, and `Product 6`, are selected to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
 
+# 2. Preliminary Analysis
+
+The table below shows the average figures for each Crackers brand. By looking at those information, we assume that `Product 2` is the price leader as it has the lowest price and highest average sales volume. `Product 3` has slightly lower weekly sales despite it higher price. The product might be from more middle segment or has a bigger package and net weight. `Product 2` and `Product 6` could be in the same segment and they are direct competitors because they have similar prices. `Product 4` could be the more premium product amongst the four brands. Those are the initial hypothesis that could be extracted by above information. The analysis that follows this section will capture more comprehensive information from the data.
+
+
 ```{r average, echo=FALSE, results='asis'}
 price.2.mean <- mean(products$price_2)
 price.3.mean <- mean(products$price_3)
@@ -76,23 +80,18 @@ kable(summary_matrix, col.names = c("Average Price", "Average Volume"), digits =
 ```
 
 
-The table above shows the average figures for each Crackers brand. By looking at those information, we assume that `Product 2` is the price leader as it has the lowest price and highest average sales volume. `Product 3` has slightly lower weekly sales despite it higher price. The product might be from more middle segment or has a bigger package and net weight. `Product 2` and `Product 6` could be in the same segment and they are direct competitors because they have similar prices. `Product 4` could be the more premium product amongst the four brands. Those are the initial hypothesis that could be extracted by above information. The analysis that follows this section will capture more comprehensive information from the data.
+# 3. Promotion Detection
 
-# 2. Methodology
-
-Our methodology will be divided into 2 parts, data transformation and regression model. Due to limited information on the dataset, we will need to perform several transformation to the data. The following part will explain the model used in the report. Linear regression models are predominantly chosen to make an inference about the relationship between price and quantity.
-
-## 2.1. Data Transformation
-
-The objective of this part is to provide the models with the most appropriate features and to separate the effect of different demand factors of each product. Prices of each brand are derived from dividing the sales value of each week by the sales volume. Since the relationship between volume and price is not known, the two variables should be converted to their log forms to adjust for models with different functional forms.
-
-The next step is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise. Then, the effect of GRP could also be transformed into binary variable to simplify the impact of promotion and discount on the sales volumes.
+The objective of this part is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise. Then, the effect of GRP could also be transformed into binary variable to simplify the impact of promotion and discount on the sales volumes.
 
 After separating all possible factors that could affect the price and volume, we need to verify the effect of promotion and discount for each product. This can be obtained by calculating the baseline sales volume and the lift. We estimate the weeks where there were advertising campaign for all products, particularly the two products without GRP data, to get the best representation of when the lift occurred.
 
-**{should explain the way we calculate baseline price & lift here?}**
+# 4. Baseline and Lift Calculation
 
-## 2.2. Regression Model
+**{Sally's part}**
+
+
+# 5. Regression Model
 
 Firstly, To get the elasticity of each product and its cross elasticity against other products, we computed three models with different functional forms (Linear, Semi-Log, and Log-Log). `Volume` of the evaluated brand is the dependent variable and its `price` and promotions (`ad` and `promo`) are our first three independent variables. Then, the prices of other products and their promotion campagins are added to the model to capture the cross-elasticity of the selected product. The process is identical for different functional forms. In general, the Full Model for `Product 2` looks like the following, but the Reduced Model are different for each product depending on the significant variables.
 
@@ -102,7 +101,7 @@ Firstly, To get the elasticity of each product and its cross elasticity against 
 
 Secondly, stepwise selections are needed to omit non-significant variables from the model to get better estimation. Then, the three different functional models of each brand are compared against each other by computing their root-mean-square error (RMSE) or the difference between predicted values of `Volume` and the observed values. The model with the lowest RMSE is selected to calculate the elasticity and cross-elasticity of the product. Subsequently, the elasticity matrix can be obtained.
 
-# 3. Results and Discussion
+# 6. Results and Discussion
 
 ```{r model, echo=FALSE, results='hide', tidy=TRUE}
 #product 2 - linear
@@ -334,7 +333,7 @@ e_{ii} = a_1 \times \bar{P}_i \\
 e_{ij} = b_1 \times \bar{P}_j
 \end{eqnarray*}
 
-The best model for `Product 4` is the Log-Log model. Hence, the elasticities are the coefficient of the corresponding price variables. Then, the elasticity matrix and the clout and vulnerability of each product are shown below.
+The best model for `Product 4` is the Log-Log model (see **Appendix 3**). Hence, the elasticities are the coefficient of the corresponding price variables. Then, the elasticity matrix and the clout and vulnerability of each product are shown below.
 
 ```{r elasticity, echo=FALSE, results='asis'}
 # elasticity / cross elasticity matrix
@@ -399,12 +398,10 @@ symbols(df$vulnerability, df$clout, circles = radius, inches = 0.35, fg="white",
 text(df$vulnerability, df$clout, df$product, cex=1.5)
 ```
 
-As expected, `Product 2` has the highest vulnerability because it seems to be the cheapest brand in the market and it has no power to affect other brands if it lower the price. However, if the other products lower their price, customers are more likely to switch to different brands with better quality. 
+As expected, `Product 2` has the highest vulnerability because it seems to be the cheapest brand in the market and it has no power to affect other brands if it lower the price. However, if the other products lower their prices, customers are more likely to switch to different brands with better quality. `Product 3` seems to be the standard brand-name cracker that everyone loves. Price change does not affect other products although it is quite vulnerable to `Product 6` change of price as they seem to appeal to the same segment. However, `Product 6` price changes have the biggest impact on `Product 2`. Although their average price difference is wide, `Product 6` seems to be the most probable 
 
 
-
-
-# 4. Conclusion
+# 7. Conclusion
 
 
 
