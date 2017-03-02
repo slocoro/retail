@@ -24,14 +24,23 @@ Our methodology will be divided into 2 parts, data transformation and regression
 
 The objective of this part is to provide the models with the most appropriate features and to separate the effect of different demand factors of each product. Prices of each brand are derived from dividing the sales value of each week by the sales volume. Since the relationship between volume and price is not known, the two variables should be converted to their log forms to adjust for models with different functional forms.
 
-The next step is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` and `Product 5` data does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise.  
+The next step is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` and `Product 5` data does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise. Then, the effect of GRP could also be transformed into binary variable to simplify the impact of promotion and discount on the sales volumes.
+
+After separating all possible factors that could affect the price and volume, we need to verify the effect of promotion and discount for each product. This can be obtained by calculating the baseline sales volume and the lift. We estimate the weeks where there were advertising campaign for all products, particularly the two products without GRP data, to get the best representation of when the lift occurred.
+
+**{should explain the way we calculate baseline price & lift here?}**
 
 ## 2.2. Regression Model
 
+Firstly, To get the elasticity of each product and its cross elasticity against other products, we computed three models with different functional forms (Linear, Semi-Log, and Log-Log). `Volume` of the evaluated brand is the dependent variable and its `Price` and promotions (`ad` and `promo`) are our first three independent variables. Then, the prices of other products and their promotion campagins are added to the model to capture the cross-elasticity of the selected product. The process is identical for different functional forms. In general, the Full Model for `Product 2` looks like the following, but the Reduced Model are different for each product depending on the significant variables.
 
+\begin{eqnarray*}
+\widehat{volume_2} = & price_2 + ad_2 + promo_2 + \sum_{i=3}^5 (price_i + ad_i + promo_i)
+\end{eqnarray*}
+
+Secondly, stepwise selections are needed to omit non-significant variables from the model to get better estimation. Then, the three different functional models of each brand are compared against each other by computing their root-mean-square error (RMSE) or the difference between predicted values of `Volume` and the observed values. The model with the lowest RMSE is selected to calculate the elasticity and cross-elasticity of the product. Subsequently, the elasticity matrix can be obtained.
 
 # 3. Results and Discussion
-
 
 
 
