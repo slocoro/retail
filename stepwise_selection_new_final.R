@@ -4,6 +4,7 @@ library(knitr)
 # maybe we need to adjust what we see as significant
 # http://marketingland.com/statistical-significance-business-114834
 # this one uses volume (not baseline)
+# uses product 6 instead of product 5
 
 setwd("/Users/Steven/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail group/Data 5")
 
