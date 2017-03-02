@@ -14,12 +14,69 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r library, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 library(stargazer)
+library(knitr)
+```
+
+
+```{r load data, echo=FALSE, results='hide'}
+setwd("Data 5")
+
+prod2 <- read.csv('product2_newb4.csv')
+prod3 <- read.csv('product3_newb4.csv')
+prod4 <- read.csv('product4_newb4.csv')
+prod6 <- read.csv('product6_newb4.csv')
+
+#Add product identifier for column names
+colnames(prod2) <- c("X_2","S_2","week_2","Volume_2","Value_Euros_2","Average_Number_SKUs_2","Average_Distribution_2","Volume_Baseline_2","Value_Baseline_2","week_Number_2","price_2","log.p_2", "log.q_2", "average_Price_2","threshold1_2","promo_2", "baseline_2")
+colnames(prod3) <- c("X_3","S_3","week_3","Volume_3","Value_Euros_3","Average_Number_SKUs_3","Average_Distribution_3","Volume_Baseline_3","Value_Baseline_3", "GRP_3","week_Number_3","price_3","log.p_3","log.q_3" , "average_Price_3","threshold1_3","promo_3", "ad_3", "baseline_3")
+colnames(prod4) <- c("X_4","S_4","week_4","Volume_4","Value_Euros_4","Average_Number_SKUs_4","Average_Distribution_4","Volume_Baseline_4","Value_Baseline_4", "GRP_4","week_Number_4","price_4","log.p_4", "log.q_4", "average_Price_4","threshold1_4","promo_4", "ad_4", "baseline_4")
+colnames(prod6) <- c("X_6","S_6","week_6","Volume_6","Value_Euros_6","Average_Number_SKUs_6","Average_Distribution_6","Volume_Baseline_6","Value_Baseline_6","GRP_6", "week_Number_6","price_6","log.p_6", "log.q_6", "average_Price_6","threshold1_6","promo_6", "ad_6", "baseline_6")
+
+
+#Create single dataframe with all products
+products <- as.data.frame(cbind(prod2, prod3, prod4, prod6))
+
+# add log of baseline
+products$log_baseline2 <- ifelse(products$baseline_2 > 0, log(products$baseline_2), 0)
+products$log_baseline3 <- ifelse(products$baseline_3 > 0, log(products$baseline_3), 0)
+products$log_baseline4 <- ifelse(products$baseline_4 > 0, log(products$baseline_4), 0)
+products$log_baseline6 <- ifelse(products$baseline_6 > 0, log(products$baseline_6), 0)
+
+#MODEL SELECTION - STEPWISE 
+
+#create function for RMSE
+rmse <- function(error)
+{
+  sqrt(mean(error^2))
+}
 ```
 
 
 # 1. Introduction
 
-This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category, i.e. `Product 2`, `Product 3`, `Product 4`, and `Product 5`, are selected to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
+This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category, i.e. `Product 2`, `Product 3`, `Product 4`, and `Product 6`, are selected to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
+
+```{r average, echo=FALSE, results='asis'}
+price.2.mean <- mean(products$price_2)
+price.3.mean <- mean(products$price_3)
+price.4.mean <- mean(products$price_4)
+price.6.mean <- mean(products$price_6)
+volume.2.mean <- mean(products$Volume_2)
+volume.3.mean <- mean(products$Volume_3)
+volume.4.mean <- mean(products$Volume_4)
+volume.6.mean <- mean(products$Volume_6)
+
+summary_matrix <- matrix(c(price.2.mean, price.3.mean, price.4.mean,price.6.mean,
+                          volume.2.mean, volume.3.mean, volume.4.mean, volume.6.mean),
+                        nrow = 4, ncol = 2)
+
+row.names(summary_matrix) <- c("Product 2","Product 3","Product 4","Product 6")
+
+kable(summary_matrix, col.names = c("Average Price", "Average Volume"), digits = 3, caption = "Average Price and Volume")
+```
+
+
+The table above shows the average figures for each Crackers brand. By looking at those information, we assume that `Product 2` is the price leader as it has the lowest price and highest average sales volume. `Product 3` has slightly lower weekly sales despite it higher price. The product might be from more middle segment or has a bigger package and net weight. `Product 2` and `Product 6` could be in the same segment and they are direct competitors because they have similar prices. `Product 4` could be the more premium product amongst the four brands. Those are the initial hypothesis that could be extracted by above information. The analysis that follows this section will capture more comprehensive information from the data.
 
 # 2. Methodology
 
@@ -29,7 +86,7 @@ Our methodology will be divided into 2 parts, data transformation and regression
 
 The objective of this part is to provide the models with the most appropriate features and to separate the effect of different demand factors of each product. Prices of each brand are derived from dividing the sales value of each week by the sales volume. Since the relationship between volume and price is not known, the two variables should be converted to their log forms to adjust for models with different functional forms.
 
-The next step is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` and `Product 5` data does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise. Then, the effect of GRP could also be transformed into binary variable to simplify the impact of promotion and discount on the sales volumes.
+The next step is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise. Then, the effect of GRP could also be transformed into binary variable to simplify the impact of promotion and discount on the sales volumes.
 
 After separating all possible factors that could affect the price and volume, we need to verify the effect of promotion and discount for each product. This can be obtained by calculating the baseline sales volume and the lift. We estimate the weeks where there were advertising campaign for all products, particularly the two products without GRP data, to get the best representation of when the lift occurred.
 
@@ -40,38 +97,283 @@ After separating all possible factors that could affect the price and volume, we
 Firstly, To get the elasticity of each product and its cross elasticity against other products, we computed three models with different functional forms (Linear, Semi-Log, and Log-Log). `Volume` of the evaluated brand is the dependent variable and its `price` and promotions (`ad` and `promo`) are our first three independent variables. Then, the prices of other products and their promotion campagins are added to the model to capture the cross-elasticity of the selected product. The process is identical for different functional forms. In general, the Full Model for `Product 2` looks like the following, but the Reduced Model are different for each product depending on the significant variables.
 
 \begin{eqnarray*}
-\widehat{volume_2} = & a_0 + a_1 price_2 + a_2 ad_2 + a_3 promo_2 + \sum_{i=3}^5 (b_1 price_i + b_2 ad_i + b_3 promo_i)
+\widehat{volume_2} = & a_0 + a_1 price_2 + a_2 ad_2 + a_3 promo_2 + \sum_{i=3}^6 (b_1 price_i + b_2 ad_i + b_3 promo_i)
 \end{eqnarray*}
 
 Secondly, stepwise selections are needed to omit non-significant variables from the model to get better estimation. Then, the three different functional models of each brand are compared against each other by computing their root-mean-square error (RMSE) or the difference between predicted values of `Volume` and the observed values. The model with the lowest RMSE is selected to calculate the elasticity and cross-elasticity of the product. Subsequently, the elasticity matrix can be obtained.
 
 # 3. Results and Discussion
 
-After running all model with different functional forms, Linear models have the lowest RMSE for all products. Thus, they will be selected to calculate the price elasticity and cross-elasticity of each product. The formula used to obtain this would be the following.
+```{r model, echo=FALSE, results='hide', tidy=TRUE}
+#product 2 - linear
+null_2_linear <- lm(Volume_2 ~ 1, data = products)
+full_2_linear <- lm(Volume_2 ~ price_2 + price_3 + price_4 + price_6 +
+                      promo_2 + promo_3 + promo_4 + promo_6 +
+                      ad_3 + ad_4 + ad_6 +
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                      week_Number_2, data = products)
+
+step(null_2_linear, scope = list (upper = full_2_linear), data = products, direction = "both")
+
+p2_linear <- lm(formula = Volume_2 ~ promo_2 + price_2 + Average_Distribution_6 + 
+                  Average_Distribution_3 + price_6 + Average_Number_SKUs_2 + 
+                  promo_6 + Average_Number_SKUs_6 + price_4, data = products)
+
+#product 2 - semilog
+null_2_semilog <- lm(log.q_2 ~ 1, data = products)
+full_2_semilog <- lm(log.q_2 ~ price_2 + price_3 + price_4 + price_6 +
+                       promo_2 + promo_3 + promo_4 + promo_6 +
+                       ad_3 + ad_4 + ad_6 +
+                       Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                       Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                       week_Number_2, data = products)
+
+step(null_2_semilog, scope = list (upper = full_2_semilog), data = products, direction = "both")
+
+p2_semilog <- lm(formula = log.q_2 ~ promo_2 + Average_Distribution_3 + Average_Distribution_6 + 
+                   price_2 + price_6 + Average_Number_SKUs_2 + Average_Number_SKUs_6 + 
+                   promo_6 + price_4 + ad_3, data = products)
+
+#product 2 - log log
+null_2_log <- lm(log.q_2 ~ 1, data = products)
+full_2_log <- lm(log.q_2 ~ log.p_2 + log.p_3 + log.p_4 + log.p_6 +
+                   promo_2 + promo_3 + promo_4 + promo_6 +
+                   ad_3 + ad_4 + ad_6 +
+                   Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                   Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                   week_Number_2, data = products)
+
+step(null_2_log, scope = list (upper = full_2_log), data = products, direction = "both")
+
+p2_log <- lm(formula = log.q_2 ~ promo_2 + Average_Distribution_3 + Average_Distribution_6 + 
+               log.p_2 + Average_Number_SKUs_2 + log.p_6 + Average_Number_SKUs_6 + 
+               promo_6 + log.p_4 + ad_3, data = products)
+
+#product 2 - errors
+rmse(fitted(p2_linear) - products$Volume_2)
+rmse(exp(fitted(p2_semilog)) - products$Volume_2) 
+rmse(exp(fitted(p2_log)) - products$Volume_2) 
+
+#Linear model has lowest error so we will use that one
+
+#product 3 - linear
+null_3_linear <- lm(Volume_3 ~ 1, data = products)
+full_3_linear <- lm(Volume_3 ~ price_2 + price_3 + price_4 + price_6 +
+                      promo_2 + promo_3 + promo_4 + promo_6 +
+                      ad_3 + ad_4 + ad_6 +
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                      week_Number_2, data = products)
+
+step(null_3_linear, scope = list (upper = full_3_linear), data = products, direction = "both")
+
+p3_linear <- lm(formula = Volume_3 ~ Average_Distribution_3 + Average_Distribution_6 + 
+                  price_3 + Average_Number_SKUs_6 + promo_3 + Average_Number_SKUs_2 + 
+                  price_6 + Average_Number_SKUs_3 + week_Number_2 + ad_4 + 
+                  promo_2, data = products)
+
+#product 3 - semilog
+null_3_semilog <- lm(log.q_3 ~ 1, data = products)
+full_3_semilog <- lm(log.q_3 ~ price_2 + price_3 + price_4 + price_6 +
+                       promo_2 + promo_3 + promo_4 + promo_6 +
+                       ad_3 + ad_4 + ad_6 +
+                       Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                       Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                       week_Number_2, data = products)
+
+step(null_3_semilog, scope = list (upper = full_3_semilog), data = products, direction = "both")
+
+p3_semilog <- lm(formula = log.q_3 ~ Average_Distribution_3 + Average_Distribution_6 + 
+                   price_3 + Average_Number_SKUs_3 + week_Number_2 + promo_2 + 
+                   price_6 + Average_Number_SKUs_6 + promo_3 + Average_Number_SKUs_2 + 
+                   Average_Distribution_4, data = products)
+
+
+#product 3 - log log
+null_3_log <- lm(log.q_3 ~ 1, data = products)
+full_3_log <- lm(log.q_3 ~ log.p_2 + log.p_3 + log.p_4 + log.p_6 +
+                   promo_2 + promo_3 + promo_4 + promo_6 +
+                   ad_3 + ad_4 + ad_6 +
+                   Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                   Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                   week_Number_2, data = products)
+
+step(null_3_log, scope = list (upper = full_3_log), data = products, direction = "both")
+
+p3_log <- lm(formula = log.q_3 ~ Average_Distribution_3 + Average_Distribution_6 + 
+               log.p_3 + Average_Number_SKUs_3 + week_Number_2 + promo_2 + 
+               log.p_6 + Average_Number_SKUs_6 + promo_3 + Average_Number_SKUs_2 + 
+               Average_Distribution_4, data = products)
+
+#product 3 - errors
+rmse(fitted(p3_linear) - products$Volume_3)
+rmse(exp(fitted(p3_semilog)) - products$Volume_3)
+rmse(exp(fitted(p3_log)) - products$Volume_3)
+
+#linear model has lowest error so we will use it 
+
+#product 4 - linear
+null_4_linear <- lm(Volume_4 ~ 1, data = products)
+full_4_linear <- lm(Volume_4 ~ price_2 + price_3 + price_4 + price_6 +
+                      promo_2 + promo_3 + promo_4 + promo_6 +
+                      ad_3 + ad_4 + ad_6 +
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                      week_Number_2, data = products)
+
+step(null_4_linear, scope = list (upper = full_4_linear), data = products, direction = "both")
+
+p4_linear <- lm(formula = Volume_4 ~ Average_Distribution_4 + price_4 + promo_4 + 
+                   Average_Number_SKUs_4 + Average_Distribution_6 + ad_3 + Average_Number_SKUs_6 + 
+                   ad_4 + week_Number_2 + Average_Number_SKUs_2 + Average_Distribution_2 + 
+                   ad_6, data = products)
+
+#product 4 - semilog
+null_4_semilog <- lm(log.q_4 ~ 1, data = products)
+full_4_semilog <- lm(log.q_4 ~ price_2 + price_3 + price_4 + price_6 +
+                       promo_2 + promo_3 + promo_4 + promo_6 +
+                       ad_3 + ad_4 + ad_6 +
+                       Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                       Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                       week_Number_2, data = products)
+
+step(null_4_semilog, scope = list (upper = full_4_semilog), data = products, direction = "both")
+
+p4_semilog <- lm(formula = log.q_4 ~ Average_Distribution_4 + price_4 + Average_Number_SKUs_2 + 
+                   Average_Distribution_3 + Average_Number_SKUs_4 + Average_Distribution_6 + 
+                   Average_Number_SKUs_6 + ad_3 + Average_Distribution_2 + ad_6 + 
+                   promo_3, data = products)
+
+
+#product 4 - log log
+null_4_log <- lm(log.q_4 ~ 1, data = products)
+full_4_log <- lm(log.q_4 ~ log.p_2 + log.p_3 + log.p_4 + log.p_6 +
+                   promo_2 + promo_3 + promo_4 + promo_6 +
+                   ad_3 + ad_4 + ad_6 +
+                   Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                   Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                   week_Number_2, data = products)
+
+step(null_4_log, scope = list (upper = full_4_log), data = products, direction = "both")
+
+p4_log <- lm(formula = log.q_4 ~ Average_Distribution_4 + log.p_4 + Average_Number_SKUs_3 + 
+               Average_Distribution_3 + Average_Number_SKUs_2 + Average_Number_SKUs_4 + 
+               Average_Distribution_6 + Average_Number_SKUs_6 + ad_3 + Average_Distribution_2 + 
+               ad_6, data = products)
+
+#product 4 - errors
+rmse(fitted(p4_linear) - products$Volume_4)
+rmse(exp(fitted(p4_semilog)) - products$Volume_4)
+rmse(exp(fitted(p4_log)) - products$Volume_4)
+
+#linear model has lowest error so we will use it
+
+#product 6 - linear
+null_6_linear <- lm(Volume_6 ~ 1, data = products)
+full_6_linear <- lm(Volume_6 ~ price_2 + price_3 + price_4 + price_6 +
+                      promo_2 + promo_3 + promo_4 + promo_6 +
+                      ad_3 + ad_4 + ad_6 +
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                      week_Number_2, data = products)
+
+step(null_6_linear, scope = list (upper = full_6_linear), data = products, direction = "both")
+
+p6_linear <- lm(formula = Volume_6 ~ promo_6 + Average_Number_SKUs_6 + price_6 + 
+                  ad_3 + Average_Distribution_6 + Average_Distribution_4 + 
+                  ad_6 + ad_4 + Average_Number_SKUs_4, data = products)
+
+#product 6 - semilog
+null_6_semilog <- lm(log.q_6 ~ 1, data = products)
+full_6_semilog <- lm(log.q_6 ~ price_2 + price_3 + price_4 + price_6 +
+                       promo_2 + promo_3 + promo_4 + promo_6 +
+                       ad_3 + ad_4 + ad_6 +
+                       Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                       Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                       week_Number_2, data = products)
+
+step(null_6_semilog, scope = list (upper = full_6_semilog), data = products, direction = "both")
+
+p6_semilog <- lm(formula = log.q_6 ~ promo_6 + Average_Number_SKUs_6 + price_6 + 
+                   Average_Distribution_4 + Average_Distribution_6 + ad_3 + 
+                   ad_6, data = products)
+
+#product 6 - log log
+null_6_log <- lm(log.q_6 ~ 1, data = products)
+full_6_log <- lm(log.q_6 ~ log.p_2 + log.p_3 + log.p_4 + log.p_6 +
+                   promo_2 + promo_3 + promo_4 + promo_6 +
+                   ad_3 + ad_4 + ad_6 +
+                   Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                   Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 +Average_Distribution_6 +
+                   week_Number_2, data = products)
+
+step(null_6_log, scope = list (upper = full_6_log), data = products, direction = "both")
+
+p6_log <- lm(formula = log.q_6 ~ promo_6 + Average_Number_SKUs_6 + log.p_6 + 
+               Average_Distribution_4 + Average_Distribution_6 + ad_3 + 
+               ad_6, data = products)
+
+rmse(fitted(p6_linear) - products$Volume_6)
+rmse(exp(fitted(p6_semilog)) - products$Volume_6)
+rmse(exp(fitted(p6_log)) - products$Volume_6)
+```
+
+
+After running all model with different functional forms, different functional form models have the lowest RMSE for different products. `Product 2` and `Product 6` linear models are the most efficient as shown in **Appendix 1**. We should calculate the average price and quantity of each product over 105 weeks and compute the elasticities. The formula used to obtain these would be the following.
 
 \begin{eqnarray*}
 e_{ii} = a_1 \times \frac{\bar{P}_i}{\bar{Q}_i} \\
 e_{ij} = b_1 \times \frac{\bar{P}_j}{\bar{Q}_i}
 \end{eqnarray*}
 
-Then, we should calculate the average price and quantity of each product over 105 weeks and compute the elasticity. The elasticity matrix and the clout and vulnerability of each product are shown below.
+The Semi-Log model for `Product 3` has the lowest RMSE amongst the three in **Appendix 2**. The price elasticity formula is expressed below.
 
-\begin{center}
-Table 1: Elasticity matrix of Crackers brands
-\end{center}
-| Elasticity | Product 2 | Product 3 |     Product 4     | Product 5 |
-|:----------:|:---------:|:---------:|:-----------------:|:---------:|
-|  Product 2 |   -2.40   |    0.00   |       -0.42       |    0.00   |
-|  Product 3 |    0.00   |   -0.06   |        0.00       |    0.00   |
-|  Product 4 |    0.00   |    0.00   |       -2.37       |    0.00   |
-|  Product 5 |    0.00   |    0.00   |       -0.61       |   -2.04   |
+\begin{eqnarray*}
+e_{ii} = a_1 \times \bar{P}_i \\
+e_{ij} = b_1 \times \bar{P}_j
+\end{eqnarray*}
 
-|           |    Clout     | Vulnerability |
-|:---------:|:------------:|:-------------:|
-| Product 2 |     0.00     |     -0.42     |
-| Product 3 |     0.00     |      0.00     |
-| Product 4 |    -1.03     |      0.00     |
-| Product 5 |     0.00     |     -0.61     |
+Then, the elasticity matrix and the clout and vulnerability of each product are shown below.
+
+```{r elasticity, echo=FALSE, results='asis'}
+# elasticity / cross elasticity matrix
+
+elasticity.22 <- summary(p2_linear)$coefficients[3] * mean(products$price_2) / mean(products$Volume_2)
+elasticity.23 <- 0
+elasticity.24 <- summary(p2_linear)$coefficients[10] * mean(products$price_4) / mean(products$Volume_2)
+elasticity.26 <- summary(p2_linear)$coefficients[6] * mean(products$price_6) / mean(products$Volume_2)
+
+elasticity.32 <- 0
+elasticity.33 <- summary(p3_semilog)$coefficients[4] * mean(products$price_3)
+elasticity.34 <- 0
+elasticity.36 <- summary(p3_semilog)$coefficients[8] * mean(products$price_6)
+
+elasticity.42 <- 0
+elasticity.43 <- 0
+elasticity.44 <- summary(p4_log)$coefficients[3]
+elasticity.46 <- 0
+
+elasticity.62 <- 0
+elasticity.63 <- 0
+elasticity.64 <- 0
+elasticity.66 <- summary(p6_linear)$coefficients[4] * mean(products$price_6) / mean(products$Volume_6)
+
+elasticity.matrix <- matrix(c(elasticity.22, elasticity.23, elasticity.24, elasticity.26,
+                              elasticity.32, elasticity.33, elasticity.34, elasticity.36,
+                              elasticity.42, elasticity.43, elasticity.44, elasticity.46,
+                              elasticity.62, elasticity.63, elasticity.64, elasticity.66),
+                            nrow = 4, ncol = 4, byrow = TRUE)
+rownames(elasticity.matrix) <- c('Product 2','Product 3','Product 4','Product 6')
+
+kable(elasticity.matrix, col.names = c('Product 2','Product 3','Product 4','Product 6'), row.names = T, digits = 3, caption = "Elasticity matrix of Crackers brands")
+
+```
+
+
+
+
+
 
 
 
