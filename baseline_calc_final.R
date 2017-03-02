@@ -177,48 +177,63 @@ product6[104:105, "promo"] <- 1
 
 # product 2
 par(mar=c(5,4,4,5)+.1)
-plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,3))
-#lines(product2$average_Price, lty=2, lwd=2)
+plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,max(product2$price)), lwd = 1.5,
+     main = "Product 2 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(1,11,18,24,29,34,46,49,58,63,69,77,103), 
+     ybottom = -1, xright = c(6,15,21, 26,30,35,47,52,59,65,70,85,105), 
+     ytop = 5, col = "lightgrey", border = NA, density = 100)
 lines(product2$threshold1, lty=2, lwd=2)
-lines(product2$promo)   # c is the promotion dummy from the other RMD
 par(new=TRUE)
-plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
-axis(4)
-mtext("Volume",side=4,line=3)
-legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5, cex.axis=0.6)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume", side=4,line=3,cex.lab=0.6, cex = 0.6)
+legend("bottomright",col=c("blue","red", "black"), 
+       lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
 
 # product 3
 par(mar=c(5,4,4,5)+.1)
-plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,5.5))
+plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,max(product3$price)), lwd = 1.5,
+     main = "Product 3 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(0.5, 11,18,25,48,70,80,96), 
+     ybottom = -1, xright = c(1.5, 15,22,32,55,71,89,105), 
+     ytop = 7, col = "lightgrey", border = NA, density = 100)
 lines(product3$threshold1, lty=2, lwd=2)
-lines(product3$promo)
 par(new=TRUE)
-plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
-axis(4)
-mtext("Volume",side=4,line=3)
-legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+legend("bottomright",col=c("blue","red", "black"), 
+       lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
 
 # product 4
 par(mar=c(5,4,4,5)+.1)
-plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,7))
+plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,max(product4$price)), lwd = 1.5,
+     main = "Product 4 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(4.5,11,19,24,29,42,63.5,78,88.5,97), 
+     ybottom = -1, xright = c(5.5,15,21,26,30,54,64.5,81,89.5,103), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
 lines(product4$threshold1, lty=2, lwd=2)
-lines(product4$promo)
 par(new=TRUE)
-plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
-axis(4)
-mtext("Volume",side=4,line=3)
-legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+legend("bottomright",col=c("blue","red", "black"), 
+       lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
 
 # product 6
 par(mar=c(5,4,4,5)+.1)
-plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,6))
+plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,max(product6$price)), lwd = 1.5,
+     main = "Product 6 Volume and Price", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(1,11,24,30,38.5,46,64,76,90.5,98.5,104), 
+     ybottom = -1, xright = c(4,18,26,31,39.5,52,66,79,91.5,99.5,105), 
+     ytop = 7, col = "lightgrey", border = NA, density = 100)
 lines(product6$threshold1, lty=2, lwd=2)
-lines(product6$promo)
 par(new=TRUE)
-plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="")
-axis(4)
-mtext("Volume",side=4,line=3)
-legend("topleft",col=c("blue","red"), lty=1, legend=c("Price","Volume"), cex=0.7, bty = "n")
+plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+legend("bottomright",col=c("blue","red", "black"), 
+       lty=c(1,1,2), legend=c("Price","Volume", "P. Promo"), cex=0.6, bty = "n")
 
 
 # proportion of promotions during two year period, after adding manually
@@ -402,31 +417,127 @@ prod6$lift_plot <- ifelse(is.na(prod6$weekly_lift), prod6$Volume + 0,  prod6$Vol
 # plot baseline and lift
 
 # product 2
-plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11)
+plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+     main= "Product 2 Baseline Sales and Lift",
+     xlab= "Week", ylab= "Volume")
 lines(prod2$baseline, lwd=2)
 legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
 
 # product 3
-plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod3$lift_plot)), col = 11)
+plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod3$lift_plot)), col = 11, 
+     main= "Product 3 Baseline Sales and Lift", 
+     xlab= "Week", ylab= "Volume")
 lines(prod3$baseline, lwd=2)
 legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
 
 
 # product 4
-plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod4$lift_plot)), col = 11)
+plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod4$lift_plot)), col = 11, 
+     main= "Product 4 Baseline Sales and Lift", 
+     xlab= "Week", ylab= "Volume")
 lines(prod4$baseline, lwd=2)
 legend("bottomleft",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
 
 
 # product 5
-plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod6$lift_plot)), col = 11)
+plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod6$lift_plot)), col = 11, 
+     main= "Product 6 Baseline Sales and Lift", 
+     xlab= "Week", ylab= "Volume")
 lines(prod6$baseline, lwd=2)
 legend("topright",col=c("black", 11), lty=1, legend=c("Baseline","Lift"), cex=0.7, bty = "n")
 
 
 
+# make 2x2 plot for price, volume, promotion
+
+par(mfrow=c(2,2))
+
+# product 2
+par(mar=c(5,4,4,5)+.1)
+plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,max(product2$price)), lwd = 1.5,
+     main = "Product 2", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(1,11,18,24,29,34,46,49,58,63,69,77,103), 
+     ybottom = -1, xright = c(6,15,21, 26,30,35,47,52,59,65,70,85,105), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product2$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5, cex.axis=0.6)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume", side=4,line=3,cex.lab=0.6, cex = 0.6)
 
 
+# product 3
+par(mar=c(5,4,4,5)+.1)
+plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,max(product3$price)), lwd = 1.5,
+     main = "Product 3", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(0.5, 11,18,25,48,70,80,96), 
+     ybottom = -1, xright = c(1.5, 15,22,32,55,71,89,105), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product3$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+
+
+# product 4
+par(mar=c(5,4,4,5)+.1)
+plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,max(product4$price)), lwd = 1.5,
+     main = "Product 4", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(4.5,11,19,24,29,42,63.5,78,88.5,97), 
+     ybottom = -1, xright = c(5.5,15,21,26,30,54,64.5,81,89.5,103), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product4$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+
+
+# product 6
+par(mar=c(5,4,4,5)+.1)
+plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,max(product6$price)), lwd = 1.5,
+     main = "Product 6", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+rect(xleft = c(1,11,24,30,38.5,46,64,76,90.5,98.5,104), 
+     ybottom = -1, xright = c(4,18,26,31,39.5,52,66,79,91.5,99.5,105), 
+     ytop = 8, col = "lightgrey", border = NA, density = 100)
+lines(product6$threshold1, lty=2, lwd=2)
+par(new=TRUE)
+plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
+axis(4, cex.axis=0.6, cex.lab=0.6)
+mtext("Volume",side=4,line=3, cex = 0.6)
+
+
+# 2x2 plot of baseline and lift
+
+par(mfrow=c(2,2))
+
+# product 2
+plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+     main= "Product 2",
+     xlab= "Week", ylab= "Volume")
+lines(prod2$baseline, lwd=2)
+
+
+# product 3
+plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+     main= "Product 3", 
+     xlab= "Week", ylab= "Volume")
+lines(prod3$baseline, lwd=2)
+
+
+# product 4
+plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+     main= "Product 4", 
+     xlab= "Week", ylab= "Volume")
+lines(prod4$baseline, lwd=2)
+
+
+# product 5
+plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11, 
+     main= "Product 6", 
+     xlab= "Week", ylab= "Volume")
+lines(prod6$baseline, lwd=2)
 
 
 
