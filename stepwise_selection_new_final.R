@@ -279,4 +279,116 @@ elasticity.matrix <- matrix(c(elasticity.22, elasticity.23, elasticity.24, elast
                               elasticity.62, elasticity.63, elasticity.64, elasticity.66),
                             nrow = 4, ncol = 4, byrow = TRUE)
 
-kable(elasticity.matrix, col.names = c('2','3','4','6'))
+colnames(elasticity.matrix) <- c('2','3','4','6')
+rownames(elasticity.matrix) <- c('2','3','4','6')
+
+
+kable(elasticity.matrix)
+
+# clout vulnerability table and plot
+
+clout.2 <- elasticity.32 + elasticity.42 + elasticity.62
+clout.3 <- elasticity.23 + elasticity.43 + elasticity.63
+clout.4 <- elasticity.24 + elasticity.34 + elasticity.64
+clout.6 <- elasticity.26 + elasticity.36 + elasticity.46
+
+vulnerability.2 <- elasticity.23 + elasticity.24 + elasticity.26
+vulnerability.3 <- elasticity.32 + elasticity.34 + elasticity.36
+vulnerability.4 <- elasticity.42 + elasticity.43 + elasticity.46
+vulnerability.6 <- elasticity.26 + elasticity.62 + elasticity.64
+
+par(mfrow=c(1,2))
+
+product = c(2,3,4,6)
+vulnerability = c(vulnerability.2, vulnerability.3, vulnerability.4, vulnerability.6)
+clout = c(clout.2, clout.3, clout.4, clout.6)
+avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
+df <- data.frame(product, vulnerability, clout, avg_volume)
+
+radius <- sqrt(df$avg_volume / pi)
+symbols(df$vulnerability, df$clout, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market")
+text(df$vulnerability, df$clout, df$product, cex=1.5)
+
+# running regression using all predictors to see how it compares
+
+p2_linear_all <- lm(Volume_2 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+p3_linear_all <- lm(Volume_3 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+p4_linear_all <- lm(Volume_4 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+p6_linear_all <- lm(Volume_6 ~ price_2 + price_3 + price_4 + price_6 +  
+                      promo_2 + promo_3 + promo_4 + promo_6 + 
+                      Average_Number_SKUs_2 + Average_Number_SKUs_3 + Average_Number_SKUs_4 + Average_Number_SKUs_6 +
+                      Average_Distribution_2 + Average_Distribution_3 + Average_Distribution_4 + Average_Distribution_6 + 
+                      ad_3 + ad_4 + ad_6, data = products)
+
+# elasticity and cross elasticity calculations
+
+elasticity.22.all <- summary(p2_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_2)
+elasticity.23.all <- summary(p2_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_2)
+elasticity.24.all <- summary(p2_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_2)
+elasticity.26.all <- summary(p2_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_2)
+elasticity.32.all <- summary(p3_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_3)
+elasticity.33.all <- summary(p3_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_3)
+elasticity.34.all <- summary(p3_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_3)
+elasticity.36.all <- summary(p3_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_3)
+elasticity.42.all <- summary(p4_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_3)
+elasticity.43.all <- summary(p4_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_4)
+elasticity.44.all <- summary(p4_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_4)
+elasticity.46.all <- summary(p4_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_4)
+elasticity.62.all <- summary(p6_linear_all)$coefficients[2] * mean(products$price_2) / mean(products$Volume_6)
+elasticity.63.all <- summary(p6_linear_all)$coefficients[3] * mean(products$price_3) / mean(products$Volume_6)
+elasticity.64.all <- summary(p6_linear_all)$coefficients[4] * mean(products$price_4) / mean(products$Volume_6)
+elasticity.66.all <- summary(p6_linear_all)$coefficients[5] * mean(products$price_6) / mean(products$Volume_6)
+
+
+
+elasticity.matrix.all <- matrix(c(elasticity.22.all, elasticity.23.all, elasticity.24.all, elasticity.26.all,
+                                  elasticity.32.all, elasticity.33.all, elasticity.34.all, elasticity.36.all,
+                                  elasticity.42.all, elasticity.43.all, elasticity.44.all, elasticity.46.all,
+                                  elasticity.62.all, elasticity.63.all, elasticity.64.all, elasticity.66.all),
+                                nrow = 4, ncol = 4, byrow = TRUE)
+
+
+colnames(elasticity.matrix.all) <- c('2','3','4','6')
+rownames(elasticity.matrix.all) <- c('2','3','4','6')
+kable(elasticity.matrix.all)
+
+# clout vulnerability table and plot
+
+clout.2.all <- elasticity.32.all + elasticity.42.all + elasticity.62.all
+clout.3.all <- elasticity.23.all + elasticity.43.all + elasticity.63.all
+clout.4.all <- elasticity.24.all + elasticity.34.all + elasticity.64.all
+clout.6.all <- elasticity.26.all + elasticity.36.all + elasticity.46.all
+
+vulnerability.2.all <- elasticity.23.all + elasticity.24.all + elasticity.26.all
+vulnerability.3.all <- elasticity.32.all + elasticity.34.all + elasticity.36.all
+vulnerability.4.all <- elasticity.42.all + elasticity.43.all + elasticity.46.all
+vulnerability.6.all <- elasticity.26.all + elasticity.62.all + elasticity.64.all
+
+product = c(2,3,4,6)
+
+vulnerability.all = c(vulnerability.2.all, vulnerability.3.all, vulnerability.4.all, vulnerability.6.all)
+clout.all = c(clout.2.all, clout.3.all, clout.4.all, clout.6.all)
+
+avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
+df <- data.frame(product, vulnerability.all, clout.all, avg_volume)
+
+radius <- sqrt(df$avg_volume / pi)
+symbols(df$vulnerability.all, df$clout.all, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market with all Variables")
+text(df$vulnerability.all, df$clout.all, df$product, cex=1.5)
+
+kable(list(elasticity.matrix, elasticity.matrix.all))
+
+
+
