@@ -413,7 +413,7 @@ The four different brands display different promotional behaviors (above). Produ
 
 # 4. Baseline and Lift Calculation
 
-After the promotional periods are identified we calculate the volume baseline and the lift for each brand. This is important to isolate the effect of promotions on sales. In order to do so, we remove promotional periods from the data. Although information about the competition was available, it was decided that the models to for the baseline calculations should only information about the brand itself. This was done to calculate the pure effect of a brand's own promotion. The baseline volume was then calculated using a linear regression in combination with a stepwise algorithm to determine the best combination of features. Using the calculated baseline we derived the lift by subtracting the baseline from the volume for each period. 
+After the promotional periods are identified we calculate the volume baseline and the lift for each brand. This is important to isolate the effect of promotions on sales. In order to do so, we remove promotional periods from the data. Although information about the competition was available, it was decided that the models to use for the baseline calculations should only contain information about the brand itself. This was done to calculate the pure effect of a brand's own promotion. The baseline volume was then calculated using a linear regression in combination with a stepwise algorithm to determine the best combination of features. Using the calculated baseline we derived the lift by subtracting the baseline from the volume for each period. 
 
 
 ```{r, echo=FALSE}
@@ -453,7 +453,7 @@ The four brands show different effectiveness in their promotions (above). Produc
 
 # 5. Regression Model
 
-To calculate own and cross price elasticities for each brand we built models with different functional forms (linear, semi-log, and log-log). The dependent variable is `volume` and `price`, `ad` (averstizing) and `promo` (promotion) are the first three independent variables. Then, information about the competition was added to account for their potential effects. For the Semi-Log form we use the log of `volume` as independent variable while the predictors stay the same. For the log-log model, we use the log of `volume` as independent variable as well as log forms for `price`. The general models look as follows:
+To calculate own and cross price elasticities for each brand we built models with different functional forms (linear, semi-log, and log-log). The dependent variable is `volume` and `price`, `ad` (advertizing) and `promo` (promotion) are the first three independent variables. Then, information about the competition was added to account for their potential effects. For the Semi-Log form we use the log of `volume` as the independent variable while the predictors stay the same. For the log-log model, we use the log of `volume` as the independent variable as well as log forms for `price`. The general models look as follows:
 
 Linear:
 
@@ -474,7 +474,7 @@ Log-log:
 \end{eqnarray*}
 
 
-For each model, every combination of predictors was evaluated using a stepwize selection algorithm. The best models for each functional form were then compared by their root mean squared error (RMSE). The model with the lowest RMSE was selected to calculate own and cross-price elasticities.
+For each model, every combination of predictors was evaluated using a stepwise selection algorithm. The best models for each functional form were then compared by their root mean squared error (RMSE). The model with the lowest RMSE was selected to calculate own and cross-price elasticities.
 
 # 6. Results and Discussion
 
@@ -694,7 +694,7 @@ rmse(exp(fitted(p6_log)) - products$Volume_6)
 #linear model has lowest error so we will use it
 ```
 
-The best model for product Product 2 and Product 6 were the linear models. The best models Product 3 and Product 4 were semi-log and log-log respectively. The formulas used to calculate own and cross-price elasticities given the selected model are as follows:
+The best model for Product 2 and Product 6 were the linear models. The best models for Product 3 and Product 4 were semi-log and log-log respectively. The formulas used to calculate own and cross-price elasticities given the selected model are as follows:
 
 Linear:
 
@@ -863,9 +863,9 @@ kable(elasticity.matrix, col.names = c('Product 2','Product 3','Product 4','Prod
 
 ```
 
-When examining the elasticity matrix, we notice a number of interesing things. The own price elasticites displays a range from -3.020 to -1.99. These results are in line with what is expected in the food FMCGs. Product 4 has the lowest price elasticity at `r round(elasticity.44, 3)`. As the premium brand, its sales are more price sensitive as consumers as they already pay a high price. Product 2 has the highest own price elasticity at `r round(elasticity.22, 3)`. This implies that, within the scope of our analysis, buyers of Product 2 are the least price sensitive. 
+When examining the elasticity matrix, we notice a number of interesing things. The own price elasticites display a range from -3.020 to -1.99. These results are in line with what is expected in the food FMCGs. Product 4 has the lowest price elasticity at `r round(elasticity.44, 3)`. As the premium brand, its sales are more price sensitive as consumers already pay a high price. Product 2 has the highest own price elasticity at `r round(elasticity.22, 3)`. This implies that, within the scope of our analysis, buyers of Product 2 are the least price sensitive. 
 
-With regards to the cross price elasticities, many of the products have no effect on each other. Notable cross price elasticities include Product 6's effect on Product 3. As two similarly priced products, when Product 6 increases its price, Product 3's sales increase. This makes sense as customers often equate similarly priced products to direct substitutes. A similar, although more pronounced effect is seen between Product 6 and Product 2. When Product 6's price increases, the increase in sales in Product 2 is bigger than the one one Product 3. Reasons for the increased effect could be shelf placement or simplified customer decision rule to revert to the cheapest brand when the price of their favorite brand goes up. Another noticeable effect is the unexpected negative effect of Product 4 on Product 2. This means that Product 4, the premium cracker, and Product 2, the price leader, can be seen as complementary goods. As Product 4's price increases, Product 2's sales volume decreases. This negative cross price elasticity could also arise due to inconsistencies when aggregating the data to a weekly level. The aggregation would mask sales and promotions that could only be seen on a more detailed level, such as with daily store level sales data.
+With regards to the cross price elasticities, many of the products have no effect on each other. Notable cross price elasticities include Product 6's effect on Product 3. As two similarly priced products, when Product 6 increases its price, Product 3's sales increase. This makes sense as customers often equate similarly priced products to direct substitutes. A similar, although more pronounced effect is seen between Product 6 and Product 2. When Product 6's price increases, the increase in sales in Product 2 is bigger than the one one in Product 3. Reasons for the increased effect could be shelf placement or simplified customer decision rule to revert to the cheapest brand when the price of their favorite brand goes up. Another noticeable effect is the unexpected negative effect of Product 4 on Product 2. This means that Product 4, the premium cracker, and Product 2, the price leader, can be seen as complementary goods. As Product 4's price increases, Product 2's sales volume decreases. This negative cross price elasticity could also arise due to inconsistencies when aggregating the data to a weekly level. The aggregation would mask sales and promotions that could only be seen on a more detailed level, such as with daily store level sales data.
 
 When analyzing the clout and vulnerability plot (Chart 3), we see that Product 2 has low clout and high vulnerability. This confirms the intuition that the price leader is vulnerable to changes in prices from higher priced competitors and that it has little effect on competitors sales. This product competes solely on price. Product 3 has a higher clout and lower vulnerability. As the standard offering, it can somewhat affect the sales of other products but is also vulnerable to their price changes. Product 4, the premium offering has a very low vulnerability and also low clout. Because no crackers operate in the premium market it is not vulnerable to poaching customers. Premium customers will usually buy Product 4 no matter what. Conversely, because it is a premium product it does not affect the sales of other products. Finally, Product 6 has a high clout and high vulnerability. As a niche offering, its price changes can alter its sales volumes significantly. These changes will directly affect the lower priced offerings in the market. However, it is also vulnerable because people will only purchase a niche cracker when it has a notable price advantage relative to the standard offerings.
 
@@ -880,9 +880,9 @@ text(df$vulnerability, df$clout, df$product, cex=0.6)
 
 # 7. Conclusion
 
-The analysis of the Italian cracker market, through the selection of 4 brands, revealed several interesting results. The promotional strategies vary significantly across brands. While Product 2 engages in several short promotions Product 3 favors longer periods. Products 4 and 5 use a mix of short and long promotions. The effect of the respective Product's promotions also varies greatly. Whereas Product's 2, 3, and 4 have similar variation in their baseline sales, Product 2 is a lot more efficient in promoting made obvious by the significant lift. Product 6 has the most stable baseline sales out of all four.
+The analysis of the Italian cracker market, through the selection of 4 brands, revealed several interesting results. The promotional strategies vary significantly across brands. While Product 2 engages in several short promotions, Product 3 favors longer periods. Products 4 and 6 use a mix of short and long promotions. The effect of the respective Products' promotions also varies greatly. Whereas Product's 2, 3, and 4 have similar variation in their baseline sales, Product 2 is a lot more efficient in promoting made obvious by the significant lift. Product 6 has the most stable baseline sales out of all four.
 
-The analysis of clout and vulnerability for Product 2 shows typical the behavior of a price leader. The product has no effect on its competitors' sales but is in turn very vulnerable to what it's competitors do. Product 4 also displays the behavior expected from a premium product. It is not very vulnerable and has low clout as it operates in a segment of its own. Product 6 exhibits a mixed behavior. 
+The analysis of clout and vulnerability for Product 2 shows the typical behavior of a price leader. The product has no effect on its competitors' sales but is in turn very vulnerable to what it's competitors do. Product 4 also displays the behavior expected from a premium product. It is not very vulnerable and has low clout as it operates in a segment of its own. Product 6 exhibits a mixed behavior. 
 
 The high promotional intensity shows that the market for crackers is competitive and offers little options for differentiation. The market shows no signs of apparent seasonality and no signs of growth. As such, based on this analysis it is not an attractive for new players. 
 
