@@ -1,9 +1,9 @@
 ---
 title: "Team Assignment 1"
 author: "Group 6"
-output: 
-  pdf_document
-fontsize: 11pt
+output:
+  pdf_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -48,14 +48,15 @@ rmse <- function(error)
   sqrt(mean(error^2))
 }
 ```
+\pagebreak
 
 # 1. Introduction
 
-This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. Crackers and Dry Cookies, are provided in the dataset. Of the 17 brands, four brands from the Crackers category, i.e. `Product 2`, `Product 3`, `Product 4`, and `Product 6`, are selected to be analysed further. In general, to obtain further information about the market of those products, detailed information of the demand elasticity of each product has to be extracted from the dataset. The method to capture such information will be explained in the next section. Then, the results will be discussed extensively in the following part to understand the structure and competitiveness of the market of the four brands (the market for crackers?).
+This report aims to understand the market of four chosen fast-moving consumer goods (FMCG) products in the Italian market. Two product categories , i.e. crackers and dry cookies, are provided in the dataset. Of the 17 brands, four brands from the crackers category, i.e. Product 2, Product 3, Product 4, and Product 6, are selected to be analyzed further. The first step will be to conduct a preliminary analysis of each product. This will allow to form initial hypotheses about the different positions of the brands in the market as well as the market structure. After the initial analysis, we will attempt to detect the promotional periods using a combination of algorithmic and visual apporach. Then, the own and cross-price elasticities will be calculated to assess the clout and vulnerability of each brand. Finally, the report will conclude with a discussion of the results and insights gained abouut the Italian cracker market.
 
 # 2. Preliminary Analysis
 
-The table below shows the average figures for each Crackers brand. By looking at those information, we assume that `Product 2` is the price leader as it has the lowest price and highest average sales volume. `Product 3` has slightly lower weekly sales despite it higher price. The product might be from more middle segment or has a bigger package and net weight. `Product 2` and `Product 6` could be in the same segment and they are direct competitors because they have similar prices. `Product 4` could be the more premium product amongst the four brands. Those are the initial hypothesis that could be extracted by above information. The analysis that follows this section will capture more comprehensive information from the data.
+Before engaging in elasiticity calculations, we aim to gain information about the products as they are presented in the data. Table 1 shows the average values for volume and price for each cracker brand. Initial inspection reveals that Product 2 is the price leader with the lowest average price and sales volume. Product 3 has slightly lower weekly sales despite its higher price. The product could be from a mid-range segment or have different packaging options. Product 3 and Product 6 have similar average prices although significantly different volumes. Product 4 appears to be the premium product amongst the four brands with relatively higher average price and volume.
 
 ```{r average, echo=FALSE, results='asis'}
 price.2.mean <- mean(products$price_2)
@@ -73,14 +74,19 @@ summary_matrix <- matrix(c(price.2.mean, price.3.mean, price.4.mean,price.6.mean
 
 row.names(summary_matrix) <- c("Product 2","Product 3","Product 4","Product 6")
 
-kable(summary_matrix, col.names = c("Average Price", "Average Volume"), digits = 3, caption = "Average Price and Volume")
+kable(summary_matrix, col.names = c("Average Price", "Average Volume"), digits = 3)
 ```
+
+*Table 1: Average price and sales volume for each brand.*
+
+
+With this preliminary analysis we expect to see brands with lower prices have a relatively higher own price elasticity than brands with higher prices. We also expect brands with relatively lower prices to be more vulnerable and mid-ranged brands to have the highest clout.
 
 # 3. Promotion Detection
 
-The objective of this part is to separate the effect of promotion and observe when promotion occured for each brand. However, `Product 2` does not have Gross Rating Point (GRP) variable which would tell the size offline advertising corresponding to the product. Another parameter is needed to see when a promotion campaign take place. The first method is to determine the week when the products are selling at discounted price. We compute the average prices ($\bar{P}_i$) and their standard deviation ($\sigma_i$) over 105 weeks. If the price goes below $\bar{P}_i - \sigma_i$, the `promo` variable is coded 1 during that week and 0 if otherwise. Then, the effect of GRP could also be transformed into binary variable to simplify the impact of promotion and discount on the sales volumes.
 
-After separating all possible factors that could affect the price and volume, we need to verify the effect of promotion and discount for each product. This can be obtained by calculating the baseline sales volume and the lift. We estimate the weeks where there were advertising campaign for all products, particularly the two products without GRP data, to get the best representation of when the lift occurred.
+In order to calculate elasticites, we need to isolate the effect of promotions on volume. The first apporach used to detect promtional periods was to use the average price ($\bar{P}_i$) and standard deviation ($\sigma_i$) of each brand to create a price promotion threshold. Any period with a price below one standard deviation from the average was seen as a promotional period. This method of promotion detection was supplemented with a visual approach. Here, periods that showed high sales volumes were also considered promotional periods. Rather than being price promotions, these are likely to be special end of aisle displays or features the brands engage in. If included in the data set, gross rating point (GRP) was encoded advertising period rather than promotional period.
+
 
 ```{r, include=FALSE, results='hide'}
 # import data
@@ -344,17 +350,16 @@ prod6$lift_plot <- ifelse(is.na(prod6$weekly_lift), prod6$Volume + 0,  prod6$Vol
 
 ```
 
-
 ```{r echo = FALSE}
 par(mfrow=c(2,2))
 
 # product 2
 par(mar=c(5,4,4,5)+.1)
 plot(product2$week_Number, product2$price, type="l", col="blue", ylim=c(0,max(product2$price)), lwd = 1.5,
-     main = "Product 2", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+     main = "Product 2", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6, cex.main=0.9)
 rect(xleft = c(1,11,18,24,29,34,46,49,58,63,69,77,103), 
      ybottom = -1, xright = c(6,15,21, 26,30,35,47,52,59,65,70,85,105), 
-     ytop = 8, col = "lightgrey", border = NA, density = 100)
+     ytop = 8, col = "lightgrey", border = NA, density = 50)
 lines(product2$threshold1, lty=2, lwd=2)
 par(new=TRUE)
 plot(product2$week_Number, product2$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5, cex.axis=0.6)
@@ -364,10 +369,10 @@ mtext("Volume", side=4,line=3,cex.lab=0.6, cex = 0.6)
 # product 3
 par(mar=c(5,4,4,5)+.1)
 plot(product3$week_Number, product3$price, type="l", col="blue", ylim=c(0,max(product3$price)), lwd = 1.5,
-     main = "Product 3", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+     main = "Product 3", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6, cex.main=0.9)
 rect(xleft = c(0.5, 11,18,25,48,70,80,96), 
      ybottom = -1, xright = c(1.5, 15,22,32,55,71,89,105), 
-     ytop = 8, col = "lightgrey", border = NA, density = 100)
+     ytop = 8, col = "lightgrey", border = NA, density = 50)
 lines(product3$threshold1, lty=2, lwd=2)
 par(new=TRUE)
 plot(product3$week_Number, product3$Volume,type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
@@ -377,10 +382,10 @@ mtext("Volume",side=4,line=3, cex = 0.6)
 # product 4
 par(mar=c(5,4,4,5)+.1)
 plot(product4$week_Number, product4$price, type="l", col="blue", ylim=c(0,max(product4$price)), lwd = 1.5,
-     main = "Product 4", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+     main = "Product 4", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6, cex.main=0.9)
 rect(xleft = c(4.5,11,19,24,29,42,63.5,78,88.5,97), 
      ybottom = -1, xright = c(5.5,15,21,26,30,54,64.5,81,89.5,103), 
-     ytop = 8, col = "lightgrey", border = NA, density = 100)
+     ytop = 8, col = "lightgrey", border = NA, density = 50)
 lines(product4$threshold1, lty=2, lwd=2)
 par(new=TRUE)
 plot(product4$week_Number, product4$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
@@ -390,10 +395,10 @@ mtext("Volume",side=4,line=3, cex = 0.6)
 # product 6
 par(mar=c(5,4,4,5)+.1)
 plot(product6$week_Number, product6$price, type="l", col="blue", ylim=c(0,max(product6$price)), lwd = 1.5,
-     main = "Product 6", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6)
+     main = "Product 6", xlab = "Week", ylab = "Price", cex.axis=0.6, cex.lab=0.6, cex.main=0.9)
 rect(xleft = c(1,11,24,30,38.5,46,64,76,90.5,98.5,104), 
      ybottom = -1, xright = c(4,18,26,31,39.5,52,66,79,91.5,99.5,105), 
-     ytop = 8, col = "lightgrey", border = NA, density = 100)
+     ytop = 8, col = "lightgrey", border = NA, density = 50)
 lines(product6$threshold1, lty=2, lwd=2)
 par(new=TRUE)
 plot(product6$week_Number, product6$Volume, type="l",col="red",xaxt="n",yaxt="n",xlab="",ylab="", lwd = 1.5)
@@ -401,13 +406,15 @@ axis(4, cex.axis=0.6, cex.lab=0.6)
 mtext("Volume",side=4,line=3, cex = 0.6)
 ```
 
+*Chart 1: Price (blue), sales volume (red), promotion (gray), price promotion threshold (black dashed). Note: The y-axes are of different scales.*   
+   
+The four different brands display different promotional behaviors (above). Product 2, for example, engages in many short promotional periods which were identified as flash sales. Product 3 appears to favor longer periods of promotion. Product 4 and Product 6 display a mixture of both behaviors. The effectiveness of the respective brands promotions vary greatly across the given time period with some promotions boosting sales by as much as 40% and others by as little as 15%.
+
+
 # 4. Baseline and Lift Calculation
 
-Volume baseline and the lift in sales are calculated for each of the product. For each product, filter the data to have only non promotional periods containing volume of sales and all the relevant factors affecting it (week number, average number of SKUs, average distribution, and price of product).
+After the promotional periods are identified we calculate the volume baseline and the lift for each brand. This is important to isolate the effect of promotions on sales. In order to do so, we remove promotional periods from the data. Although information about the competition was available, it was decided that the models to for the baseline calculations should only information about the brand itself. This was done to calculate the pure effect of a brand's own promotion. The baseline volume was then calculated using a linear regression in combination with a stepwise algorithm to determine the best combination of features. Using the calculated baseline we derived the lift by subtracting the baseline from the volume for each period. 
 
-The four relevant factors affecting volume of sales are being regressed to the volume of sales by a linear model. However, only significant factors  need to be included in the model hence automatic model selection are performed to select best linear model. Lastly, using the best model selected, volume baseline is derived by putting the values of independent variables into the model.
-
-Besides volume baseline, for promotional periods there are usually lift in sales. Lift in the volume of sales is basically indicates how much the volume of sales increased from its baseline as an effect of promotions. Hence lift is calculated by subtracting actual volume with volume baseline.
 
 ```{r, echo=FALSE}
 # 2x2 plot of baseline and lift
@@ -417,37 +424,57 @@ par(mfrow=c(2,2))
 # product 2
 plot(prod2$week_Number, prod2$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
      main= "Product 2",
-     xlab= "Week", ylab= "Volume")
+     xlab= "Week", ylab= "Volume", cex.main=0.9, cex.axis=0.6, cex.lab=0.6)
 lines(prod2$baseline, lwd=2)
 
 # # product 3
 plot(prod3$week_Number, prod3$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
      main= "Product 3",
-     xlab= "Week", ylab= "Volume")
+     xlab= "Week", ylab= "Volume", cex.main=0.9, cex.axis=0.6, cex.lab=0.6)
 lines(prod3$baseline, lwd=2)
 
 # # product 4
 plot(prod4$week_Number, prod4$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
      main= "Product 4",
-     xlab= "Week", ylab= "Volume")
+     xlab= "Week", ylab= "Volume", cex.main=0.9, cex.axis=0.6, cex.lab=0.6)
 lines(prod4$baseline, lwd=2)
 
 # # product 5
 plot(prod6$week_Number, prod6$lift_plot, type="l", lwd=2, ylim = c(0, max(prod2$lift_plot)), col = 11,
      main= "Product 6",
-     xlab= "Week", ylab= "Volume")
+     xlab= "Week", ylab= "Volume", cex.main=0.9, cex.axis=0.6, cex.lab=0.6)
 lines(prod6$baseline, lwd=2)
 ```
 
+*Chart 2: Sales volume (black), lift (green), promotion (gray).* *Note: The y-axes are of the same scale.*   
+   
+   
+The four brands show different effectiveness in their promotions (above). Product 2 has the most successful promotional periods with large added volume to its baseline sales. This stands in contrast to Product 3 and Product 4, which see relatively smaller efffectiveness from their promotions. Product 6 sees the most balanced effect from promotions. This is likely due its the relatively regular baseline sales compared to other brands. 
+
 # 5. Regression Model
 
-Firstly, To get the elasticity of each product and its cross elasticity against other products, we computed three models with different functional forms (Linear, Semi-Log, and Log-Log). `Volume` of the evaluated brand is the dependent variable and its `price` and promotions (`ad` and `promo`) are our first three independent variables. Then, the prices of other products and their promotion campagins are added to the model to capture the cross-elasticity of the selected product. The process is identical for different functional forms. In general, the Full Model for `Product 2` looks like the following, but the Reduced Model are different for each product depending on the significant variables.
+To calculate own and cross price elasticities for each brand we built models with different functional forms (linear, semi-log, and log-log). The dependent variable is `volume` and `price`, `ad` (averstizing) and `promo` (promotion) are the first three independent variables. Then, information about the competition was added to account for their potential effects. For the Semi-Log form we use the log of `volume` as independent variable while the predictors stay the same. For the log-log model, we use the log of `volume` as independent variable as well as log forms for `price`. The general models look as follows:
+
+Linear:
 
 \begin{eqnarray*}
-\widehat{volume_2} = & a_0 + a_1 price_2 + a_2 ad_2 + a_3 promo_2 + \sum_{i=3}^6 (b_1 price_i + b_2 ad_i + b_3 promo_i)
+\ {volume_i} = & a_0 + a_1 price_i + a_2 ad_i + a_3 promo_i + \sum_{j} (b_1 price_j + b_2 ad_j + b_3 promo_j)
 \end{eqnarray*}
 
-Secondly, stepwise selections are needed to omit non-significant variables from the model to get better estimation. Then, the three different functional models of each brand are compared against each other by computing their root-mean-square error (RMSE) or the difference between predicted values of `Volume` and the observed values. The model with the lowest RMSE is selected to calculate the elasticity and cross-elasticity of the product. Subsequently, the elasticity matrix can be obtained.
+Semi-log:
+
+\begin{eqnarray*}
+\ {log(volume_i)} = & a_0 + a_1 price_i + a_2 ad_i + a_3 promo_i + \sum_{j} (b_1 price_j + b_2 ad_j + b_3 promo_j)
+\end{eqnarray*}
+
+Log-log:
+
+\begin{eqnarray*}
+\ {log(volume_i)} = & a_0 + a_1 log(price_i) + a_2 ad_i + a_3 promo_i + \sum_{j} (b_1 log(price_j) + b_2 ad_j + b_3 promo_j)
+\end{eqnarray*}
+
+
+For each model, every combination of predictors was evaluated using a stepwize selection algorithm. The best models for each functional form were then compared by their root mean squared error (RMSE). The model with the lowest RMSE was selected to calculate own and cross-price elasticities.
 
 # 6. Results and Discussion
 
@@ -667,21 +694,30 @@ rmse(exp(fitted(p6_log)) - products$Volume_6)
 #linear model has lowest error so we will use it
 ```
 
-After running all model with different functional forms, different functional form models have the lowest RMSE for different products. `Product 2` and `Product 6` linear models are the most efficient when the log form are converted back to level form. We should calculate the average price and quantity of each product over 105 weeks and compute the elasticities. The formula used to obtain these would be the following.
+The best model for product Product 2 and Product 6 were the linear models. The best models Product 3 and Product 4 were semi-log and log-log respectively. The formulas used to calculate own and cross-price elasticities given the selected model are as follows:
+
+Linear:
 
 \begin{eqnarray*}
 e_{ii} = a_1 \times \frac{\bar{P}_i}{\bar{Q}_i} \\
 e_{ij} = b_1 \times \frac{\bar{P}_j}{\bar{Q}_i}
 \end{eqnarray*}
 
-The Semi-Log model for `Product 3` has the lowest RMSE amongst the three. The price elasticity formula is expressed below.
+Semi-log:
 
 \begin{eqnarray*}
 e_{ii} = a_1 \times \bar{P}_i \\
 e_{ij} = b_1 \times \bar{P}_j
 \end{eqnarray*}
 
-The best model for `Product 4` is the Log-Log model. Hence, the elasticities are the coefficient of the corresponding price variables. Then, the elasticity matrix and the clout and vulnerability of each product are shown below.
+Log-log:
+
+\begin{eqnarray*}
+e_{ii} = a_1 \\
+e_{ij} = b_1
+\end{eqnarray*}
+
+\pagebreak
 
 ```{r elasticity, echo=FALSE, results='asis'}
 # elasticity / cross elasticity matrix
@@ -733,10 +769,8 @@ avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$V
 df <- data.frame(product, vulnerability, clout, avg_volume)
 ```
 
-The price elasticity of each product seems suitable for FMCG products. Their demand are elastic as expected from the market where there are many alternatives. However, the market has different products that appeals several customer segments. Usign the clout and vulnerability table, we could locate the position of each brand within the market.
-
 ```{r cloutvuln plot, echo=FALSE}
-par(mfrow=c(1,2))
+# par(mfrow=c(1,2))
 
 product = c(2,3,4,6)
 vulnerability = c(vulnerability.2, vulnerability.3, vulnerability.4, vulnerability.6)
@@ -744,9 +778,9 @@ clout = c(clout.2, clout.3, clout.4, clout.6)
 avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
 df <- data.frame(product, vulnerability, clout, avg_volume)
 
-radius <- sqrt(df$avg_volume / pi)
-symbols(df$vulnerability, df$clout, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market")
-text(df$vulnerability, df$clout, df$product, cex=1.5)
+# radius <- sqrt(df$avg_volume / pi)
+# symbols(df$vulnerability, df$clout, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market")
+# text(df$vulnerability, df$clout, df$product, cex=1.5)
 
 # running regression using all predictors to see how it compares
 
@@ -821,28 +855,38 @@ clout.all = c(clout.2.all, clout.3.all, clout.4.all, clout.6.all)
 avg_volume = c(mean(products$Volume_2), mean(products$Volume_3), mean(products$Volume_4), mean(products$Volume_6))
 df <- data.frame(product, vulnerability.all, clout.all, avg_volume)
 
-radius <- sqrt(df$avg_volume / pi)
-symbols(df$vulnerability.all, df$clout.all, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market with all Variables")
-text(df$vulnerability.all, df$clout.all, df$product, cex=1.5)
+# radius <- sqrt(df$avg_volume / pi)
+# symbols(df$vulnerability.all, df$clout.all, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Crackers Market with all Variables")
+# text(df$vulnerability.all, df$clout.all, df$product, cex=1.5)
 
-kable(elasticity.matrix, col.names = c('Product 2','Product 3','Product 4','Product 6'), digits = 3)
+kable(elasticity.matrix, col.names = c('Product 2','Product 3','Product 4','Product 6'), digits = 3, caption = "Elasticity Matrix")
 
-kable(elasticity.matrix.all, col.names = c('Product 2','Product 3','Product 4','Product 6'), digits = 3)
 ```
 
-As expected, `Product 2` has the highest vulnerability because it seems to be the cheapest brand in the market and it has no power to affect other brands if it lower the price. However, if the other products lower their prices, customers are more likely to switch to different brands with better quality. `Product 3` seems to be the standard brand-name cracker that everyone loves. Price change does not affect other products although it is quite vulnerable to `Product 6` change of price as they seem to appeal to the same segment. However, `Product 6` price changes have the biggest impact on `Product 2`. Although their average price difference is wide, `Product 6` seems to be the most probable 
+When examining the elasticity matrix, we notice a number of interesing things. The own price elasticites displays a range from -3.020 to -1.99. These results are in line with what is expected in the food FMCGs. Product 4 has the lowest price elasticity at `r round(elasticity.44, 3)`. As the premium brand, its sales are more price sensitive as consumers as they already pay a high price. Product 2 has the highest own price elasticity at `r round(elasticity.22, 3)`. This implies that, within the scope of our analysis, buyers of Product 2 are the least price sensitive. 
 
-When examining the elasticity matrices, we notice a number of trends. In the elasticity matrix calculated with all potential variables, even those that are insignificant at a 5% significance level, we notice that products 2, 3, and 6 have similar elasticities. With a price elasticity of around -2.2, these crackers are quite elastic to demand. Product 4 has a much higher price elasticity at `r elasticity.44.all`. As a more premium good, its sales are more price sensitive as consumers may be inclined to switch to it when it does not have as much of a price premium. Conversely, when product 4 increases its price, customers do not buy it because they cannot justify the even higher price premium.
+With regards to the cross price elasticities, many of the products have no effect on each other. Notable cross price elasticities include Product 6's effect on Product 3. As two similarly priced products, when Product 6 increases its price, Product 3's sales increase. This makes sense as customers often equate similarly priced products to direct substitutes. A similar, although more pronounced effect is seen between Product 6 and Product 2. When Product 6's price increases, the increase in sales in Product 2 is bigger than the one one Product 3. Reasons for the increased effect could be shelf placement or simplified customer decision rule to revert to the cheapest brand when the price of their favorite brand goes up. Another noticeable effect is the unexpected negative effect of Product 4 on Product 2. This means that Product 4, the premium cracker, and Product 2, the price leader, can be seen as complementary goods. As Product 4's price increases, Product 2's sales volume decreases. This negative cross price elasticity could also arise due to inconsistencies when aggregating the data to a weekly level. The aggregation would mask sales and promotions that could only be seen on a more detailed level, such as with daily store level sales data.
 
-With regards to the cross elasticities, many of the products have not effect on each other as their prices change. While there exist a few negative cross elasticities, most of them are essentially 0 so we can treat them as such. Notable cross elasticities include product 6's effect on product 3. As two similarly priced products, when the niche product 6 lowers in price, product 3's sales suffer. Customers may be incentivized to try the niche product at a lower price point, compared to the simlarly priced standard crackers. A similar effect occurs with product 3's effect on product 2. When product 3's price drops, the low price option of product 2 has less sales. Customers are willing to upgrade to a higher priced product when the price difference is not as much. Product 6 has a very strong effect on the volume of product 2 as well. This is the same effect as with product 3, but not the additional niche factor of product 6 comes into play. Customers are quite likely to try the niche crackers when they are not much more expensive than the standard cheap crackers. Finally, it is interesting to note that product 4's effect on product 2 is actually negative, with a cross elasticity of `r elasticity.24.all`. This means that as product 4, the expensive crackers, and product 2, the cheap crackers, can be seen as somewhat complementary goods. As product 4's price decreases, product 2's sales volume actually increases. This could potentially make sense because people see the expensive cracker on sale, but upon further examination end up purchasing the cheap creacker. The negative cross price elasticity could also arise due to inconsistencies when aggregating the data to a weekly level. The aggregation would mask sales and promotions that could only be seen on a more detailed level, such as with daily store level sales data.
+When analyzing the clout and vulnerability plot (Chart 3), we see that Product 2 has low clout and high vulnerability. This confirms the intuition that the price leader is vulnerable to changes in prices from higher priced competitors and that it has little effect on competitors sales. This product competes solely on price. Product 3 has a higher clout and lower vulnerability. As the standard offering, it can somewhat affect the sales of other products but is also vulnerable to their price changes. Product 4, the premium offering has a very low vulnerability and also low clout. Because no crackers operate in the premium market it is not vulnerable to poaching customers. Premium customers will usually buy Product 4 no matter what. Conversely, because it is a premium product it does not affect the sales of other products. Finally, Product 6 has a high clout and high vulnerability. As a niche offering, its price changes can alter its sales volumes significantly. These changes will directly affect the lower priced offerings in the market. However, it is also vulnerable because people will only purchase a niche cracker when it has a notable price advantage relative to the standard offerings.
 
-In the elasticity matrix calculated when we discard insignificant predictors, the general picture remains the same. Product 2, the lowest priced product in our analysis, has the lowest elasticity at `r elasticity.22`. Product 4, the highest priced, has the highest elasticity at `r elasticity.44`. The only non-zero cross elasticities are product 6's effect on product 3, where people switch to the niche product when it becomes cheaper than the standard offering. The other non-zero cross elasticity is product 4's effect on product 2. Since it is negative, when product 4 decreases in price people are more inclined to buy crackers as a whole. When such customers actually decide which cracker to buy, they end up choosing the cheapest option. Therefore, sales of product 2 are boosted.
+```{r echo=FALSE}
+radius <- sqrt(df$avg_volume / pi)
+symbols(df$vulnerability, df$clout, circles = radius, inches = 0.35, fg="white", bg="red", xlim=c(-0.5,1.5), ylim=c(-1,2), xlab="Vulnerability", ylab="Clout", main = "Clout and Vulnerability", cex.main=0.9, cex.axis=0.6, cex.lab=0.6)
+text(df$vulnerability, df$clout, df$product, cex=0.6)
+```
+   
+*Chart 3: Bubble size represents the average sales volume. Labels are the respective brands.*
 
-When analyzing the clout and vulnerability matrices, we examine both the scenario where we include insignificant predictors and the one where only significant predictors are included. When we include all predictors, we see that product 2 has low clout and high vulnerability. This makes sense because it is a low priced good that people only buy when they cannot afford the more expensive options. This product competes solely on price. Product 3 has a higher clout and lower vulnerability. As the standard offering, it can somewhat affect the sales of other products but is also vulnerable to their price changes. Product 4, the high priced offering has a very low vulnerability and also low clout. Because no crackers operate in the premium market is is not vulnerable to poaching customers. Premium customers will only buy product 4. Conversely, because it is a premium product it cannot change the sales of the other products because only premium customers buy product 4. Finally, product 6 has a high clout and high vulnerability. As a niche offering, its price changes can alter its sales volumes significantly. These changes will directly affect the lower priced offerings in the market. However, it is also quite vulnerable because people will only purchase a niche cracker when it has a notable price advantage relative to the standard offerings.
-
-The clout / vulnerability matrix looks quite similar when we only include significant predictors in the analysis. All products have low clout in the market except for the niche product 6. This is the only product that affects others' sales volumes. People will switch to the niche offering when it has a low price premium compared to standard products. Additionally, the lower priced products are more vulnerable to others' price changes. Since they compete on price rather than differentiation, when the competition changes its pricing structure, low priced goods suffer.
 
 # 7. Conclusion
+
+The analysis of the Italian cracker market, through the selection of 4 brands, revealed several interesting results. The promotional strategies vary significantly across brands. While Product 2 engages in several short promotions Product 3 favors longer periods. Products 4 and 5 use a mix of short and long promotions. The effect of the respective Product's promotions also varies greatly. Whereas Product's 2, 3, and 4 have similar variation in their baseline sales, Product 2 is a lot more efficient in promoting made obvious by the significant lift. Product 6 has the most stable baseline sales out of all four.
+
+The analysis of clout and vulnerability for Product 2 shows typical the behavior of a price leader. The product has no effect on its competitors' sales but is in turn very vulnerable to what it's competitors do. Product 4 also displays the behavior expected from a premium product. It is not very vulnerable and has low clout as it operates in a segment of its own. Product 6 exhibits a mixed behavior. 
+
+The high promotional intensity shows that the market for crackers is competitive and offers little options for differentiation. The market shows no signs of apparent seasonality and no signs of growth. As such, based on this analysis it is not an attractive for new players. 
+
+
 
 \pagebreak
 
