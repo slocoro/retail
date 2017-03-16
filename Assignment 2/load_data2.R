@@ -257,8 +257,8 @@ agg.sales.radio$sales_per_visit <- agg.sales.radio$sales / agg.sales.radio$visit
 
 
 # save data to csv
-write.csv(agg.sales.tv, file = "sales_tv_3.csv")
-write.csv(agg.sales.radio, file = "sales_radio_3.csv")
+# write.csv(agg.sales.tv, file = "sales_tv_3.csv")
+# write.csv(agg.sales.radio, file = "sales_radio_3.csv")
 
 #-------------------------------------------------------------------
 # test regression
