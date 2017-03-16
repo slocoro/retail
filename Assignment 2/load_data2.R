@@ -3,10 +3,10 @@ library(reshape2)
 library(dummies)
 
 # load data for  assignment 2
-data.campaign <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.store <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.googletrends <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/GoogleTrends.csv")
-data.grp <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/Chain_GRPS_2015_2016.csv")
+data.campaign <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.store <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.googletrends <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/GoogleTrends.csv")
+data.grp <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_GRPS_2015_2016.csv")
 
 # convert all entries to lower case
 data.store$RESTAURANT_CODE <- tolower(data.store$RESTAURANT_CODE)
@@ -251,15 +251,81 @@ agg.sales.radio$trend <- 1:nrow(agg.sales.radio)
 agg.sales.tv[is.na(agg.sales.tv)] <- 0
 agg.sales.radio[is.na(agg.sales.radio)] <- 0
 
+# add sales per visit column
+agg.sales.tv$sales_per_visit <- agg.sales.tv$sales / agg.sales.tv$visits
+agg.sales.radio$sales_per_visit <- agg.sales.radio$sales / agg.sales.radio$visits
+
+
 # save data to csv
-# write.csv(agg.sales.tv, file = "sales_tv_2.csv")
-# write.csv(agg.sales.radio, file = "sales_radio_2.csv")
+write.csv(agg.sales.tv, file = "sales_tv_3.csv")
+write.csv(agg.sales.radio, file = "sales_radio_3.csv")
 
-
+#-------------------------------------------------------------------
 # test regression
-t <- agg.sales.radio[, -c(1,3)]
+t <- agg.sales.radio[, -c(1)]
 mod1 <- lm(sales ~ ., t); summary(mod1)
+summary.mod1 <- data.frame(summary(mod1)$coefficients)
+summary.mod1$names <- row.names(summary.mod1)
+rownames(summary.mod1) <- NULL
 
-tt <- agg.sales.tv[, -c(1,3)]
+tt <- agg.sales.tv[, -c(1)]
 mod2 <- lm(sales ~ ., tt); summary(mod2)
+summary.mod2 <- data.frame(summary(mod2)$coefficients)
+summary.mod2$names <- row.names(summary.mod2)
+rownames(summary.mod2) <- NULL
+
+
+# column count of non-zero values
+count.tv <- data.frame(colSums(agg.sales.tv[, 5:(ncol(agg.sales.tv)-1)] != 0)); count.tv
+count.tv$names <- row.names(count.tv)
+rownames(count.tv) <- NULL
+
+count.radio <- data.frame(colSums(agg.sales.radio[, 5:(ncol(agg.sales.radio)-1)] != 0)); count.radio
+count.radio$names <- row.names(count.radio)
+rownames(count.radio) <- NULL
+
+# join the count of adds
+count.radio$names <- paste0("`", count.radio$names, "`")
+summary.mod11 <- left_join(summary.mod1, count.radio, by = c("names" = "names"))
+
+count.tv$names <- paste0("`", count.tv$names, "`")
+summary.mod22 <- left_join(summary.mod2, count.tv, by = c("names" = "names"))
+
+
+#-------------------------------------------------------------------
+
+# data for the formats only
+agg.tv.new1 <- campaign.tv.final %>%
+  group_by(Date_out_start, FORMAT) %>%
+  summarize(investment = sum(NET_COST, na.rm = TRUE))
+
+agg.radio.new1 <- campaign.radio.final %>%
+  group_by(Date_out_start, FORMAT) %>%
+  summarize(investment = sum(NET_COST, na.rm = TRUE))
+
+tv.data.format <- dcast(agg.tv.new1, Date_out_start ~ FORMAT)
+radio.data.format <- dcast(agg.radio.new1, Date_out_start ~ FORMAT)
+
+# merge media data with aggregated data
+agg.sales.tv1 <- 
+  left_join(agg.sales, tv.data.format, by = c("BUSINESS_DATE" = "Date_out_start"))
+agg.sales.tv1$trend <- 1:nrow(agg.sales.tv1)
+
+agg.sales.radio1 <- 
+  left_join(agg.sales, radio.data.format, by = c("BUSINESS_DATE" = "Date_out_start"))
+agg.sales.radio1$trend <- 1:nrow(agg.sales.radio1)
+
+# fill all NAs with 0
+agg.sales.tv1[is.na(agg.sales.tv1)] <- 0
+agg.sales.radio1[is.na(agg.sales.radio1)] <- 0
+
+# add sales per visit column
+agg.sales.tv1$sales_per_visit <- agg.sales.tv1$sales / agg.sales.tv1$visits
+agg.sales.radio1$sales_per_visit <- agg.sales.radio1$sales / agg.sales.radio1$visits
+
+# things that would be nice to have 
+# indication about what kind of audience the channel targets. this would allow to
+# cluster channels by type (family, sports, film, ...)
+
+
 
