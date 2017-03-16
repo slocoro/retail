@@ -1,12 +1,12 @@
 library(dplyr)
 library(reshape2)
 library(dummies)
-
+library(chron)
 # load data for  assignment 2
-data.campaign <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.store <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.googletrends <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/GoogleTrends.csv")
-data.grp <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_GRPS_2015_2016.csv")
+data.campaign <- read.csv("Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.googletrends <- read.csv("GoogleTrends.csv")
+data.grp <- read.csv("Chain_GRPS_2015_2016.csv")
 
 # convert all entries to lower case
 data.store$RESTAURANT_CODE <- tolower(data.store$RESTAURANT_CODE)
@@ -257,8 +257,8 @@ agg.sales.radio$sales_per_visit <- agg.sales.radio$sales / agg.sales.radio$visit
 
 
 # save data to csv
-# write.csv(agg.sales.tv, file = "sales_tv_3.csv")
-# write.csv(agg.sales.radio, file = "sales_radio_3.csv")
+#write.csv(agg.sales.tv, file = "sales_tv_3.csv")
+#write.csv(agg.sales.radio, file = "sales_radio_3.csv")
 
 #-------------------------------------------------------------------
 # test regression
@@ -327,5 +327,96 @@ agg.sales.radio1$sales_per_visit <- agg.sales.radio1$sales / agg.sales.radio1$vi
 # indication about what kind of audience the channel targets. this would allow to
 # cluster channels by type (family, sports, film, ...)
 
+agg.sales.radio2 <- agg.sales.radio1[c(3:8)]
+summary(lm(visits ~ ., data = agg.sales.radio2))
+
+agg.sales.radio2$`15secondi.sq` <- agg.sales.radio2$`15 secondi`^2
+agg.sales.radio2$`20secondi.sq` <- agg.sales.radio2$`20 secondi`^2
+agg.sales.radio2$`30secondi.sq` <- agg.sales.radio2$`30 secondi`^2
+summary(lm(visits ~ ., data = agg.sales.radio2))
 
 
+agg.sales.radio3 <- agg.sales.radio1[c(4:9)]
+summary(lm(sales_per_visit ~., data = agg.sales.radio3))
+
+agg.sales.radio3$`15secondi.sq` <- agg.sales.radio3$`15 secondi`^2
+agg.sales.radio3$`20secondi.sq` <- agg.sales.radio3$`20 secondi`^2
+agg.sales.radio3$`30secondi.sq` <- agg.sales.radio3$`30 secondi`^2
+summary(lm(sales_per_visit ~., data = agg.sales.radio3))
+
+agg.sales.tv2 <- agg.sales.tv1[c(3:10)]
+summary(lm(visits ~ ., data = agg.sales.tv2))
+
+agg.sales.tv2$`10secondi.sq` <- agg.sales.tv2$`10 secondi`^2
+agg.sales.tv2$`15secondi.sq` <- agg.sales.tv2$`15 secondi`^2
+agg.sales.tv2$`20secondi.sq` <- agg.sales.tv2$`20 secondi`^2
+agg.sales.tv2$`30secondi.sq` <- agg.sales.tv2$`30 secondi`^2
+agg.sales.tv2$`45secondi.sq` <- agg.sales.tv2$`45 secondi`^2
+
+summary(lm(visits ~ ., data = agg.sales.tv2))
+
+agg.sales.tv3 <- agg.sales.tv1[c(4:11)]
+summary(lm(sales_per_visit ~ ., data = agg.sales.tv3))
+
+agg.sales.tv3$`10secondi.sq` <- agg.sales.tv3$`10 secondi`^2
+agg.sales.tv3$`15secondi.sq` <- agg.sales.tv3$`15 secondi`^2
+agg.sales.tv3$`20secondi.sq` <- agg.sales.tv3$`20 secondi`^2
+agg.sales.tv3$`30secondi.sq` <- agg.sales.tv3$`30 secondi`^2
+agg.sales.tv3$`45secondi.sq` <- agg.sales.tv3$`45 secondi`^2
+
+summary(lm(sales_per_visit ~ ., data = agg.sales.tv3))
+
+hist(agg.sales.tv1$`15 secondi`)
+hist(agg.sales.tv1$`20 secondi`)
+hist(agg.sales.tv1$`10 secondi`)
+
+#grouping issue times into time_of_day_buckets
+campaign.tv.final$ISSUE_TIME <- as.numeric(gsub("\\D+","",substr(campaign.tv.final$ISSUE_TIME,0,2)))
+campaign.tv.final$timeofday <- ifelse(campaign.tv.final$ISSUE_TIME > 5 & campaign.tv.final$ISSUE_TIME < 10,
+                                      "morning",
+                                      ifelse(campaign.tv.final$ISSUE_TIME >= 10 & campaign.tv.final$ISSUE_TIME < 17,
+                                             "daytime",
+                                             ifelse(campaign.tv.final$ISSUE_TIME >= 17 & campaign.tv.final$ISSUE_TIME < 22,
+                                                    "primetime",
+                                                    "night")))
+
+tv.time.data.prep <- campaign.tv.final[c(1,4:6)]
+
+tv.time.data <- dcast(tv.time.data.prep, Date_out_start ~ FORMAT + timeofday, value.var = "NET_COST", fun.aggregate = sum)
+tv.time.data2 <- tv.time.data[c(1:5,7:10,12:15,17:20,22:25)]
+
+tv.time.data2$`10 secondi_daytime.sq`   <- tv.time.data2$`10 secondi_daytime`^2
+tv.time.data2$`10 secondi_morning.sq`   <- tv.time.data2$`10 secondi_morning`^2
+tv.time.data2$`10 secondi_night.sq`     <- tv.time.data2$`10 secondi_night`^2
+tv.time.data2$`10 secondi_primetime.sq` <- tv.time.data2$`10 secondi_primetime`^2
+
+tv.time.data2$`15 secondi_daytime.sq`   <- tv.time.data2$`15 secondi_daytime`^2
+tv.time.data2$`15 secondi_morning.sq`   <- tv.time.data2$`15 secondi_morning`^2
+tv.time.data2$`15 secondi_night.sq`     <- tv.time.data2$`15 secondi_night`^2
+tv.time.data2$`15 secondi_primetime.sq` <- tv.time.data2$`15 secondi_primetime`^2
+
+tv.time.data2$`20 secondi_daytime.sq`   <- tv.time.data2$`20 secondi_daytime`^2
+tv.time.data2$`20 secondi_morning.sq`   <- tv.time.data2$`20 secondi_morning`^2
+tv.time.data2$`20 secondi_night.sq`     <- tv.time.data2$`20 secondi_night`^2
+tv.time.data2$`20 secondi_primetime.sq` <- tv.time.data2$`20 secondi_primetime`^2
+
+tv.time.data2$`30 secondi_daytime.sq`   <- tv.time.data2$`30 secondi_daytime`^2
+tv.time.data2$`30 secondi_morning.sq`   <- tv.time.data2$`30 secondi_morning`^2
+tv.time.data2$`30 secondi_night.sq`     <- tv.time.data2$`30 secondi_night`^2
+tv.time.data2$`30 secondi_primetime.sq` <- tv.time.data2$`30 secondi_primetime`^2
+
+tv.time.data2$`45 secondi_daytime.sq`   <- tv.time.data2$`45 secondi_daytime`^2
+tv.time.data2$`45 secondi_morning.sq`   <- tv.time.data2$`45 secondi_morning`^2
+tv.time.data2$`45 secondi_night.sq`     <- tv.time.data2$`45 secondi_night`^2
+tv.time.data2$`45 secondi_primetime.sq` <- tv.time.data2$`45 secondi_primetime`^2
+
+tv.time.data.final <- merge(agg.sales, tv.time.data2, 
+                            by.x = "BUSINESS_DATE", by.y = "Date_out_start")
+
+tv.time.data.final$sales_per_visit <- tv.time.data.final$sales / tv.time.data.final$visits
+
+tv.time.data.final1 <- tv.time.data.final[c(3:44)]
+summary(lm(visits ~ ., data = tv.time.data.final1))
+
+tv.time.data.final2 <- tv.time.data.final[c(4:45)]
+summary(lm(sales_per_visit ~ ., data = tv.time.data.final2))
