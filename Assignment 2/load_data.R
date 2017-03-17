@@ -3,10 +3,10 @@ library(reshape2)
 library(dummies)
 
 # load data for  assignment 2
-data.campaign <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.store <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.googletrends <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/GoogleTrends.csv")
-data.grp <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/Assignment 2/Chain_GRPS_2015_2016.csv")
+data.campaign <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.store <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.googletrends <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/GoogleTrends.csv")
+data.grp <- read.csv("~/Google Drive/Imperial College London/Term 3/Retail and Marketing Analytics/Team assignment/retail/Assignment 2/Chain_GRPS_2015_2016.csv")
 
 # convert all entries to lower case
 data.store$RESTAURANT_CODE <- tolower(data.store$RESTAURANT_CODE)
@@ -202,7 +202,7 @@ agg.sales.all.media[is.na(agg.sales.all.media)] <- 0
 
 # Test which media is most efficient
 agg.sales.all.media$trend <- 1:nrow(agg.sales.all.media)
-model.allmedia <- lm(sales ~ visits + weekday + trend + print_inv + internet_inv + tv_inv + radio_inv + special_inv, agg.sales.all.media); summary(model.allmedia)
+model.allmedia <- lm(visits ~ weekday + trend + print_inv + internet_inv + tv_inv + radio_inv + special_inv, agg.sales.all.media); summary(model.allmedia)
 
 cor(agg.sales.all.media[, c("sales","visits","print_inv", "internet_inv", "tv_inv", "radio_inv")])
 
