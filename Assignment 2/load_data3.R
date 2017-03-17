@@ -354,6 +354,16 @@ agg.sales.radio1$`15secondi.sq` <- agg.sales.radio1$`15 secondi`^2
 agg.sales.radio1$`20secondi.sq` <- agg.sales.radio1$`20 secondi`^2
 agg.sales.radio1$`30secondi.sq` <- agg.sales.radio1$`30 secondi`^2
 
+
+#Ad Stock Variables
+agg.sales.radio1$`15secondi.adstock` <- 0 + agg.sales.radio1$`15 secondi`
+agg.sales.radio1$`20secondi.adstock` <- 0 + agg.sales.radio1$`20 secondi`
+agg.sales.radio1$`30secondi.adstock` <- 0 + agg.sales.radio1$`30 secondi`
+
+agg.sales.radio1$`15secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`15secondi.adstock`, -1))
+agg.sales.radio1$`20secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`20secondi.adstock`, -1))
+agg.sales.radio1$`30secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`30secondi.adstock`, -1))
+
 agg.sales.tv1$sales_per_visit.lag1 <- c(NA, head(agg.sales.tv1$sales_per_visit, -1))
 agg.sales.tv1$sales_per_visit.lag2 <- c(NA, NA, head(agg.sales.tv1$sales_per_visit, -2))
 agg.sales.tv1$sales_per_visit.lag3 <- c(NA, NA, NA, head(agg.sales.tv1$sales_per_visit, -3))
@@ -383,6 +393,19 @@ agg.sales.tv1$`15secondi.sq` <- agg.sales.tv1$`15 secondi`^2
 agg.sales.tv1$`20secondi.sq` <- agg.sales.tv1$`20 secondi`^2
 agg.sales.tv1$`30secondi.sq` <- agg.sales.tv1$`30 secondi`^2
 agg.sales.tv1$`45secondi.sq` <- agg.sales.tv1$`45 secondi`^2
+
+agg.sales.tv1$`10secondi.adstock` <- 0 + agg.sales.tv1$`10 secondi`
+agg.sales.tv1$`15secondi.adstock` <- 0 + agg.sales.tv1$`15 secondi`
+agg.sales.tv1$`20secondi.adstock` <- 0 + agg.sales.tv1$`20 secondi`
+agg.sales.tv1$`30secondi.adstock` <- 0 + agg.sales.tv1$`30 secondi`
+agg.sales.tv1$`45secondi.adstock` <- 0 + agg.sales.tv1$`45 secondi`
+
+agg.sales.tv1$`10secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`10secondi.adstock`, -1))
+agg.sales.tv1$`15secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`15secondi.adstock`, -1))
+agg.sales.tv1$`20secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`20secondi.adstock`, -1))
+agg.sales.tv1$`30secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`30secondi.adstock`, -1))
+agg.sales.tv1$`45secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`45secondi.adstock`, -1))
+
 
 # things that would be nice to have 
 # indication about what kind of audience the channel targets. this would allow to
@@ -458,6 +481,32 @@ agg.sales.tv9 <- agg.sales.tv1[c(4:5, 12:21, 37:41)]
 summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv9))
 
 
+#Ad Stock Alphas
+alpha.values <- c(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+
+grid.model1 <- list()
+
+rmse <- function(error)
+{
+  sqrt(mean(error^2))
+}
+
+i <- 1
+for (value in alpha.values){
+  agg.sales.radio1$`15secondi.adstock` <- value * agg.sales.radio1$`15secondi.adstock.lag` + agg.sales.radio1$`15 secondi`
+  agg.sales.radio1$`15secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`15secondi.adstock`, -1))
+  agg.sales.radio1$`20secondi.adstock` <- value * agg.sales.radio1$`20secondi.adstock.lag` + agg.sales.radio1$`20 secondi`
+  agg.sales.radio1$`20secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`20secondi.adstock`, -1))
+  agg.sales.radio1$`30secondi.adstock` <- value * agg.sales.radio1$`30secondi.adstock.lag` + agg.sales.radio1$`30 secondi`
+  agg.sales.radio1$`30secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`30secondi.adstock`, -1))
+  radio.1.2.adstock <- lm(visits ~  weekday + month + trend + 
+                            `15 secondi` + `20 secondi` + `30 secondi` + 
+                            `15secondi.adstock` + `20secondi.adstock` + `30secondi.adstock`, 
+                          data = agg.sales.radio1)
+  grid.model1[i] <- rmse(fitted(radio.1.2.adstock) - agg.sales.radio1$visits)
+  i <- i+1
+}
+
 ## FOR LARA (also we've switched to ln of visits and ln of sales per visit)
 
 
@@ -513,7 +562,7 @@ tv.time.data.final2 <- tv.time.data.final[c(4:45)]
 summary(lm(sales_per_visit ~ ., data = tv.time.data.final2))
 
 #Check for Unit roots
-adf.test(agg.sales$sales)
+acf(agg.sales.tv1$sales)
 
 
 
