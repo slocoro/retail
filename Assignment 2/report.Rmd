@@ -1,0 +1,51 @@
+---
+title: "Report"
+author: "Group 6"
+date: "3/21/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+- how much fast-food companies spend on advertizing every year
+- previous research that has been done in the field (most similar ones maybe)
+- show number in terms of what media is the most used
+
+
+Fast-food companies spend approximately X annually on media advertizing every year (source). The reason for this substantial spend is clear: advertizing has a measurable effect on sales and brand awareness (Blattberg and Neslin 1989, find better source). Research conducted on the top 25 most popular fast-food companies in the US showed that companies direct an average of 90% of their advertizing spend to TV (Nielsen, 2012). The remaining spend allocated to radio, internet, or print. As TV air time commands a hefty price, companies are interested in knowing the difference in impact TV adverts of varying lengths. (maybe reference some papers at this point)
+
+This report will look at (scope and limitations and method).
+
+wasCompanies have a plethora of media types and formats to choose from which makes the decision on where on how to adverstize particularly complex for companies. 
+
+
+
+Sources
+Nielson (secondary source) https://www.motherjones.com/files/fastfoodfacts_marketingrankings.pdf
+
+
+## Methodology
+
+- models used 
+- advantages and limitations of models
+- 
+
+## Data
+
+- provenance (mention the restrictions)
+- cleaning part
+- issues with the data
+- 
+
+
+## Results
+
+- elasticities and so on
+
+
+## Findings and Concluding Discussion
+
