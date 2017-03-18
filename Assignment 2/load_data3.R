@@ -4,6 +4,10 @@ library(dummies)
 library(chron)
 library(lubridate)
 
+rmse <- function(error) {
+  sqrt(mean(error^2)) }
+
+
 # load data for  assignment 2
 data.campaign <- read.csv("Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
 data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
@@ -482,32 +486,152 @@ summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv9))
 
 
 #Ad Stock Alphas
-alpha.values <- c(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+alpha.values <- c(seq(0.8, 1, by = 0.01))
 
-grid.model1 <- list()
+adstock.table.radio <- data.frame(Alpha = numeric(0),
+                            RMSE = numeric(0))
 
-rmse <- function(error)
-{
-  sqrt(mean(error^2))
-}
 
-i <- 1
+j <- 1
 for (value in alpha.values){
-  agg.sales.radio1$`15secondi.adstock` <- value * agg.sales.radio1$`15secondi.adstock.lag` + agg.sales.radio1$`15 secondi`
-  agg.sales.radio1$`15secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`15secondi.adstock`, -1))
-  agg.sales.radio1$`20secondi.adstock` <- value * agg.sales.radio1$`20secondi.adstock.lag` + agg.sales.radio1$`20 secondi`
-  agg.sales.radio1$`20secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`20secondi.adstock`, -1))
-  agg.sales.radio1$`30secondi.adstock` <- value * agg.sales.radio1$`30secondi.adstock.lag` + agg.sales.radio1$`30 secondi`
-  agg.sales.radio1$`30secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`30secondi.adstock`, -1))
+  agg.sales.radio1$`15secondi.adstock` <- numeric(length(agg.sales.radio1$`15 secondi`))
+  agg.sales.radio1$`20secondi.adstock` <- numeric(length(agg.sales.radio1$`20 secondi`))
+  agg.sales.radio1$`30secondi.adstock` <- numeric(length(agg.sales.radio1$`30 secondi`))
+  
+  agg.sales.radio1$`15secondi.adstock`[1] <- agg.sales.radio1$`15 secondi`[1]
+  agg.sales.radio1$`20secondi.adstock`[1] <- agg.sales.radio1$`20 secondi`[1]
+  agg.sales.radio1$`30secondi.adstock`[1] <- agg.sales.radio1$`30 secondi`[1]
+  
+  for (i in 2:length(agg.sales.radio1$`15secondi.adstock`)){
+    agg.sales.radio1$`15secondi.adstock`[i] = agg.sales.radio1$`15 secondi`[i] + value * agg.sales.radio1$`15secondi.adstock`[i-1]
+  }
+  
+  for (i in 2:length(agg.sales.radio1$`20secondi.adstock`)){
+    agg.sales.radio1$`20secondi.adstock`[i] = agg.sales.radio1$`20 secondi`[i] + value * agg.sales.radio1$`20secondi.adstock`[i-1]
+  }
+  
+  for (i in 2:length(agg.sales.radio1$`30secondi.adstock`)){
+    agg.sales.radio1$`30secondi.adstock`[i] = agg.sales.radio1$`30 secondi`[i] + value * agg.sales.radio1$`30secondi.adstock`[i-1]
+  }
+  
   radio.1.2.adstock <- lm(visits ~  weekday + month + trend + 
-                            `15 secondi` + `20 secondi` + `30 secondi` + 
-                            `15secondi.adstock` + `20secondi.adstock` + `30secondi.adstock`, 
-                          data = agg.sales.radio1)
-  grid.model1[i] <- rmse(fitted(radio.1.2.adstock) - agg.sales.radio1$visits)
-  i <- i+1
+                          `15secondi.adstock` + `20secondi.adstock` + `30secondi.adstock` , 
+                          data = agg.sales.radio1) 
+  
+  adstock.table.radio <- rbind(adstock.table.radio, c(value, rmse(fitted(radio.1.2.adstock) - agg.sales.radio1$visits)))
+  
+  j <- j+1
 }
 
-## FOR LARA (also we've switched to ln of visits and ln of sales per visit)
+colnames(adstock.table) <- c("Alpha", "RMSE")
+adstock.alpha.radio <- adstock.table$Alpha[which.min(adstock.table$RMSE)]
+
+agg.sales.radio1$`15secondi.adstock` <- numeric(length(agg.sales.radio1$`15 secondi`))
+agg.sales.radio1$`20secondi.adstock` <- numeric(length(agg.sales.radio1$`20 secondi`))
+agg.sales.radio1$`30secondi.adstock` <- numeric(length(agg.sales.radio1$`30 secondi`))
+
+agg.sales.radio1$`15secondi.adstock`[1] <- agg.sales.radio1$`15 secondi`[1]
+agg.sales.radio1$`20secondi.adstock`[1] <- agg.sales.radio1$`20 secondi`[1]
+agg.sales.radio1$`30secondi.adstock`[1] <- agg.sales.radio1$`30 secondi`[1]
+
+for (i in 2:length(agg.sales.radio1$`15secondi.adstock`)){
+  agg.sales.radio1$`15secondi.adstock`[i] = agg.sales.radio1$`15 secondi`[i] + adstock.alpha.radio * agg.sales.radio1$`15secondi.adstock`[i-1]
+}
+
+for (i in 2:length(agg.sales.radio1$`20secondi.adstock`)){
+  agg.sales.radio1$`20secondi.adstock`[i] = agg.sales.radio1$`20 secondi`[i] + adstock.alpha.radio * agg.sales.radio1$`20secondi.adstock`[i-1]
+}
+
+for (i in 2:length(agg.sales.radio1$`30secondi.adstock`)){
+  agg.sales.radio1$`30secondi.adstock`[i] = agg.sales.radio1$`30 secondi`[i] + adstock.alpha.radio * agg.sales.radio1$`30secondi.adstock`[i-1]
+}
+
+
+
+#Ad Stock Alphas TV
+alpha.values <- c(seq(0.8, 1, by = 0.01))
+
+adstock.table.tv <- data.frame(Alpha = numeric(0),
+                                  RMSE = numeric(0))
+
+
+j <- 1
+for (value in alpha.values){
+  agg.sales.tv1$`10secondi.adstock` <- numeric(length(agg.sales.tv1$`10 secondi`))
+  agg.sales.tv1$`15secondi.adstock` <- numeric(length(agg.sales.tv1$`15 secondi`))
+  agg.sales.tv1$`20secondi.adstock` <- numeric(length(agg.sales.tv1$`20 secondi`))
+  agg.sales.tv1$`30secondi.adstock` <- numeric(length(agg.sales.tv1$`30 secondi`))
+  agg.sales.tv1$`45secondi.adstock` <- numeric(length(agg.sales.tv1$`45 secondi`))
+  
+  agg.sales.tv1$`10secondi.adstock`[1] <- agg.sales.tv1$`10 secondi`[1]
+  agg.sales.tv1$`15secondi.adstock`[1] <- agg.sales.tv1$`15 secondi`[1]
+  agg.sales.tv1$`20secondi.adstock`[1] <- agg.sales.tv1$`20 secondi`[1]
+  agg.sales.tv1$`30secondi.adstock`[1] <- agg.sales.tv1$`30 secondi`[1]
+  agg.sales.tv1$`45secondi.adstock`[1] <- agg.sales.tv1$`45 secondi`[1]
+  
+  for (i in 2:length(agg.sales.tv1$`10secondi.adstock`)){
+    agg.sales.tv1$`10secondi.adstock`[i] = agg.sales.tv1$`10 secondi`[i] + value * agg.sales.tv1$`10secondi.adstock`[i-1]
+  }
+  
+  for (i in 2:length(agg.sales.tv1$`15secondi.adstock`)){
+    agg.sales.tv1$`15secondi.adstock`[i] = agg.sales.tv1$`15 secondi`[i] + value * agg.sales.tv1$`15secondi.adstock`[i-1]
+  }
+  
+  for (i in 2:length(agg.sales.tv1$`20secondi.adstock`)){
+    agg.sales.tv1$`20secondi.adstock`[i] = agg.sales.tv1$`20 secondi`[i] + value * agg.sales.tv1$`20secondi.adstock`[i-1]
+  }
+
+  for (i in 2:length(agg.sales.tv1$`30secondi.adstock`)){
+    agg.sales.tv1$`30secondi.adstock`[i] = agg.sales.tv1$`30 secondi`[i] + value * agg.sales.tv1$`30secondi.adstock`[i-1]
+  }
+  
+  for (i in 2:length(agg.sales.tv1$`45secondi.adstock`)){
+    agg.sales.tv1$`45secondi.adstock`[i] = agg.sales.tv1$`45 secondi`[i] + value * agg.sales.tv1$`45secondi.adstock`[i-1]
+  }
+  
+  tv.1.2.adstock <- lm(visits ~  weekday + month + trend + 
+                          `10secondi.adstock` + `15secondi.adstock` + `20secondi.adstock` + `30secondi.adstock` + `45secondi.adstock` , 
+                          data = agg.sales.tv1) 
+  
+  adstock.table.tv <- rbind(adstock.table.tv, c(value, rmse(fitted(tv.1.2.adstock) - agg.sales.tv1$visits)))
+  
+  j <- j+1
+}
+
+colnames(adstock.table.tv) <- c("Alpha", "RMSE")
+adstock.alpha.tv <- adstock.table.tv$Alpha[which.min(adstock.table.tv$RMSE)]
+
+agg.sales.tv1$`10secondi.adstock` <- numeric(length(agg.sales.tv1$`10 secondi`))
+agg.sales.tv1$`15secondi.adstock` <- numeric(length(agg.sales.tv1$`15 secondi`))
+agg.sales.tv1$`20secondi.adstock` <- numeric(length(agg.sales.tv1$`20 secondi`))
+agg.sales.tv1$`30secondi.adstock` <- numeric(length(agg.sales.tv1$`30 secondi`))
+agg.sales.tv1$`45secondi.adstock` <- numeric(length(agg.sales.tv1$`45 secondi`))
+
+agg.sales.tv1$`10secondi.adstock`[1] <- agg.sales.tv1$`10 secondi`[1]
+agg.sales.tv1$`15secondi.adstock`[1] <- agg.sales.tv1$`15 secondi`[1]
+agg.sales.tv1$`20secondi.adstock`[1] <- agg.sales.tv1$`20 secondi`[1]
+agg.sales.tv1$`30secondi.adstock`[1] <- agg.sales.tv1$`30 secondi`[1]
+agg.sales.tv1$`45secondi.adstock`[1] <- agg.sales.tv1$`45 secondi`[1]
+
+for (i in 2:length(agg.sales.tv1$`10secondi.adstock`)){
+  agg.sales.tv1$`10secondi.adstock`[i] = agg.sales.tv1$`10 secondi`[i] + adstock.alpha.tv * agg.sales.tv1$`10secondi.adstock`[i-1]
+}
+
+for (i in 2:length(agg.sales.tv1$`15secondi.adstock`)){
+  agg.sales.tv1$`15secondi.adstock`[i] = agg.sales.tv1$`15 secondi`[i] + adstock.alpha.tv * agg.sales.tv1$`15secondi.adstock`[i-1]
+}
+
+for (i in 2:length(agg.sales.tv1$`20secondi.adstock`)){
+  agg.sales.tv1$`20secondi.adstock`[i] = agg.sales.tv1$`20 secondi`[i] + adstock.alpha.tv * agg.sales.tv1$`20secondi.adstock`[i-1]
+}
+
+for (i in 2:length(agg.sales.tv1$`30secondi.adstock`)){
+  agg.sales.tv1$`30secondi.adstock`[i] = agg.sales.tv1$`30 secondi`[i] + adstock.alpha.tv * agg.sales.tv1$`30secondi.adstock`[i-1]
+}
+
+for (i in 2:length(agg.sales.tv1$`45secondi.adstock`)){
+  agg.sales.tv1$`45secondi.adstock`[i] = agg.sales.tv1$`45 secondi`[i] + adstock.alpha.tv * agg.sales.tv1$`45secondi.adstock`[i-1]
+}
 
 
 #grouping issue times into time_of_day_buckets
