@@ -712,78 +712,6 @@ agg.sales.tv1$sales_per_visit.lag3 <- log(agg.sales.tv1$lag_visits3)
 
 
 
-#RADIO VISITORS
-#no lag no square
-agg.sales.radio2 <- agg.sales.radio1[c(3:5,9:15)]
-summary(lm(log(visits)~ ., data = agg.sales.radio2))
-
-#only lag - BEST
-agg.sales.radio3 <- agg.sales.radio1[c(3:5,9:15,20:28)]
-summary(lm(log(visits) ~ ., data = agg.sales.radio3))
-
-#lag and square
-agg.sales.radio4 <- agg.sales.radio1[c(3:5,9:15,20:31)]
-summary(lm(log(visits) ~ ., data = agg.sales.radio4))
-
-#only square
-agg.sales.radio5 <- agg.sales.radio1[c(3:5,9:15,29:31)]
-summary(lm(log(visits) ~ ., data = agg.sales.radio5))
-
-#RADIO SALES PER VISIT
-#no lag no square
-agg.sales.radio6 <- agg.sales.radio1[c(4:5,12:19)]
-summary(lm(log(sales_per_visit) ~., data = agg.sales.radio6))
-
-#only lag - BEST
-agg.sales.radio7 <- agg.sales.radio1[c(4:5, 12:19, 20:28)] 
-summary(lm(log(sales_per_visit) ~., data = agg.sales.radio7))
-
-#lag and square
-agg.sales.radio8 <- agg.sales.radio1[c(4:5,12:19,20:31)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.radio8))
-
-#only square
-agg.sales.radio9 <- agg.sales.radio1[c(4:5,12:19,29:31)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.radio9))
-
-
-#TV VISITORS
-#no lag no square
-agg.sales.tv2 <- agg.sales.tv1[c(3:5, 9:17)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv2))
-
-#only lag
-agg.sales.tv3 <- agg.sales.tv1[c(3:5, 9:17, 22:36)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv3))
-
-#lag and square - BEST
-agg.sales.tv4 <- agg.sales.tv1[c(3:5, 9:17, 22:36, 37:41)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv4))
-
-#only square
-agg.sales.tv5 <- agg.sales.tv1[c(3:5, 9:17, 37:41)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv5))
-
-#TV SALES PER VISIT
-#no lag no square
-agg.sales.tv6 <- agg.sales.tv1[c(4:5, 12:21)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv6))
-
-#only lag - BEST
-agg.sales.tv7 <- agg.sales.tv1[c(4:5, 12:21, 22:36)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv7))
-
-#lag and square
-agg.sales.tv8 <- agg.sales.tv1[c(4:5, 12:21, 22:36, 37:41)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv8))
-
-#only square
-agg.sales.tv9 <- agg.sales.tv1[c(4:5, 12:21, 37:41)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv9))
-
-
-
-
 
 
 #grouping issue times into time_of_day_buckets
@@ -926,47 +854,188 @@ tv.time.data.final$sales_per_visit.lag1 <- c(NA, head(tv.time.data.final$sales_p
 tv.time.data.final$sales_per_visit.lag2 <- c(NA, NA, head(tv.time.data.final$sales_per_visit, -2))
 tv.time.data.final$sales_per_visit.lag3 <- c(NA, NA, NA, head(tv.time.data.final$sales_per_visit, -3))
 
+#TV with times adstock 
+tv.time.data.final$`10secondi_daytime.adstock`   <- numeric(length(tv.time.data.final$`10 secondi_daytime`))
+tv.time.data.final$`10secondi_morning.adstock`   <- numeric(length(tv.time.data.final$`10 secondi_morning`))
+tv.time.data.final$`10secondi_night.adstock`     <- numeric(length(tv.time.data.final$`10 secondi_night`))
+tv.time.data.final$`10secondi_primetime.adstock` <- numeric(length(tv.time.data.final$`10 secondi_primetime`))
 
-tv.time.data.final1 <- tv.time.data.final[c(3:44)]
-summary(lm(visits ~ ., data = tv.time.data.final1))
+tv.time.data.final$`15secondi_daytime.adstock`   <- numeric(length(tv.time.data.final$`15 secondi_daytime`))
+tv.time.data.final$`15secondi_morning.adstock`   <- numeric(length(tv.time.data.final$`15 secondi_morning`))
+tv.time.data.final$`15secondi_night.adstock`     <- numeric(length(tv.time.data.final$`15 secondi_night`))
+tv.time.data.final$`15secondi_primetime.adstock` <- numeric(length(tv.time.data.final$`15 secondi_primetime`))
 
+tv.time.data.final$`20secondi_daytime.adstock`   <- numeric(length(tv.time.data.final$`20 secondi_daytime`))
+tv.time.data.final$`20secondi_morning.adstock`   <- numeric(length(tv.time.data.final$`20 secondi_morning`))
+tv.time.data.final$`20secondi_night.adstock`     <- numeric(length(tv.time.data.final$`20 secondi_night`))
+tv.time.data.final$`20secondi_primetime.adstock` <- numeric(length(tv.time.data.final$`20 secondi_primetime`))
 
-#TV VISITORS - WITH TIMES
-#no lag no square
-tv.time.data.final2 <- tv.time.data.final[c(3:5, 9:31)]
-summary(lm(log(visits) ~ ., data = tv.time.data.final2))
+tv.time.data.final$`30secondi_daytime.adstock`   <- numeric(length(tv.time.data.final$`30 secondi_daytime`))
+tv.time.data.final$`30secondi_morning.adstock`   <- numeric(length(tv.time.data.final$`30 secondi_morning`))
+tv.time.data.final$`30secondi_night.adstock`     <- numeric(length(tv.time.data.final$`30 secondi_night`))
+tv.time.data.final$`30secondi_primetime.adstock` <- numeric(length(tv.time.data.final$`30 secondi_primetime`))
 
-#only lag
-tv.time.data.final3 <- tv.time.data.final[c(3:5, 9:31,53:103)]
-summary(lm(log(visits) ~ ., data = tv.time.data.final3))
-
-#lag and square 
-tv.time.data.final4 <- tv.time.data.final[c(3:5, 9:31,53:103, 32:51)]
-summary(lm(log(visits) ~ ., data = tv.time.data.final4))
-
-#only square
-tv.time.data.final5 <- tv.time.data.final[c(3:5, 9:31, 32:51)]
-summary(lm(log(visits) ~ ., data = tv.time.data.final5))
-
-#TV SALES PER VISIT -WITH TIMES
-#no lag no square
-tv.time.data.final6 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106)]
-summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final6))
-
-#only lag - BEST
-tv.time.data.final7 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 53:103)]
-summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final7))
-
-#lag and square
-tv.time.data.final8 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 53:103, 32:51)]
-summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final8))
-
-#only square
-tv.time.data.final9 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 32:51)]
-summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final9))
+tv.time.data.final$`45secondi_daytime.adstock`   <- numeric(length(tv.time.data.final$`45 secondi_daytime`))
+tv.time.data.final$`45secondi_morning.adstock`   <- numeric(length(tv.time.data.final$`45 secondi_morning`))
+tv.time.data.final$`45secondi_night.adstock`     <- numeric(length(tv.time.data.final$`45 secondi_night`))
+tv.time.data.final$`45secondi_primetime.adstock` <- numeric(length(tv.time.data.final$`45 secondi_primetime`))
 
 
+tv.time.data.final$`10secondi_daytime.adstock`[1]   <- tv.time.data.final$`10 secondi_daytime`[1]
+tv.time.data.final$`10secondi_morning.adstock`[1]   <- tv.time.data.final$`10 secondi_morning`[1]
+tv.time.data.final$`10secondi_night.adstock`[1]     <- tv.time.data.final$`10 secondi_night`[1]
+tv.time.data.final$`10secondi_primetime.adstock`[1] <- tv.time.data.final$`10 secondi_primetime`[1]
 
+tv.time.data.final$`15secondi_daytime.adstock`[1] <- tv.time.data.final$`15 secondi_daytime`[1]
+tv.time.data.final$`15secondi_morning.adstock`[1] <- tv.time.data.final$`15 secondi_morning`[1]
+tv.time.data.final$`15secondi_night.adstock`[1] <- tv.time.data.final$`15 secondi_night`[1]
+tv.time.data.final$`15secondi_primetime.adstock`[1] <- tv.time.data.final$`15 secondi_primetime`[1]
+
+tv.time.data.final$`20secondi_daytime.adstock`[1] <- tv.time.data.final$`20 secondi_daytime`[1]
+tv.time.data.final$`20secondi_morning.adstock`[1] <- tv.time.data.final$`20 secondi_morning`[1]
+tv.time.data.final$`20secondi_night.adstock`[1] <- tv.time.data.final$`20 secondi_night`[1]
+tv.time.data.final$`20secondi_primetime.adstock`[1] <- tv.time.data.final$`20 secondi_primetime`[1]
+
+tv.time.data.final$`30secondi_daytime.adstock`[1] <- tv.time.data.final$`30 secondi_daytime`[1]
+tv.time.data.final$`30secondi_morning.adstock`[1] <- tv.time.data.final$`30 secondi_morning`[1]
+tv.time.data.final$`30secondi_night.adstock`[1] <- tv.time.data.final$`30 secondi_night`[1]
+tv.time.data.final$`30secondi_primetime.adstock`[1] <- tv.time.data.final$`30 secondi_primetime`[1]
+
+tv.time.data.final$`45secondi_daytime.adstock`[1] <- tv.time.data.final$`45 secondi_daytime`[1]
+tv.time.data.final$`45secondi_morning.adstock`[1] <- tv.time.data.final$`45 secondi_morning`[1]
+tv.time.data.final$`45secondi_night.adstock`[1] <- tv.time.data.final$`45 secondi_night`[1]
+tv.time.data.final$`45secondi_primetime.adstock`[1] <- tv.time.data.final$`45 secondi_primetime`[1]
+
+
+for (i in 2:length(tv.time.data.final$`10secondi_daytime.adstock`)){
+  tv.time.data.final$`10secondi_daytime.adstock`[i] = tv.time.data.final$`10 secondi_daytime`[i] + 
+                                   adstock.alpha.tv * tv.time.data.final$`10secondi_daytime.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`10secondi_morning.adstock`)){
+  tv.time.data.final$`10secondi_morning.adstock`[i] = tv.time.data.final$`10 secondi_morning`[i] + adstock.alpha.tv * tv.time.data.final$`10secondi_morning.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`10secondi_night.adstock`)){
+  tv.time.data.final$`10secondi_night.adstock`[i] = tv.time.data.final$`10 secondi_night`[i] + adstock.alpha.tv * tv.time.data.final$`10secondi_night.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`10secondi_primetime.adstock`)){
+  tv.time.data.final$`10secondi_primetime.adstock`[i] = tv.time.data.final$`10 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`10secondi_primetime.adstock`[i-1]
+}
+
+
+
+for (i in 2:length(tv.time.data.final$`15secondi_daytime.adstock`)){
+  tv.time.data.final$`15secondi_daytime.adstock`[i] = tv.time.data.final$`15 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`15secondi_daytime.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`15secondi_morning.adstock`)){
+  tv.time.data.final$`15secondi_morning.adstock`[i] = tv.time.data.final$`15 secondi_morning`[i] + adstock.alpha.tv * tv.time.data.final$`15secondi_morning.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`15secondi_night.adstock`)){
+  tv.time.data.final$`15secondi_night.adstock`[i] = tv.time.data.final$`15 secondi_night`[i] + adstock.alpha.tv * tv.time.data.final$`15secondi_night.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`15secondi_primetime.adstock`)){
+  tv.time.data.final$`15secondi_primetime.adstock`[i] = tv.time.data.final$`15 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`15secondi_primetime.adstock`[i-1]
+}
+
+
+
+
+for (i in 2:length(tv.time.data.final$`20secondi_daytime.adstock`)){
+  tv.time.data.final$`20secondi_daytime.adstock`[i] = tv.time.data.final$`20 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`20secondi_daytime.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`20secondi_morning.adstock`)){
+  tv.time.data.final$`20secondi_morning.adstock`[i] = tv.time.data.final$`20 secondi_morning`[i] + adstock.alpha.tv * tv.time.data.final$`20secondi_morning.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`20secondi_night.adstock`)){
+  tv.time.data.final$`20secondi_night.adstock`[i] = tv.time.data.final$`20 secondi_night`[i] + adstock.alpha.tv * tv.time.data.final$`20secondi_night.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`20secondi_primetime.adstock`)){
+  tv.time.data.final$`20secondi_primetime.adstock`[i] = tv.time.data.final$`20 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`20secondi_primetime.adstock`[i-1]
+}
+
+
+
+for (i in 2:length(tv.time.data.final$`30secondi_daytime.adstock`)){
+  tv.time.data.final$`30secondi_daytime.adstock`[i] = tv.time.data.final$`30 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`30secondi_daytime.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`30secondi_morning.adstock`)){
+  tv.time.data.final$`30secondi_morning.adstock`[i] = tv.time.data.final$`30 secondi_morning`[i] + adstock.alpha.tv * tv.time.data.final$`30secondi_morning.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`30secondi_night.adstock`)){
+  tv.time.data.final$`30secondi_night.adstock`[i] = tv.time.data.final$`30 secondi_night`[i] + adstock.alpha.tv * tv.time.data.final$`30secondi_night.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`30secondi_primetime.adstock`)){
+  tv.time.data.final$`30secondi_primetime.adstock`[i] = tv.time.data.final$`30 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`30secondi_primetime.adstock`[i-1]
+}
+
+
+
+for (i in 2:length(tv.time.data.final$`45secondi_daytime.adstock`)){
+  tv.time.data.final$`45secondi_daytime.adstock`[i] = tv.time.data.final$`45 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`45secondi_daytime.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`45secondi_morning.adstock`)){
+  tv.time.data.final$`45secondi_morning.adstock`[i] = tv.time.data.final$`45 secondi_morning`[i] + adstock.alpha.tv * tv.time.data.final$`45secondi_morning.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`45secondi_night.adstock`)){
+  tv.time.data.final$`45secondi_night.adstock`[i] = tv.time.data.final$`45 secondi_night`[i] + adstock.alpha.tv * tv.time.data.final$`45secondi_night.adstock`[i-1]
+}
+for (i in 2:length(tv.time.data.final$`45secondi_primetime.adstock`)){
+  tv.time.data.final$`45secondi_primetime.adstock`[i] = tv.time.data.final$`45 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`45secondi_primetime.adstock`[i-1]
+}
+
+
+tv.time.data.final$`10secondi_daytime.adstock.log` <- log(tv.time.data.final$`10secondi_daytime.adstock`)
+tv.time.data.final$`10secondi_morning.adstock.log` <- log(tv.time.data.final$`10secondi_morning.adstock`)
+tv.time.data.final$`10secondi_night.adstock.log` <- log(tv.time.data.final$`10secondi_night.adstock`)
+tv.time.data.final$`10secondi_primetime.adstock.log` <- log(tv.time.data.final$`10secondi_primetime.adstock`)
+
+tv.time.data.final$`15secondi_daytime.adstock.log` <- log(tv.time.data.final$`15secondi_daytime.adstock`)
+tv.time.data.final$`15secondi_morning.adstock.log` <- log(tv.time.data.final$`15secondi_morning.adstock`)
+tv.time.data.final$`15secondi_night.adstock.log` <- log(tv.time.data.final$`15secondi_night.adstock`)
+tv.time.data.final$`15secondi_primetime.adstock.log` <- log(tv.time.data.final$`15secondi_primetime.adstock`)
+
+tv.time.data.final$`20secondi_daytime.adstock.log` <- log(tv.time.data.final$`20secondi_daytime.adstock`)
+tv.time.data.final$`20secondi_morning.adstock.log` <- log(tv.time.data.final$`20secondi_morning.adstock`)
+tv.time.data.final$`20secondi_night.adstock.log` <- log(tv.time.data.final$`20secondi_night.adstock`)
+tv.time.data.final$`20secondi_primetime.adstock.log` <- log(tv.time.data.final$`20secondi_primetime.adstock`)
+
+tv.time.data.final$`30secondi_daytime.adstock.log` <- log(tv.time.data.final$`30secondi_daytime.adstock`)
+tv.time.data.final$`30secondi_morning.adstock.log` <- log(tv.time.data.final$`30secondi_morning.adstock`)
+tv.time.data.final$`30secondi_night.adstock.log` <- log(tv.time.data.final$`30secondi_night.adstock`)
+tv.time.data.final$`30secondi_primetime.adstock.log` <- log(tv.time.data.final$`30secondi_primetime.adstock`)
+
+tv.time.data.final$`45secondi_daytime.adstock.log` <- log(tv.time.data.final$`45secondi_daytime.adstock`)
+tv.time.data.final$`45secondi_morning.adstock.log` <- log(tv.time.data.final$`45secondi_morning.adstock`)
+tv.time.data.final$`45secondi_night.adstock.log` <- log(tv.time.data.final$`45secondi_night.adstock`)
+tv.time.data.final$`45secondi_primetime.adstock.log` <- log(tv.time.data.final$`45secondi_primetime.adstock`)
+
+
+tv.time.data.final$`10secondi_daytime.adstock.log`[is.infinite(tv.time.data.final$`10secondi_daytime.adstock.log`)] <- 0
+tv.time.data.final$`10secondi_morning.adstock.log`[is.infinite(tv.time.data.final$`10secondi_morning.adstock.log`)] <- 0
+tv.time.data.final$`10secondi_night.adstock.log`[is.infinite(tv.time.data.final$`10secondi_night.adstock.log`)] <- 0
+tv.time.data.final$`10secondi_primetime.adstock.log`[is.infinite(tv.time.data.final$`10secondi_primetime.adstock.log`)] <- 0
+
+tv.time.data.final$`15secondi_daytime.adstock.log`[is.infinite(tv.time.data.final$`15secondi_daytime.adstock.log`)] <- 0
+tv.time.data.final$`15secondi_morning.adstock.log`[is.infinite(tv.time.data.final$`15secondi_morning.adstock.log`)] <- 0
+tv.time.data.final$`15secondi_night.adstock.log`[is.infinite(tv.time.data.final$`15secondi_night.adstock.log`)] <- 0
+tv.time.data.final$`15secondi_primetime.adstock.log`[is.infinite(tv.time.data.final$`15secondi_primetime.adstock.log`)] <- 0
+
+tv.time.data.final$`20secondi_daytime.adstock.log`[is.infinite(tv.time.data.final$`20secondi_daytime.adstock.log`)] <- 0
+tv.time.data.final$`20secondi_morning.adstock.log`[is.infinite(tv.time.data.final$`20secondi_morning.adstock.log`)] <- 0
+tv.time.data.final$`20secondi_night.adstock.log`[is.infinite(tv.time.data.final$`20secondi_night.adstock.log`)] <- 0
+tv.time.data.final$`20secondi_primetime.adstock.log`[is.infinite(tv.time.data.final$`20secondi_primetime.adstock.log`)] <- 0
+
+tv.time.data.final$`30secondi_daytime.adstock.log`[is.infinite(tv.time.data.final$`30secondi_daytime.adstock.log`)] <- 0
+tv.time.data.final$`30secondi_morning.adstock.log`[is.infinite(tv.time.data.final$`30secondi_morning.adstock.log`)] <- 0
+tv.time.data.final$`30secondi_night.adstock.log`[is.infinite(tv.time.data.final$`30secondi_night.adstock.log`)] <- 0
+tv.time.data.final$`30secondi_primetime.adstock.log`[is.infinite(tv.time.data.final$`30secondi_primetime.adstock.log`)] <- 0
+
+tv.time.data.final$`45secondi_daytime.adstock.log`[is.infinite(tv.time.data.final$`45secondi_daytime.adstock.log`)] <- 0
+tv.time.data.final$`45secondi_morning.adstock.log`[is.infinite(tv.time.data.final$`45secondi_morning.adstock.log`)] <- 0
+tv.time.data.final$`45secondi_night.adstock.log`[is.infinite(tv.time.data.final$`45secondi_night.adstock.log`)] <- 0
+tv.time.data.final$`45secondi_primetime.adstock.log`[is.infinite(tv.time.data.final$`45secondi_primetime.adstock.log`)] <- 0
+
+
+tv.time.data.final <- merge(tv.time.data.final, agg.sales.all.media, by="BUSINESS_DATE")
 
 ##NEW MODELS
 #TV
@@ -998,9 +1067,43 @@ summary(tv.sales.visits.model.3)
 
 
 #TV with times
+tv.times.sales.model.1 <- lm(log(sales.x) ~ weekday.x + month.x + trend.x + 
+                         `10secondi_daytime.adstock.log` + `10secondi_morning.adstock.log` + `10secondi_night.adstock.log` +
+                           `10secondi_primetime.adstock.log` + `15secondi_daytime.adstock.log` + `15secondi_morning.adstock.log` + `15secondi_night.adstock.log` +
+                           `15secondi_primetime.adstock.log` +`20secondi_daytime.adstock.log` + `20secondi_morning.adstock.log` + `20secondi_night.adstock.log` +
+                           `20secondi_primetime.adstock.log` +`30secondi_daytime.adstock.log` + `30secondi_morning.adstock.log` + `30secondi_night.adstock.log` +
+                           `30secondi_primetime.adstock.log` + `45secondi_daytime.adstock.log` + `45secondi_morning.adstock.log` + `45secondi_night.adstock.log` +
+                           `45secondi_primetime.adstock.log` + log(visits.x) +
+                         print.adstock.log + internet.adstock.log +
+                         special.adstock.log + radio.adstock.log, 
+                       data = tv.time.data.final)
+summary(tv.times.sales.model.1)
 
 
+tv.times.visits.model.2 <- lm(log(visits.x) ~ weekday.x + month.x + trend.x + 
+                               `10secondi_daytime.adstock.log` + `10secondi_morning.adstock.log` + `10secondi_night.adstock.log` +
+                               `10secondi_primetime.adstock.log` + `15secondi_daytime.adstock.log` + `15secondi_morning.adstock.log` + `15secondi_night.adstock.log` +
+                               `15secondi_primetime.adstock.log` +`20secondi_daytime.adstock.log` + `20secondi_morning.adstock.log` + `20secondi_night.adstock.log` +
+                               `20secondi_primetime.adstock.log` +`30secondi_daytime.adstock.log` + `30secondi_morning.adstock.log` + `30secondi_night.adstock.log` +
+                               `30secondi_primetime.adstock.log` + `45secondi_daytime.adstock.log` + `45secondi_morning.adstock.log` + `45secondi_night.adstock.log` +
+                               `45secondi_primetime.adstock.log` +
+                               print.adstock.log + internet.adstock.log +
+                               special.adstock.log + radio.adstock.log, 
+                             data = tv.time.data.final)
+summary(tv.times.visits.model.2)
 
+
+tv.times.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday.x + month.x + trend.x + 
+                                `10secondi_daytime.adstock.log` + `10secondi_morning.adstock.log` + `10secondi_night.adstock.log` +
+                                `10secondi_primetime.adstock.log` + `15secondi_daytime.adstock.log` + `15secondi_morning.adstock.log` + `15secondi_night.adstock.log` +
+                                `15secondi_primetime.adstock.log` +`20secondi_daytime.adstock.log` + `20secondi_morning.adstock.log` + `20secondi_night.adstock.log` +
+                                `20secondi_primetime.adstock.log` +`30secondi_daytime.adstock.log` + `30secondi_morning.adstock.log` + `30secondi_night.adstock.log` +
+                                `30secondi_primetime.adstock.log` + `45secondi_daytime.adstock.log` + `45secondi_morning.adstock.log` + `45secondi_night.adstock.log` +
+                                `45secondi_primetime.adstock.log` +
+                                print.adstock.log + internet.adstock.log +
+                                special.adstock.log + radio.adstock.log, 
+                              data = tv.time.data.final)
+summary(tv.times.sales.visits.model.3)
 
 
 
@@ -1029,8 +1132,3 @@ radio.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend 
                         data = agg.sales.radio1)
 summary(radio.sales.visits.model.3)
 
-
-
-
-
-colnames(agg.sales.radio1)
