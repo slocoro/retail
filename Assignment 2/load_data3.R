@@ -555,11 +555,141 @@ tv.time.data.final <- merge(agg.sales, tv.time.data2,
 
 tv.time.data.final$sales_per_visit <- tv.time.data.final$sales / tv.time.data.final$visits
 
+
+#ADD LAG FOR EACH TIME AND SECOND
+#10 SECONDI
+tv.time.data.final$`10 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_daytime`, -1))
+tv.time.data.final$`10 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_daytime`, -2))
+tv.time.data.final$`10 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_daytime`, -3))
+
+tv.time.data.final$`10 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_morning`, -1))
+tv.time.data.final$`10 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_morning`, -2))
+tv.time.data.final$`10 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`10 secondi_morning`, -3))
+
+tv.time.data.final$`10 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_night`, -1))
+tv.time.data.final$`10 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_night`, -2))
+tv.time.data.final$`10 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`10 secondi_night`, -3))
+
+tv.time.data.final$`10 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_primetime`, -1))
+tv.time.data.final$`10 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_primetime`, -2))
+tv.time.data.final$`10 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`10 secondi_primetime`, -3))
+
+#15 SECONDI
+tv.time.data.final$`15 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_daytime`, -1))
+tv.time.data.final$`15 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_daytime`, -2))
+tv.time.data.final$`15 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_daytime`, -3))
+
+tv.time.data.final$`15 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_morning`, -1))
+tv.time.data.final$`15 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_morning`, -2))
+tv.time.data.final$`15 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_morning`, -3))
+
+tv.time.data.final$`15 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_night`, -1))
+tv.time.data.final$`15 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_night`, -2))
+tv.time.data.final$`15 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_night`, -3))
+
+tv.time.data.final$`15 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_primetime`, -1))
+tv.time.data.final$`15 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_primetime`, -2))
+tv.time.data.final$`15 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_primetime`, -3))
+
+#20 SECONDI
+tv.time.data.final$`20 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_daytime`, -1))
+tv.time.data.final$`20 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_daytime`, -2))
+tv.time.data.final$`20 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_daytime`, -3))
+
+tv.time.data.final$`20 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_morning`, -1))
+tv.time.data.final$`20 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_morning`, -2))
+tv.time.data.final$`20 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_morning`, -3))
+
+tv.time.data.final$`20 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_night`, -1))
+tv.time.data.final$`20 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_night`, -2))
+tv.time.data.final$`20 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_night`, -3))
+
+tv.time.data.final$`20 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_primetime`, -1))
+tv.time.data.final$`20 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_primetime`, -2))
+tv.time.data.final$`20 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_primetime`, -3))
+
+#30 SECONDI
+tv.time.data.final$`30 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_daytime`, -1))
+tv.time.data.final$`30 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_daytime`, -2))
+tv.time.data.final$`30 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_daytime`, -3))
+
+tv.time.data.final$`30 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_morning`, -1))
+tv.time.data.final$`30 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_morning`, -2))
+tv.time.data.final$`30 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_morning`, -3))
+
+tv.time.data.final$`30 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_night`, -1))
+tv.time.data.final$`30 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_night`, -2))
+tv.time.data.final$`30 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_night`, -3))
+
+tv.time.data.final$`30 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_primetime`, -1))
+tv.time.data.final$`30 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_primetime`, -2))
+tv.time.data.final$`30 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_primetime`, -3))
+
+#45 SECONDI
+tv.time.data.final$`45 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_daytime`, -1))
+tv.time.data.final$`45 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_daytime`, -2))
+tv.time.data.final$`45 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_daytime`, -3))
+
+tv.time.data.final$`45 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_morning`, -1))
+tv.time.data.final$`45 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_morning`, -2))
+tv.time.data.final$`45 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_morning`, -3))
+
+tv.time.data.final$`45 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_night`, -1))
+tv.time.data.final$`45 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_night`, -2))
+tv.time.data.final$`45 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_night`, -3))
+
+tv.time.data.final$`45 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_primetime`, -1))
+tv.time.data.final$`45 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_primetime`, -2))
+tv.time.data.final$`45 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_primetime`, -3))
+
+#SALES PER VISIT LAG
+tv.time.data.final$sales_per_visit.lag1 <- c(NA, head(tv.time.data.final$sales_per_visit, -1))
+tv.time.data.final$sales_per_visit.lag2 <- c(NA, NA, head(tv.time.data.final$sales_per_visit, -2))
+tv.time.data.final$sales_per_visit.lag3 <- c(NA, NA, NA, head(tv.time.data.final$sales_per_visit, -3))
+
+
 tv.time.data.final1 <- tv.time.data.final[c(3:44)]
 summary(lm(visits ~ ., data = tv.time.data.final1))
 
-tv.time.data.final2 <- tv.time.data.final[c(4:45)]
-summary(lm(sales_per_visit ~ ., data = tv.time.data.final2))
+
+#TV VISITORS - WITH TIMES
+#no lag no square
+tv.time.data.final2 <- tv.time.data.final[c(3:5, 9:31)]
+summary(lm(log(visits) ~ ., data = tv.time.data.final2))
+
+#only lag
+tv.time.data.final3 <- tv.time.data.final[c(3:5, 9:31,53:103)]
+summary(lm(log(visits) ~ ., data = tv.time.data.final3))
+
+#lag and square 
+tv.time.data.final4 <- tv.time.data.final[c(3:5, 9:31,53:103, 32:51)]
+summary(lm(log(visits) ~ ., data = tv.time.data.final4))
+
+#only square
+tv.time.data.final5 <- tv.time.data.final[c(3:5, 9:31, 32:51)]
+summary(lm(log(visits) ~ ., data = tv.time.data.final5))
+
+#TV SALES PER VISIT -WITH TIMES
+#no lag no square
+tv.time.data.final6 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106)]
+summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final6))
+
+#only lag - BEST
+tv.time.data.final7 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 53:103)]
+summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final7))
+
+
+#lag and square
+tv.time.data.final8 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 53:103, 32:51)]
+summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final8))
+
+#only square
+tv.time.data.final9 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 32:51)]
+summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final9))
+
+
+
+
 
 #Check for Unit roots
 acf(agg.sales.tv1$sales)
