@@ -54,9 +54,6 @@ plot(agg.sales$sales,
 sales.ts <- ts(agg.sales$sales, frequency = 365, start=c(2015,5,15))
 plot(stl(sales.ts))
 
-agg.sales$lag_sales1 <- c(NA, head(agg.sales$sales, -1))
-agg.sales$lag_sales2 <- c(NA, NA, head(agg.sales$sales, -2))
-agg.sales$lag_sales3 <- c(NA, NA, NA, head(agg.sales$sales, -3))
 agg.sales$lag_visits1 <- c(NA, head(agg.sales$visits, -1))
 agg.sales$lag_visits2 <- c(NA, NA, head(agg.sales$visits, -2))
 agg.sales$lag_visits3 <- c(NA, NA, NA, head(agg.sales$visits, -3))
@@ -335,9 +332,7 @@ agg.sales.tv1[is.na(agg.sales.tv1)] <- 0
 agg.sales.radio1[is.na(agg.sales.radio1)] <- 0
 
 # add sales per visit column
-agg.sales.tv1$sales_per_visit <- agg.sales.tv1$sales / agg.sales.tv1$visits
 agg.sales.radio1$sales_per_visit <- agg.sales.radio1$sales / agg.sales.radio1$visits
-
 agg.sales.radio1$sales_per_visit.lag1 <- c(NA, head(agg.sales.radio1$sales_per_visit, -1))
 agg.sales.radio1$sales_per_visit.lag2 <- c(NA, NA, head(agg.sales.radio1$sales_per_visit, -2))
 agg.sales.radio1$sales_per_visit.lag3 <- c(NA, NA, NA, head(agg.sales.radio1$sales_per_visit, -3))
@@ -358,16 +353,11 @@ agg.sales.radio1$`15secondi.sq` <- agg.sales.radio1$`15 secondi`^2
 agg.sales.radio1$`20secondi.sq` <- agg.sales.radio1$`20 secondi`^2
 agg.sales.radio1$`30secondi.sq` <- agg.sales.radio1$`30 secondi`^2
 
-
-#Ad Stock Variables
 agg.sales.radio1$`15secondi.adstock` <- 0 + agg.sales.radio1$`15 secondi`
 agg.sales.radio1$`20secondi.adstock` <- 0 + agg.sales.radio1$`20 secondi`
 agg.sales.radio1$`30secondi.adstock` <- 0 + agg.sales.radio1$`30 secondi`
 
-agg.sales.radio1$`15secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`15secondi.adstock`, -1))
-agg.sales.radio1$`20secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`20secondi.adstock`, -1))
-agg.sales.radio1$`30secondi.adstock.lag` <- c(NA, head(agg.sales.radio1$`30secondi.adstock`, -1))
-
+agg.sales.tv1$sales_per_visit <- agg.sales.tv1$sales / agg.sales.tv1$visits
 agg.sales.tv1$sales_per_visit.lag1 <- c(NA, head(agg.sales.tv1$sales_per_visit, -1))
 agg.sales.tv1$sales_per_visit.lag2 <- c(NA, NA, head(agg.sales.tv1$sales_per_visit, -2))
 agg.sales.tv1$sales_per_visit.lag3 <- c(NA, NA, NA, head(agg.sales.tv1$sales_per_visit, -3))
@@ -404,93 +394,15 @@ agg.sales.tv1$`20secondi.adstock` <- 0 + agg.sales.tv1$`20 secondi`
 agg.sales.tv1$`30secondi.adstock` <- 0 + agg.sales.tv1$`30 secondi`
 agg.sales.tv1$`45secondi.adstock` <- 0 + agg.sales.tv1$`45 secondi`
 
-agg.sales.tv1$`10secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`10secondi.adstock`, -1))
-agg.sales.tv1$`15secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`15secondi.adstock`, -1))
-agg.sales.tv1$`20secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`20secondi.adstock`, -1))
-agg.sales.tv1$`30secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`30secondi.adstock`, -1))
-agg.sales.tv1$`45secondi.adstock.lag` <- c(NA, head(agg.sales.tv1$`45secondi.adstock`, -1))
-
-
 # things that would be nice to have 
 # indication about what kind of audience the channel targets. this would allow to
 # cluster channels by type (family, sports, film, ...)
-
-#RADIO VISITORS
-#no lag no square
-agg.sales.radio2 <- agg.sales.radio1[c(3:5,9:15)]
-summary(lm(log(visits)~ ., data = agg.sales.radio2))
-
-#only lag - BEST
-agg.sales.radio3 <- agg.sales.radio1[c(3:5,9:15,20:28)]
-summary(lm(log(visits) ~ ., data = agg.sales.radio3))
-
-#lag and square
-agg.sales.radio4 <- agg.sales.radio1[c(3:5,9:15,20:31)]
-summary(lm(log(visits) ~ ., data = agg.sales.radio4))
-
-#only square
-agg.sales.radio5 <- agg.sales.radio1[c(3:5,9:15,29:31)]
-summary(lm(log(visits) ~ ., data = agg.sales.radio5))
-
-#RADIO SALES PER VISIT
-#no lag no square
-agg.sales.radio6 <- agg.sales.radio1[c(4:5,12:19)]
-summary(lm(log(sales_per_visit) ~., data = agg.sales.radio6))
-
-#only lag - BEST
-agg.sales.radio7 <- agg.sales.radio1[c(4:5, 12:19, 20:28)] 
-summary(lm(log(sales_per_visit) ~., data = agg.sales.radio7))
-
-#lag and square
-agg.sales.radio8 <- agg.sales.radio1[c(4:5,12:19,20:31)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.radio8))
-
-#only square
-agg.sales.radio9 <- agg.sales.radio1[c(4:5,12:19,29:31)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.radio9))
-
-
-#TV VISITORS
-#no lag no square
-agg.sales.tv2 <- agg.sales.tv1[c(3:5, 9:17)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv2))
-
-#only lag
-agg.sales.tv3 <- agg.sales.tv1[c(3:5, 9:17, 22:36)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv3))
-
-#lag and square - BEST
-agg.sales.tv4 <- agg.sales.tv1[c(3:5, 9:17, 22:36, 37:41)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv4))
-
-#only square
-agg.sales.tv5 <- agg.sales.tv1[c(3:5, 9:17, 37:41)]
-summary(lm(log(visits) ~ ., data = agg.sales.tv5))
-
-#TV SALES PER VISIT
-#no lag no square
-agg.sales.tv6 <- agg.sales.tv1[c(4:5, 12:21)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv6))
-
-#only lag - BEST
-agg.sales.tv7 <- agg.sales.tv1[c(4:5, 12:21, 22:36)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv7))
-
-#lag and square
-agg.sales.tv8 <- agg.sales.tv1[c(4:5, 12:21, 22:36, 37:41)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv8))
-
-#only square
-agg.sales.tv9 <- agg.sales.tv1[c(4:5, 12:21, 37:41)]
-summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv9))
-
 
 #Ad Stock Alphas
 alpha.values <- c(seq(0.8, 1, by = 0.01))
 
 adstock.table.radio <- data.frame(Alpha = numeric(0),
                             RMSE = numeric(0))
-
 
 j <- 1
 for (value in alpha.values){
@@ -523,8 +435,8 @@ for (value in alpha.values){
   j <- j+1
 }
 
-colnames(adstock.table) <- c("Alpha", "RMSE")
-adstock.alpha.radio <- adstock.table$Alpha[which.min(adstock.table$RMSE)]
+colnames(adstock.table.radio) <- c("Alpha", "RMSE")
+adstock.alpha.radio <- adstock.table.radio$Alpha[which.min(adstock.table.radio$RMSE)]
 
 agg.sales.radio1$`15secondi.adstock` <- numeric(length(agg.sales.radio1$`15 secondi`))
 agg.sales.radio1$`20secondi.adstock` <- numeric(length(agg.sales.radio1$`20 secondi`))
@@ -546,14 +458,18 @@ for (i in 2:length(agg.sales.radio1$`30secondi.adstock`)){
   agg.sales.radio1$`30secondi.adstock`[i] = agg.sales.radio1$`30 secondi`[i] + adstock.alpha.radio * agg.sales.radio1$`30secondi.adstock`[i-1]
 }
 
+agg.sales.all.media$radio.adstock <- numeric(length(agg.sales.all.media$radio_inv))
+agg.sales.all.media$radio.adstock[1] <- agg.sales.all.media$radio_inv[1]
 
+for (i in 2:length(agg.sales.all.media$radio.adstock)){
+  agg.sales.all.media$radio.adstock[i] = agg.sales.all.media$radio_inv[i] + adstock.alpha.radio * agg.sales.all.media$radio.adstock[i-1]
+}
 
 #Ad Stock Alphas TV
 alpha.values <- c(seq(0.8, 1, by = 0.01))
 
 adstock.table.tv <- data.frame(Alpha = numeric(0),
                                   RMSE = numeric(0))
-
 
 j <- 1
 for (value in alpha.values){
@@ -634,6 +550,242 @@ for (i in 2:length(agg.sales.tv1$`45secondi.adstock`)){
 }
 
 
+agg.sales.all.media$tv.adstock <- numeric(length(agg.sales.all.media$tv_inv))
+agg.sales.all.media$tv.adstock[1] <- agg.sales.all.media$tv_inv[1]
+
+for (i in 2:length(agg.sales.all.media$tv.adstock)){
+  agg.sales.all.media$tv.adstock[i] = agg.sales.all.media$tv_inv[i] + adstock.alpha.tv * agg.sales.all.media$tv.adstock[i-1]
+}
+
+#Ad Stock Alphas Print
+alpha.values <- c(seq(0.5, 0.96, by = 0.01))
+
+adstock.table.print <- data.frame(Alpha = numeric(0),
+                                  RMSE = numeric(0))
+j <- 1
+for (value in alpha.values){
+  agg.sales.all.media$print.adstock <- numeric(length(agg.sales.all.media$print_inv))
+  
+  agg.sales.all.media$print.adstock[1] <- agg.sales.all.media$print_inv[1]
+  
+  for (i in 2:length(agg.sales.all.media$print.adstock)){
+    agg.sales.all.media$print.adstock[i] = agg.sales.all.media$print_inv[i] + value * agg.sales.all.media$print.adstock[i-1]
+  }
+  print.1.2.adstock <- lm(visits ~ weekday + month + trend + print.adstock , data = agg.sales.all.media) 
+  adstock.table.print <- rbind(adstock.table.print, c(value, rmse(fitted(print.1.2.adstock) - agg.sales.all.media$visits)))
+  j <- j+1
+}
+
+colnames(adstock.table.print) <- c("Alpha", "RMSE")
+adstock.alpha.print <- adstock.table.print$Alpha[which.min(adstock.table.print$RMSE)]
+
+agg.sales.all.media$print.adstock <- numeric(length(agg.sales.all.media$print_inv))
+agg.sales.all.media$print.adstock[1] <- agg.sales.all.media$print_inv[1]
+
+for (i in 2:length(agg.sales.all.media$print.adstock)){
+  agg.sales.all.media$print.adstock[i] = agg.sales.all.media$print_inv[i] + adstock.alpha.print * agg.sales.all.media$print.adstock[i-1]
+}
+
+#Ad Stock Alphas Internet
+alpha.values <- c(seq(0.5, .99, by = 0.01))
+
+adstock.table.internet <- data.frame(Alpha = numeric(0),
+                                  RMSE = numeric(0))
+j <- 1
+for (value in alpha.values){
+  agg.sales.all.media$internet.adstock <- numeric(length(agg.sales.all.media$internet_inv))
+  
+  agg.sales.all.media$internet.adstock[1] <- agg.sales.all.media$internet_inv[1]
+  
+  for (i in 2:length(agg.sales.all.media$internet.adstock)){
+    agg.sales.all.media$internet.adstock[i] = agg.sales.all.media$internet_inv[i] + value * agg.sales.all.media$internet.adstock[i-1]
+  }
+  internet.1.2.adstock <- lm(visits ~ weekday + month + trend + internet.adstock , data = agg.sales.all.media) 
+  adstock.table.internet <- rbind(adstock.table.internet, c(value, rmse(fitted(internet.1.2.adstock) - agg.sales.all.media$visits)))
+  j <- j+1
+}
+
+colnames(adstock.table.internet) <- c("Alpha", "RMSE")
+adstock.alpha.internet <- adstock.table.internet$Alpha[which.min(adstock.table.internet$RMSE)]
+
+agg.sales.all.media$internet.adstock <- numeric(length(agg.sales.all.media$internet_inv))
+agg.sales.all.media$internet.adstock[1] <- agg.sales.all.media$internet_inv[1]
+
+for (i in 2:length(agg.sales.all.media$internet.adstock)){
+  agg.sales.all.media$internet.adstock[i] = agg.sales.all.media$internet_inv[i] + adstock.alpha.internet * agg.sales.all.media$internet.adstock[i-1]
+}
+
+
+#Ad Stock Alphas Special
+alpha.values <- c(seq(0.5, 1, by = 0.01))
+
+adstock.table.special <- data.frame(Alpha = numeric(0),
+                                     RMSE = numeric(0))
+j <- 1
+for (value in alpha.values){
+  agg.sales.all.media$special.adstock <- numeric(length(agg.sales.all.media$special_inv))
+  
+  agg.sales.all.media$special.adstock[1] <- agg.sales.all.media$special_inv[1]
+  
+  for (i in 2:length(agg.sales.all.media$special.adstock)){
+    agg.sales.all.media$special.adstock[i] = agg.sales.all.media$special_inv[i] + value * agg.sales.all.media$special.adstock[i-1]
+  }
+  special.1.2.adstock <- lm(visits ~ weekday + month + trend + special.adstock , data = agg.sales.all.media) 
+  adstock.table.special <- rbind(adstock.table.special, c(value, rmse(fitted(special.1.2.adstock) - agg.sales.all.media$visits)))
+  j <- j+1
+}
+
+colnames(adstock.table.special) <- c("Alpha", "RMSE")
+adstock.alpha.special <- adstock.table.special$Alpha[which.min(adstock.table.special$RMSE)]
+
+agg.sales.all.media$special.adstock <- numeric(length(agg.sales.all.media$special_inv))
+agg.sales.all.media$special.adstock[1] <- agg.sales.all.media$special_inv[1]
+
+for (i in 2:length(agg.sales.all.media$special.adstock)){
+  agg.sales.all.media$special.adstock[i] = agg.sales.all.media$special_inv[i] + adstock.alpha.special * agg.sales.all.media$special.adstock[i-1]
+}
+
+
+agg.sales.all.media$print.adstock.log    <- log(agg.sales.all.media$print.adstock)
+agg.sales.all.media$internet.adstock.log <- log(agg.sales.all.media$internet.adstock)
+agg.sales.all.media$tv.adstock.log       <- log(agg.sales.all.media$tv.adstock)
+agg.sales.all.media$radio.adstock.log    <- log(agg.sales.all.media$radio.adstock)
+agg.sales.all.media$special.adstock.log  <- log(agg.sales.all.media$special.adstock)
+
+agg.sales.all.media$internet.adstock.log[is.infinite(agg.sales.all.media$internet.adstock.log)] <- mean(agg.sales.all.media$internet.adstock.log[is.finite(agg.sales.all.media$internet.adstock.log)])
+agg.sales.all.media$radio.adstock.log[is.infinite(agg.sales.all.media$radio.adstock.log)]       <- mean(agg.sales.all.media$radio.adstock.log[is.finite(agg.sales.all.media$radio.adstock.log)])
+agg.sales.all.media$special.adstock.log[is.infinite(agg.sales.all.media$special.adstock.log)] <- mean(agg.sales.all.media$special.adstock.log[is.finite(agg.sales.all.media$special.adstock.log)])
+
+agg.sales.radio1 <- cbind(agg.sales.radio1, agg.sales.all.media$print.adstock.log, agg.sales.all.media$internet.adstock.log,
+                          agg.sales.all.media$tv.adstock.log, agg.sales.all.media$special.adstock.log)
+
+agg.sales.tv1 <- cbind(agg.sales.tv1, agg.sales.all.media$print.adstock.log, agg.sales.all.media$internet.adstock.log,
+                       agg.sales.all.media$radio.adstock.log, agg.sales.all.media$special.adstock.log)
+
+agg.sales.radio1$`15secondi.adstock.log` <- log(agg.sales.radio1$`15secondi.adstock`)
+agg.sales.radio1$`20secondi.adstock.log` <- log(agg.sales.radio1$`20secondi.adstock`)
+agg.sales.radio1$`30secondi.adstock.log` <- log(agg.sales.radio1$`30secondi.adstock`)
+
+agg.sales.radio1$`15secondi.adstock.log`[is.infinite(agg.sales.radio1$`15secondi.adstock.log`)] <- 0
+agg.sales.radio1$`20secondi.adstock.log`[is.infinite(agg.sales.radio1$`20secondi.adstock.log`)] <- 0
+agg.sales.radio1$`30secondi.adstock.log`[is.infinite(agg.sales.radio1$`30secondi.adstock.log`)] <- 0
+
+agg.sales.radio1$lag_visits1 <- log(agg.sales.radio1$lag_visits1)
+agg.sales.radio1$lag_visits2 <- log(agg.sales.radio1$lag_visits2)
+agg.sales.radio1$lag_visits3 <- log(agg.sales.radio1$lag_visits3)
+
+agg.sales.radio1$lag_visits1[is.infinite(agg.sales.radio1$lag_visits1)] <- NA
+agg.sales.radio1$lag_visits2[is.infinite(agg.sales.radio1$lag_visits2)] <- NA
+agg.sales.radio1$lag_visits3[is.infinite(agg.sales.radio1$lag_visits3)] <- NA
+
+agg.sales.radio1$sales_per_visit.lag1 <- log(agg.sales.radio1$lag_visits1)
+agg.sales.radio1$sales_per_visit.lag2 <- log(agg.sales.radio1$lag_visits2)
+agg.sales.radio1$sales_per_visit.lag3 <- log(agg.sales.radio1$lag_visits3)
+
+
+
+
+agg.sales.tv1$`10secondi.adstock.log` <- log(agg.sales.tv1$`10secondi.adstock`)
+agg.sales.tv1$`15secondi.adstock.log` <- log(agg.sales.tv1$`15secondi.adstock`)
+agg.sales.tv1$`20secondi.adstock.log` <- log(agg.sales.tv1$`20secondi.adstock`)
+agg.sales.tv1$`30secondi.adstock.log` <- log(agg.sales.tv1$`30secondi.adstock`)
+agg.sales.tv1$`45secondi.adstock.log` <- log(agg.sales.tv1$`45secondi.adstock`)
+
+agg.sales.tv1$`10secondi.adstock.log`[is.infinite(agg.sales.tv1$`10secondi.adstock.log`)] <- 0
+agg.sales.tv1$`15secondi.adstock.log`[is.infinite(agg.sales.tv1$`15secondi.adstock.log`)] <- 0
+agg.sales.tv1$`20secondi.adstock.log`[is.infinite(agg.sales.tv1$`20secondi.adstock.log`)] <- 0
+agg.sales.tv1$`30secondi.adstock.log`[is.infinite(agg.sales.tv1$`30secondi.adstock.log`)] <- 0
+agg.sales.tv1$`45secondi.adstock.log`[is.infinite(agg.sales.tv1$`45secondi.adstock.log`)] <- 0
+
+
+agg.sales.tv1$lag_visits1 <- log(agg.sales.tv1$lag_visits1)
+agg.sales.tv1$lag_visits2 <- log(agg.sales.tv1$lag_visits2)
+agg.sales.tv1$lag_visits3 <- log(agg.sales.tv1$lag_visits3)
+
+agg.sales.tv1$lag_visits1[is.infinite(agg.sales.tv1$lag_visits1)] <- NA
+agg.sales.tv1$lag_visits2[is.infinite(agg.sales.tv1$lag_visits2)] <- NA
+agg.sales.tv1$lag_visits3[is.infinite(agg.sales.tv1$lag_visits3)] <- NA
+
+agg.sales.tv1$sales_per_visit.lag1 <- log(agg.sales.tv1$lag_visits1)
+agg.sales.tv1$sales_per_visit.lag2 <- log(agg.sales.tv1$lag_visits2)
+agg.sales.tv1$sales_per_visit.lag3 <- log(agg.sales.tv1$lag_visits3)
+
+
+
+#RADIO VISITORS
+#no lag no square
+agg.sales.radio2 <- agg.sales.radio1[c(3:5,9:15)]
+summary(lm(log(visits)~ ., data = agg.sales.radio2))
+
+#only lag - BEST
+agg.sales.radio3 <- agg.sales.radio1[c(3:5,9:15,20:28)]
+summary(lm(log(visits) ~ ., data = agg.sales.radio3))
+
+#lag and square
+agg.sales.radio4 <- agg.sales.radio1[c(3:5,9:15,20:31)]
+summary(lm(log(visits) ~ ., data = agg.sales.radio4))
+
+#only square
+agg.sales.radio5 <- agg.sales.radio1[c(3:5,9:15,29:31)]
+summary(lm(log(visits) ~ ., data = agg.sales.radio5))
+
+#RADIO SALES PER VISIT
+#no lag no square
+agg.sales.radio6 <- agg.sales.radio1[c(4:5,12:19)]
+summary(lm(log(sales_per_visit) ~., data = agg.sales.radio6))
+
+#only lag - BEST
+agg.sales.radio7 <- agg.sales.radio1[c(4:5, 12:19, 20:28)] 
+summary(lm(log(sales_per_visit) ~., data = agg.sales.radio7))
+
+#lag and square
+agg.sales.radio8 <- agg.sales.radio1[c(4:5,12:19,20:31)]
+summary(lm(log(sales_per_visit) ~ ., data = agg.sales.radio8))
+
+#only square
+agg.sales.radio9 <- agg.sales.radio1[c(4:5,12:19,29:31)]
+summary(lm(log(sales_per_visit) ~ ., data = agg.sales.radio9))
+
+
+#TV VISITORS
+#no lag no square
+agg.sales.tv2 <- agg.sales.tv1[c(3:5, 9:17)]
+summary(lm(log(visits) ~ ., data = agg.sales.tv2))
+
+#only lag
+agg.sales.tv3 <- agg.sales.tv1[c(3:5, 9:17, 22:36)]
+summary(lm(log(visits) ~ ., data = agg.sales.tv3))
+
+#lag and square - BEST
+agg.sales.tv4 <- agg.sales.tv1[c(3:5, 9:17, 22:36, 37:41)]
+summary(lm(log(visits) ~ ., data = agg.sales.tv4))
+
+#only square
+agg.sales.tv5 <- agg.sales.tv1[c(3:5, 9:17, 37:41)]
+summary(lm(log(visits) ~ ., data = agg.sales.tv5))
+
+#TV SALES PER VISIT
+#no lag no square
+agg.sales.tv6 <- agg.sales.tv1[c(4:5, 12:21)]
+summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv6))
+
+#only lag - BEST
+agg.sales.tv7 <- agg.sales.tv1[c(4:5, 12:21, 22:36)]
+summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv7))
+
+#lag and square
+agg.sales.tv8 <- agg.sales.tv1[c(4:5, 12:21, 22:36, 37:41)]
+summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv8))
+
+#only square
+agg.sales.tv9 <- agg.sales.tv1[c(4:5, 12:21, 37:41)]
+summary(lm(log(sales_per_visit) ~ ., data = agg.sales.tv9))
+
+
+
+
+
+
 #grouping issue times into time_of_day_buckets
 campaign.tv.final$ISSUE_TIME <- as.numeric(gsub("\\D+","",substr(campaign.tv.final$ISSUE_TIME,0,2)))
 campaign.tv.final$timeofday <- ifelse(campaign.tv.final$ISSUE_TIME > 5 & campaign.tv.final$ISSUE_TIME < 10,
@@ -673,6 +825,8 @@ tv.time.data2$`45 secondi_daytime.sq`   <- tv.time.data2$`45 secondi_daytime`^2
 tv.time.data2$`45 secondi_morning.sq`   <- tv.time.data2$`45 secondi_morning`^2
 tv.time.data2$`45 secondi_night.sq`     <- tv.time.data2$`45 secondi_night`^2
 tv.time.data2$`45 secondi_primetime.sq` <- tv.time.data2$`45 secondi_primetime`^2
+
+agg.sales$trend <- 1:nrow(agg.sales)
 
 tv.time.data.final <- merge(agg.sales, tv.time.data2, 
                             by.x = "BUSINESS_DATE", by.y = "Date_out_start")
@@ -802,7 +956,6 @@ summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final6))
 tv.time.data.final7 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 53:103)]
 summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final7))
 
-
 #lag and square
 tv.time.data.final8 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 53:103, 32:51)]
 summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final8))
@@ -810,14 +963,6 @@ summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final8))
 #only square
 tv.time.data.final9 <- tv.time.data.final[c(4:5, 12:31, 52, 104:106, 32:51)]
 summary(lm(log(sales_per_visit) ~ ., data = tv.time.data.final9))
-
-
-
-
-
-#Check for Unit roots
-acf(agg.sales.tv1$sales)
-
 
 
 
