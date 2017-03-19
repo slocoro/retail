@@ -3,16 +3,16 @@ library(reshape2)
 library(dummies)
 library(chron)
 library(lubridate)
+library(ggplot2)
 
 rmse <- function(error) {
   sqrt(mean(error^2)) }
 
-
 # load data for  assignment 2
-data.campaign <- read.csv("/Users/laradaoud/retail_assign2/Assignment 2/Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.store <- read.csv("/Users/laradaoud/retail_assign2/Assignment 2/Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.googletrends <- read.csv("/Users/laradaoud/retail_assign2/Assignment 2/GoogleTrends.csv")
-data.grp <- read.csv("/Users/laradaoud/retail_assign2/Assignment 2/Chain_GRPS_2015_2016.csv")
+data.campaign <- read.csv("Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.googletrends <- read.csv("GoogleTrends.csv")
+data.grp <- read.csv("Chain_GRPS_2015_2016.csv")
 
 # convert all entries to lower case
 data.store$RESTAURANT_CODE <- tolower(data.store$RESTAURANT_CODE)
@@ -311,8 +311,16 @@ agg.tv.new1 <- campaign.tv.final %>%
   group_by(Date_out_start, FORMAT) %>%
   summarize(investment = sum(NET_COST, na.rm = TRUE))
 
+agg.tv.new2 <- campaign.tv.final %>%
+  group_by(FORMAT) %>%
+  summarize(investment = sum(NET_COST, na.rm = TRUE))
+
 agg.radio.new1 <- campaign.radio.final %>%
   group_by(Date_out_start, FORMAT) %>%
+  summarize(investment = sum(NET_COST, na.rm = TRUE))
+
+agg.radio.new2 <- campaign.radio.final %>%
+  group_by(FORMAT) %>%
   summarize(investment = sum(NET_COST, na.rm = TRUE))
 
 tv.data.format <- dcast(agg.tv.new1, Date_out_start ~ FORMAT)
@@ -337,22 +345,6 @@ agg.sales.radio1$sales_per_visit.lag1 <- c(NA, head(agg.sales.radio1$sales_per_v
 agg.sales.radio1$sales_per_visit.lag2 <- c(NA, NA, head(agg.sales.radio1$sales_per_visit, -2))
 agg.sales.radio1$sales_per_visit.lag3 <- c(NA, NA, NA, head(agg.sales.radio1$sales_per_visit, -3))
 
-agg.sales.radio1$`15 secondi.lag1` <- c(NA, head(agg.sales.radio1$`15 secondi`, -1))
-agg.sales.radio1$`15 secondi.lag2` <- c(NA, NA, head(agg.sales.radio1$`15 secondi`, -2))
-agg.sales.radio1$`15 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.radio1$`15 secondi`, -3))
-
-agg.sales.radio1$`20 secondi.lag1` <- c(NA, head(agg.sales.radio1$`20 secondi`, -1))
-agg.sales.radio1$`20 secondi.lag2` <- c(NA, NA, head(agg.sales.radio1$`20 secondi`, -2))
-agg.sales.radio1$`20 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.radio1$`20 secondi`, -3))
-
-agg.sales.radio1$`30 secondi.lag1` <- c(NA, head(agg.sales.radio1$`30 secondi`, -1))
-agg.sales.radio1$`30 secondi.lag2` <- c(NA, NA, head(agg.sales.radio1$`30 secondi`, -2))
-agg.sales.radio1$`30 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.radio1$`30 secondi`, -3))
-
-agg.sales.radio1$`15secondi.sq` <- agg.sales.radio1$`15 secondi`^2
-agg.sales.radio1$`20secondi.sq` <- agg.sales.radio1$`20 secondi`^2
-agg.sales.radio1$`30secondi.sq` <- agg.sales.radio1$`30 secondi`^2
-
 agg.sales.radio1$`15secondi.adstock` <- 0 + agg.sales.radio1$`15 secondi`
 agg.sales.radio1$`20secondi.adstock` <- 0 + agg.sales.radio1$`20 secondi`
 agg.sales.radio1$`30secondi.adstock` <- 0 + agg.sales.radio1$`30 secondi`
@@ -361,32 +353,6 @@ agg.sales.tv1$sales_per_visit <- agg.sales.tv1$sales / agg.sales.tv1$visits
 agg.sales.tv1$sales_per_visit.lag1 <- c(NA, head(agg.sales.tv1$sales_per_visit, -1))
 agg.sales.tv1$sales_per_visit.lag2 <- c(NA, NA, head(agg.sales.tv1$sales_per_visit, -2))
 agg.sales.tv1$sales_per_visit.lag3 <- c(NA, NA, NA, head(agg.sales.tv1$sales_per_visit, -3))
-
-agg.sales.tv1$`10 secondi.lag1` <- c(NA, head(agg.sales.tv1$`10 secondi`, -1))
-agg.sales.tv1$`10 secondi.lag2` <- c(NA, NA, head(agg.sales.tv1$`10 secondi`, -2))
-agg.sales.tv1$`10 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.tv1$`10 secondi`, -3))
-
-agg.sales.tv1$`15 secondi.lag1` <- c(NA, head(agg.sales.tv1$`15 secondi`, -1))
-agg.sales.tv1$`15 secondi.lag2` <- c(NA, NA, head(agg.sales.tv1$`15 secondi`, -2))
-agg.sales.tv1$`15 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.tv1$`15 secondi`, -3))
-
-agg.sales.tv1$`20 secondi.lag1` <- c(NA, head(agg.sales.tv1$`20 secondi`, -1))
-agg.sales.tv1$`20 secondi.lag2` <- c(NA, NA, head(agg.sales.tv1$`20 secondi`, -2))
-agg.sales.tv1$`20 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.tv1$`20 secondi`, -3))
-
-agg.sales.tv1$`30 secondi.lag1` <- c(NA, head(agg.sales.tv1$`30 secondi`, -1))
-agg.sales.tv1$`30 secondi.lag2` <- c(NA, NA, head(agg.sales.tv1$`30 secondi`, -2))
-agg.sales.tv1$`30 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.tv1$`30 secondi`, -3))
-
-agg.sales.tv1$`45 secondi.lag1` <- c(NA, head(agg.sales.tv1$`45 secondi`, -1))
-agg.sales.tv1$`45 secondi.lag2` <- c(NA, NA, head(agg.sales.tv1$`45 secondi`, -2))
-agg.sales.tv1$`45 secondi.lag3` <- c(NA, NA, NA, head(agg.sales.tv1$`45 secondi`, -3))
-
-agg.sales.tv1$`10secondi.sq` <- agg.sales.tv1$`10 secondi`^2
-agg.sales.tv1$`15secondi.sq` <- agg.sales.tv1$`15 secondi`^2
-agg.sales.tv1$`20secondi.sq` <- agg.sales.tv1$`20 secondi`^2
-agg.sales.tv1$`30secondi.sq` <- agg.sales.tv1$`30 secondi`^2
-agg.sales.tv1$`45secondi.sq` <- agg.sales.tv1$`45 secondi`^2
 
 agg.sales.tv1$`10secondi.adstock` <- 0 + agg.sales.tv1$`10 secondi`
 agg.sales.tv1$`15secondi.adstock` <- 0 + agg.sales.tv1$`15 secondi`
@@ -724,35 +690,17 @@ campaign.tv.final$timeofday <- ifelse(campaign.tv.final$ISSUE_TIME > 5 & campaig
                                                     "primetime",
                                                     "night")))
 
+
+
 tv.time.data.prep <- campaign.tv.final[c(1,4:6)]
+
+tv.time.investments <- tv.time.data.prep %>%
+  group_by(FORMAT, timeofday) %>%
+  summarize(investment = sum(NET_COST, na.rm = TRUE))
+
 
 tv.time.data <- dcast(tv.time.data.prep, Date_out_start ~ FORMAT + timeofday, value.var = "NET_COST", fun.aggregate = sum)
 tv.time.data2 <- tv.time.data[c(1:5,7:10,12:15,17:20,22:25)]
-
-tv.time.data2$`10 secondi_daytime.sq`   <- tv.time.data2$`10 secondi_daytime`^2
-tv.time.data2$`10 secondi_morning.sq`   <- tv.time.data2$`10 secondi_morning`^2
-tv.time.data2$`10 secondi_night.sq`     <- tv.time.data2$`10 secondi_night`^2
-tv.time.data2$`10 secondi_primetime.sq` <- tv.time.data2$`10 secondi_primetime`^2
-
-tv.time.data2$`15 secondi_daytime.sq`   <- tv.time.data2$`15 secondi_daytime`^2
-tv.time.data2$`15 secondi_morning.sq`   <- tv.time.data2$`15 secondi_morning`^2
-tv.time.data2$`15 secondi_night.sq`     <- tv.time.data2$`15 secondi_night`^2
-tv.time.data2$`15 secondi_primetime.sq` <- tv.time.data2$`15 secondi_primetime`^2
-
-tv.time.data2$`20 secondi_daytime.sq`   <- tv.time.data2$`20 secondi_daytime`^2
-tv.time.data2$`20 secondi_morning.sq`   <- tv.time.data2$`20 secondi_morning`^2
-tv.time.data2$`20 secondi_night.sq`     <- tv.time.data2$`20 secondi_night`^2
-tv.time.data2$`20 secondi_primetime.sq` <- tv.time.data2$`20 secondi_primetime`^2
-
-tv.time.data2$`30 secondi_daytime.sq`   <- tv.time.data2$`30 secondi_daytime`^2
-tv.time.data2$`30 secondi_morning.sq`   <- tv.time.data2$`30 secondi_morning`^2
-tv.time.data2$`30 secondi_night.sq`     <- tv.time.data2$`30 secondi_night`^2
-tv.time.data2$`30 secondi_primetime.sq` <- tv.time.data2$`30 secondi_primetime`^2
-
-tv.time.data2$`45 secondi_daytime.sq`   <- tv.time.data2$`45 secondi_daytime`^2
-tv.time.data2$`45 secondi_morning.sq`   <- tv.time.data2$`45 secondi_morning`^2
-tv.time.data2$`45 secondi_night.sq`     <- tv.time.data2$`45 secondi_night`^2
-tv.time.data2$`45 secondi_primetime.sq` <- tv.time.data2$`45 secondi_primetime`^2
 
 agg.sales$trend <- 1:nrow(agg.sales)
 
@@ -764,90 +712,6 @@ tv.time.data.final$sales_per_visit <- tv.time.data.final$sales / tv.time.data.fi
 
 #ADD LAG FOR EACH TIME AND SECOND
 #10 SECONDI
-tv.time.data.final$`10 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_daytime`, -1))
-tv.time.data.final$`10 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_daytime`, -2))
-tv.time.data.final$`10 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_daytime`, -3))
-
-tv.time.data.final$`10 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_morning`, -1))
-tv.time.data.final$`10 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_morning`, -2))
-tv.time.data.final$`10 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`10 secondi_morning`, -3))
-
-tv.time.data.final$`10 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_night`, -1))
-tv.time.data.final$`10 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_night`, -2))
-tv.time.data.final$`10 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`10 secondi_night`, -3))
-
-tv.time.data.final$`10 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`10 secondi_primetime`, -1))
-tv.time.data.final$`10 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`10 secondi_primetime`, -2))
-tv.time.data.final$`10 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`10 secondi_primetime`, -3))
-
-#15 SECONDI
-tv.time.data.final$`15 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_daytime`, -1))
-tv.time.data.final$`15 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_daytime`, -2))
-tv.time.data.final$`15 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_daytime`, -3))
-
-tv.time.data.final$`15 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_morning`, -1))
-tv.time.data.final$`15 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_morning`, -2))
-tv.time.data.final$`15 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_morning`, -3))
-
-tv.time.data.final$`15 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_night`, -1))
-tv.time.data.final$`15 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_night`, -2))
-tv.time.data.final$`15 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_night`, -3))
-
-tv.time.data.final$`15 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`15 secondi_primetime`, -1))
-tv.time.data.final$`15 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`15 secondi_primetime`, -2))
-tv.time.data.final$`15 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`15 secondi_primetime`, -3))
-
-#20 SECONDI
-tv.time.data.final$`20 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_daytime`, -1))
-tv.time.data.final$`20 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_daytime`, -2))
-tv.time.data.final$`20 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_daytime`, -3))
-
-tv.time.data.final$`20 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_morning`, -1))
-tv.time.data.final$`20 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_morning`, -2))
-tv.time.data.final$`20 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_morning`, -3))
-
-tv.time.data.final$`20 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_night`, -1))
-
-tv.time.data.final$`20 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_night`, -2))
-tv.time.data.final$`20 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_night`, -3))
-
-tv.time.data.final$`20 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`20 secondi_primetime`, -1))
-tv.time.data.final$`20 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`20 secondi_primetime`, -2))
-tv.time.data.final$`20 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`20 secondi_primetime`, -3))
-
-#30 SECONDI
-tv.time.data.final$`30 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_daytime`, -1))
-tv.time.data.final$`30 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_daytime`, -2))
-tv.time.data.final$`30 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_daytime`, -3))
-
-tv.time.data.final$`30 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_morning`, -1))
-tv.time.data.final$`30 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_morning`, -2))
-tv.time.data.final$`30 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_morning`, -3))
-
-tv.time.data.final$`30 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_night`, -1))
-tv.time.data.final$`30 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_night`, -2))
-tv.time.data.final$`30 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_night`, -3))
-
-tv.time.data.final$`30 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`30 secondi_primetime`, -1))
-tv.time.data.final$`30 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`30 secondi_primetime`, -2))
-tv.time.data.final$`30 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`30 secondi_primetime`, -3))
-
-#45 SECONDI
-tv.time.data.final$`45 secondi_daytime.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_daytime`, -1))
-tv.time.data.final$`45 secondi_daytime.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_daytime`, -2))
-tv.time.data.final$`45 secondi_daytime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_daytime`, -3))
-
-tv.time.data.final$`45 secondi_morning.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_morning`, -1))
-tv.time.data.final$`45 secondi_morning.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_morning`, -2))
-tv.time.data.final$`45 secondi_morning.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_morning`, -3))
-
-tv.time.data.final$`45 secondi_night.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_night`, -1))
-tv.time.data.final$`45 secondi_night.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_night`, -2))
-tv.time.data.final$`45 secondi_night.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_night`, -3))
-
-tv.time.data.final$`45 secondi_primetime.lag1` <- c(NA, head(tv.time.data.final$`45 secondi_primetime`, -1))
-tv.time.data.final$`45 secondi_primetime.lag2` <- c(NA, NA, head(tv.time.data.final$`45 secondi_primetime`, -2))
-tv.time.data.final$`45 secondi_primetime.lag3` <- c(NA, NA, NA, head(tv.time.data.final$`45 secondi_primetime`, -3))
 
 #SALES PER VISIT LAG
 tv.time.data.final$sales_per_visit.lag1 <- c(NA, head(tv.time.data.final$sales_per_visit, -1))
@@ -936,9 +800,6 @@ for (i in 2:length(tv.time.data.final$`15secondi_primetime.adstock`)){
   tv.time.data.final$`15secondi_primetime.adstock`[i] = tv.time.data.final$`15 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`15secondi_primetime.adstock`[i-1]
 }
 
-
-
-
 for (i in 2:length(tv.time.data.final$`20secondi_daytime.adstock`)){
   tv.time.data.final$`20secondi_daytime.adstock`[i] = tv.time.data.final$`20 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`20secondi_daytime.adstock`[i-1]
 }
@@ -952,8 +813,6 @@ for (i in 2:length(tv.time.data.final$`20secondi_primetime.adstock`)){
   tv.time.data.final$`20secondi_primetime.adstock`[i] = tv.time.data.final$`20 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`20secondi_primetime.adstock`[i-1]
 }
 
-
-
 for (i in 2:length(tv.time.data.final$`30secondi_daytime.adstock`)){
   tv.time.data.final$`30secondi_daytime.adstock`[i] = tv.time.data.final$`30 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`30secondi_daytime.adstock`[i-1]
 }
@@ -966,8 +825,6 @@ for (i in 2:length(tv.time.data.final$`30secondi_night.adstock`)){
 for (i in 2:length(tv.time.data.final$`30secondi_primetime.adstock`)){
   tv.time.data.final$`30secondi_primetime.adstock`[i] = tv.time.data.final$`30 secondi_primetime`[i] + adstock.alpha.tv * tv.time.data.final$`30secondi_primetime.adstock`[i-1]
 }
-
-
 
 for (i in 2:length(tv.time.data.final$`45secondi_daytime.adstock`)){
   tv.time.data.final$`45secondi_daytime.adstock`[i] = tv.time.data.final$`45 secondi_daytime`[i] + adstock.alpha.tv * tv.time.data.final$`45secondi_daytime.adstock`[i-1]
@@ -1046,7 +903,7 @@ tv.sales.model.1 <- lm(log(sales) ~ weekday + month + trend +
                           agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log, 
                           data = agg.sales.tv1)
 summary(tv.sales.model.1)
-
+tv.sales.impact <- tv.sales.model.1$coefficients[20:24]
 
 tv.visits.model.2 <- lm(log(visits) ~ weekday + month + trend + 
                           `10secondi.adstock.log` + `15secondi.adstock.log` + 
@@ -1055,6 +912,7 @@ tv.visits.model.2 <- lm(log(visits) ~ weekday + month + trend +
                           agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log, 
                         data = agg.sales.tv1)
 summary(tv.visits.model.2)
+tv.visits.impact <- tv.visits.model.2$coefficients[20:24]
 
 
 tv.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend + 
@@ -1064,7 +922,7 @@ tv.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend +
                           agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log, 
                         data = agg.sales.tv1)
 summary(tv.sales.visits.model.3)
-
+tv.salespervisit.impact <- tv.sales.visits.model.3$coefficients[20:24]
 
 #TV with times
 tv.times.sales.model.1 <- lm(log(sales.x) ~ weekday.x + month.x + trend.x + 
@@ -1078,7 +936,7 @@ tv.times.sales.model.1 <- lm(log(sales.x) ~ weekday.x + month.x + trend.x +
                          special.adstock.log + radio.adstock.log, 
                        data = tv.time.data.final)
 summary(tv.times.sales.model.1)
-
+tv.times.sales.impact <- data.frame(tv.times.sales.model.1$coefficients[20:39])
 
 tv.times.visits.model.2 <- lm(log(visits.x) ~ weekday.x + month.x + trend.x + 
                                `10secondi_daytime.adstock.log` + `10secondi_morning.adstock.log` + `10secondi_night.adstock.log` +
@@ -1091,6 +949,8 @@ tv.times.visits.model.2 <- lm(log(visits.x) ~ weekday.x + month.x + trend.x +
                                special.adstock.log + radio.adstock.log, 
                              data = tv.time.data.final)
 summary(tv.times.visits.model.2)
+
+tv.times.visits.impact <- data.frame(tv.times.visits.model.2$coefficients[20:39])
 
 
 tv.times.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday.x + month.x + trend.x + 
@@ -1105,7 +965,7 @@ tv.times.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday.x + month.x +
                               data = tv.time.data.final)
 summary(tv.times.sales.visits.model.3)
 
-
+tv.times.salespervisit.impact <- data.frame(tv.times.sales.visits.model.3$coefficients[20:39]) 
 
 #RADIO
 radio.sales.model.1 <- lm(log(sales) ~ weekday + month + trend + 
@@ -1116,6 +976,7 @@ radio.sales.model.1 <- lm(log(sales) ~ weekday + month + trend +
                         data = agg.sales.radio1)
 summary(radio.sales.model.1)
 
+radio.sales.impact <- radio.sales.model.1$coefficients[20:22]
 
 radio.visits.model.2 <- lm(log(visits) ~ weekday + month + trend + 
                           `15secondi.adstock.log` + `20secondi.adstock.log` + 
@@ -1124,6 +985,7 @@ radio.visits.model.2 <- lm(log(visits) ~ weekday + month + trend +
                         data = agg.sales.radio1)
 summary(radio.visits.model.2)
 
+radio.visits.impact <- radio.visits.model.2$coefficients[20:22]
 
 radio.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend + 
                           `15secondi.adstock.log` + `20secondi.adstock.log` + 
@@ -1131,4 +993,39 @@ radio.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend 
                             agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log, 
                         data = agg.sales.radio1)
 summary(radio.sales.visits.model.3)
+
+radio.salespervisit.impact <- radio.sales.visits.model.3$coefficients[20:22]
+
+tv.time.investments <- tv.time.investments[!is.na(tv.time.investments$timeofday),]
+
+tv.scatterplot.data <- data.frame(agg.tv.new2, tv.sales.impact, tv.visits.impact, tv.salespervisit.impact) 
+colnames(tv.scatterplot.data) <- c("Format", "Investment", "SalesImpact", "VisitsImpact", "SalesPerVisitImpact")
+tv.time.scatterplot.data <- data.frame(tv.time.investments, tv.times.sales.impact, tv.times.visits.impact, tv.times.salespervisit.impact)
+colnames(tv.time.scatterplot.data) <- c("Format", "TimeOfDay", "Investment", "SalesImpact", "VisitsImpact", "SalesPerVisitImpact")
+radio.scatterplot.data <- data.frame(agg.radio.new2, radio.sales.impact, radio.visits.impact, radio.salespervisit.impact)
+colnames(radio.scatterplot.data) <- c("Format", "Investment", "SalesImpact", "VisitsImpact", "SalesPerVisitImpact")
+
+dev.off()
+ggplot(tv.time.investments, aes(FORMAT, fill = timeofday, weight = investment)) + geom_bar()
+ggplot(tv.time.investments, aes(timeofday, fill = FORMAT, weight = investment)) + geom_bar()
+
+ggplot(tv.scatterplot.data, aes(x = VisitsImpact, y = SalesPerVisitImpact, size = Investment)) +
+       geom_point(shape = 1) +
+       geom_text(aes(label = Format, hjust = -0.1, vjust = 0.2)) +
+       geom_hline(aes(yintercept = 0)) +
+       geom_vline(aes(xintercept = 0))
+
+ggplot(tv.time.scatterplot.data, aes(x = VisitsImpact, y = SalesPerVisitImpact, size = Investment)) +
+      geom_point(shape = 1) +
+      geom_text(aes(label = Format, hjust = -0.1, vjust = 0.2)) +
+      geom_text(aes(label = TimeOfDay, hjust = 0.1, vjust = -0.2)) +
+      geom_hline(aes(yintercept = 0)) +
+      geom_vline(aes(xintercept = 0))
+       
+ggplot(radio.scatterplot.data, aes(x = VisitsImpact, y = SalesPerVisitImpact, size = Investment)) +
+      geom_point(shape = 1) +
+      geom_text(aes(label = Format, hjust = -0.1, vjust = 0.2)) +
+      geom_hline(aes(yintercept = 0)) +
+      geom_vline(aes(xintercept = 0))
+       
 
