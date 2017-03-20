@@ -9,8 +9,8 @@ rmse <- function(error) {
   sqrt(mean(error^2)) }
 
 # load data for  assignment 2
-data.campaign <- read.csv("Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
-data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.campaign <- read.csv("Chain_Campaign_Details.csv", stringsAsFactors=FALSE)
+data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", stringsAsFactors=FALSE)
 data.googletrends <- read.csv("GoogleTrends.csv")
 data.grp <- read.csv("Chain_GRPS_2015_2016.csv")
 data.holidays <- read.csv("national_holiday_final.csv")
@@ -53,7 +53,7 @@ plot(agg.sales$sales,
 
 # decomposition of sales
 sales.ts <- ts(agg.sales$sales, frequency = 365, start=c(2015,5,15))
-plot(stl(sales.ts))
+#plot(stl(sales.ts))
 
 agg.sales$lag_visits1 <- c(NA, head(agg.sales$visits, -1))
 agg.sales$lag_visits2 <- c(NA, NA, head(agg.sales$visits, -2))
@@ -902,6 +902,7 @@ agg.sales.tv2 <- merge(agg.sales.tv1, data.holidays[, c("name", "date_full2")],
 agg.sales.tv2$name <- as.character(agg.sales.tv2$name)
 agg.sales.tv2$name[is.na(agg.sales.tv2$name)] <- "No Holiday"
 agg.sales.tv2$name <- as.factor(agg.sales.tv2$name)
+agg.sales.tv2 <- within(agg.sales.tv2, name <- relevel(name, ref = "No Holiday"))
 
 agg.sales.radio2 <- merge(agg.sales.radio1, data.holidays[, c("name", "date_full2")],
                        by.x = "BUSINESS_DATE", by.y = "date_full2", 
@@ -910,7 +911,7 @@ agg.sales.radio2 <- merge(agg.sales.radio1, data.holidays[, c("name", "date_full
 agg.sales.radio2$name <- as.character(agg.sales.radio2$name)
 agg.sales.radio2$name[is.na(agg.sales.radio2$name)] <- "No Holiday"
 agg.sales.radio2$name <- as.factor(agg.sales.radio2$name)
-
+agg.sales.radio2 <- within(agg.sales.radio2, name <- relevel(name, ref = "No Holiday"))
 
 tv.time.data.final2 <- merge(tv.time.data.final, data.holidays[, c("name", "date_full2")], 
                             by.x = "BUSINESS_DATE", by.y = "date_full2",
@@ -918,6 +919,7 @@ tv.time.data.final2 <- merge(tv.time.data.final, data.holidays[, c("name", "date
 tv.time.data.final2$name <- as.character(tv.time.data.final2$name)
 tv.time.data.final2$name[is.na(tv.time.data.final2$name)] <- "No Holiday"
 tv.time.data.final2$name <- as.factor(tv.time.data.final2$name)
+tv.time.data.final2 <- within(tv.time.data.final2, name <- relevel(name, ref = "No Holiday"))
 
 ##NEW MODELS
 #TV
