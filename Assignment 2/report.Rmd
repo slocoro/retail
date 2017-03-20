@@ -94,7 +94,13 @@ TV, internet, and radio have an optimal $\alpha$ of over 0.90. This indicates th
 
 ## Results
 
-- elasticities and so on (short and long term)
+Two different variables were used as the dependent variables for measuring the effect of different TV formats; visits and sales per visit.  This would capture the different effect advertising efforts have on traffic into restaurants on one hand and the spend per visit on the other. 
+
+The result of using visits as a dependent variable shows that most of the formats of TV advertising do not have a significant effect on the number of visits, with the number of visits mainly driven by other factors including what day of the week it is and holidays.  The formats that are significant in driving visits are 15 second ads in the morning and 45 second ads during daytime, both at the 5% level with a positive coefficient estimate meaning that they increase visits.  Increasing 15 second morning ads by 1% creates a 0.6 percentage increase in visits and increasing 45 second daytime ads by 1% creates a 0.18 percentage increase in visits, making them more effective in driving traffic into restaurants.  In addition to the aforementioned formats, 20 second primetime ads, although not statistically significant, has the second highest coefficient estimate of 0.08 and can therefore be considered effective.
+
+Results differ slightly when sales per visit are used as a dependent variable.  While most formats remain insignificant, one additional format gains significance, which is 45 second night advertising.  These ads have a negative effect on sales per visit with a negative coefficient of -0.13, meaning that a 1% increase in 45 second night ads creates a 0.13% percentage decrease in sales per visit.  Using sales per visit as a dependant variable as opposed to visits alone also changes the significance and coefficient estimates of 15 second morning ads and 45 second daytime ads.  15 second morning ads become significant at the 1% level (previously at the 5% level) with a smaller coefficient estimate of 0.04, and 45 second daytime ads remain significant at the 5% level, only with a smaller coefficient estimate of 0.08.   
+
+*See Appendix XXX for full regression result
 
 
 ## Findings and Concluding Discussion
