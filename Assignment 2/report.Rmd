@@ -15,12 +15,11 @@ library(stargazer)
 
 ## Introduction
 
-Fast-food companies spent approximately $4.6B on media advertizing in 2012 (Nielson, cited in Yale 2014), an 8% increase from 2009. The reason for this substantial spend is clear: advertizing has a measurable and lasting effect on sales, and brand awareness, (Little, 1979). In 2012, the top 25 most popular fast-food companies in the US directed an average of 90% of their advertizing spend to TV (Nielson, cited in Yale 2014). The remaining expenditures were distributed between less popular media such as radio, internet, and print. With such huge sums of money being invested in advertizing, it is no wonder that marketing managers carefully study where to direct their money so as to maximize return on investment. As one can imagine, this is no simple task. Within TV media alone, marketing managers can choose from hundreds of format (length of ad), air time, and channel combinations. 
+Fast-food companies spent approximately $4.6B on media advertizing in 2012 (Nielson, cited in Yale 2014), an 8% increase from 2009. The reason for this substantial spend is clear: advertizing has a measurable and lasting effect on sales, and brand awareness, (Little, 1979). In 2012, the top 25 most popular fast-food companies in the US directed an average of 90% of their advertizing spend to TV (Nielson, cited in Yale 2014). The remaining expenditures were distributed between less popular media such as radio, internet, and print. With such huge sums of money being invested in advertizing, it is no wonder that marketing managers carefully study where to direct their money to guarantee maximum return on investment. As one can imagine, this is no simple task. For example, within TV media alone, marketing managers can choose from hundreds of format (length of ad), air time, and channel combinations. 
 
-Given the large amount of adverstizing investment, it is no surpise that the research community has spent a lot of time and effort on gaining a deeper understanding of the field. Generally, the methods for evaluating the impact of advertising can be grouped into two approaches: laboratory studies and empirical studies (Tellis, 2007). Whereas laboratory studies usually focus on the behavioral paradigm, empirical studies focus on the modeling paradigm. There today exists numerous models that capture both dynamic and diminishing returns of advertizing, as well as varying effects of different media, content, and times of release.
+Given the large amount of adverstizing investment, it is no surpise that the research community has spent a lot of time and effort on gaining a deeper understanding of the field. Generally, the methods for evaluating the impact of advertising can be grouped into two approaches: laboratory studies and empirical studies (Tellis, 2007). Whereas laboratory studies usually focus on the behavioral paradigm, empirical studies focus on the modeling paradigm. Therefore, there exists numerous models that capture both the dynamic and diminishing returns of advertizing, as well as varying effects of different media, content, and times of release.
 
-The aim of this report is to provide support in the decision process of marketing managers in the fast-food market. More specifically, the report focuses on the Italian fast-food market. Similar to the US market, companies in the Italian market make heavy use TV advertizing. As such, the main objective of this report is to quantify the effect of different TV advertizing formats. In order to do so, past responses to various levels of investments within different TV formats are analyzed using econometric techniques. The sections following the introduction provide a detailed explanation of the model and data used in the analysis. The subsequent sections present and discuss the results, and conclude with insights gained as well as recommendations for further research.
-
+The aim of this report is to provide support in the decision process of marketing managers in the fast-food market. More specifically, the report focuses on the Italian fast-food market. Similar to the US market, companies in the Italian market make heavy use TV advertizing. As such, the report focuses on understanding the effects different TV advertizing formats and air time combinations. In order to analyze these effects, past responses to various levels of investments within different  format and air time combinations are analyzed using econometric techniques. Instead of using sales as the response variable, the report decomposes sales into visits and spend per visit and uses these as repsonse variables. The subsequent sections describe the models, the data and transformations performed, the results, and concludes with relevent findings and recommendations.
 
 ## Model
 
@@ -30,6 +29,7 @@ The model used in the analysis captures the following effects sales:
 - carryover
 - diminishing returns
 - media
+- air time
 - seasonality
 - trend
 
@@ -38,26 +38,36 @@ The current and carryover effects of advertizing are captured in the adstock var
 $$A_t = \alpha A_{t-1} + Adv_t$$
 In this formula, $A_t$ and $A_{t-1}$ are the adstock of time t and t-1 respectively. $Adv_t$ represents the level of investment at time t. The parameter $_alpha$ is between 0 and 1 and represents the memory of the system. Values closer to 1 indicate longer lagged effect of advertizing on sales. The adstock transformation has the advantage of summarzing both current and carryover effects of advertizing thereby reducing the complexity of the model. The adstock variable is treated as a normal variable. As such, the log transform is used on the adstock in order to capture the diminishing returns of advertizing investment on sales. Both transformations are performed on all the media types available in the data in order to better isolate the effect of the media of interest (TV).
 
-In addition to modeling the effects of different media types, the model controls for seasonality by including variables for weekday and month of the year. The model also includes a trend to capture any increases in average sales.
+In addition to modeling the effects of different media types and air time combinations, the model controls for seasonal aspects by including variables for weekday, month of the year, and holidays. The model also includes a trend to capture any increases in average sales.
 
-The final model looks as follows:
+The final model with visits as the repsonse variable looks as follows:
 
-$$S_t = \delta + \beta_A A + \beta_D D + T + \epsilon_t$$
+$$V_t = \delta + \beta_A log(A) + \beta_D D + T_t + \epsilon_t$$
 where
 
+$V_t$ = a vector of number of visits, 
 $\delta_t$ = a constant to be estimated,  
-$A$ = a matrix of adstock variables for different media and formats,  
-$D$ = a matrix of factor variables representing for weekday and month of the year,  
-$T$ = a trend variable,  
+$log(A)$ = a matrix of adstock variables for different media, formats, and air times (for TV only),  
+$D$ = a matrix of factor variables for weekday, month of the year, and holidays, 
+$T_t$ = a trend variable,  
 $\beta_i$ = a vector of coefficients to be estimated,  
 $\epsilon_t$ = a vector of error terms initially assumed to be IID normal.  
 
+The final model with sales per visits as the repsonse variable looks as follows:
+
+$$V_t = \delta + \beta_A log(A) + \beta_D D + T_t + \epsilon_t$$
+where
+
+$V_t$ = a vector of number of visits, 
+$\delta_t$ = a constant to be estimated,  
+$log(A)$ = a matrix of adstock variables for different media, formats, and air times (for TV only),  
+$D$ = a matrix of factor variables for weekday, month of the year, and holidays, 
+$T_t$ = a trend variable,  
+$\beta_i$ = a vector of coefficients to be estimated,  
+$\epsilon_t$ = a vector of error terms initially assumed to be IID normal. 
+
 
 ## Data
-
-- provenance (mention the restrictions)
-- cleaning part
-- issues with the data
 
 The data used in this study are from an Italian restaurant chain which consists of daily sales and visits of each store and the detailed campaign schedules and investments for 5 different medias in restaurant chain-level. Data showed that during 2015 and 2016, TV campaign accounted for more than 80% of the total campaigns investments. This figure had dropped significantly in 2017 to only 47%, leaving the remaining investment budget to increase investment proportion of all other media except radio.
 
@@ -86,9 +96,17 @@ Campaign data, on the other hand, had been in a chain-level data format but had 
 
 ## Calculation of Adstock Variables
 
-The adstock variables for each media and format (TV only) are calculated using the formula described above. The optimal $\alpha$ is calculated using a grid search algorithm. For each $\alpha$ (between 0 and 1 in 0.01 increments), the calculated adstock is used in the model (which model? simplified version of final?). The $\alpha$ that produces the adstock that returns the lowest root mean squared error (RMSE) is kept for the final model.
+The adstock variables for each media and format (and air time for TV) are calculated using the formula described above. The optimal $\alpha$ is calculated using a grid search algorithm. For each $\alpha$ (between 0 and 1 in 0.01 increments), the calculated adstock is used in the model (which model? simplified version of final?). The $\alpha$ that produces the adstock that returns the lowest root mean squared error (RMSE) is kept for the final model. The values of the optimal $\alpha$ can be seen in Table 2.
 
-- briefly talk about the value sof the alphas and how they compare to what's found in the literature
+```{r echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+media <- c("TV", "Internet", "Print", "Radio", "Special")
+alpha <- c(0.96, 0.94, 0.78, 0.94, 0.86)
+dframe <- data.frame(media = media, alpha = alpha)
+
+stargazer(dframe, header = FALSE, title = "Summary of Media Investment", summary = FALSE, digits = 2)
+```
+
+TV, internet, and radio have an optimal $\alpha$ of over 0.90. This indicates that these media have a long lasting effect which extends several periods over the original exposure.
 
 
 ## Results
@@ -97,6 +115,16 @@ The adstock variables for each media and format (TV only) are calculated using t
 
 
 ## Findings and Concluding Discussion
+
+The report analyzed the impact of various TV advertising formats, and air time combinations in the Italian fast food market. It examined the effect of advertising on visits and transaction amounts, while controlling for day of the week, month, holidays, and trend. Based on the results, the client should alter its advertising models to better spend its marketing budget. The client can increase its sales via two components: increasing the number of customers in its stores or increasing each customer’s transaction amount.  
+
+With respect to visits, the client should increase spend on 45 second advertisements during the daytime, 15 second adverts in the morning, and 20 seconds during primetime. Conversely, advertising for 45 seconds at night and during primetime actually decreases visitors. Most formats provide no effect on the retailer’s store volume and could be considered hygiene factors.
+
+With respect to sales per visit, the client should increase spending on 45 second advertisements during the day, 15 second adverts in the morning, and 20 second primetime ads. These match the three best formats for store volume. Therefore, the client should focus on these categories. As with visits, 45 second ads at night decrease sales per visit, so such ads should be avoided. Most formats provide no change in transaction amount.
+
+These results provide some key insights into the fast food retailer’s advertising strategy. In particular, many of their advertising formats provide few, if any, benefits. This spend appears wasteful and should be more closely examined. Additionally, the effectiveness of a particular advertising format depends heavily on the time of day it is aired. The results could be used to gradually shift the company’s advertising into formats that increase either visits or transaction amount.
+
+For further research into the client’s advertising campaigns, the above analysis could be extended into multiple channels such as Radio and Internet formats. We could also analyze advertising success across different television channels. The analysis could incorporate price data to take into account promotions, and competitor advertising history to model competitive effects.
 
 \pagebreak  
 
