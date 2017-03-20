@@ -13,6 +13,7 @@ data.campaign <- read.csv("Chain_Campaign_Details.csv", fileEncoding = "latin1",
 data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
 data.googletrends <- read.csv("GoogleTrends.csv")
 data.grp <- read.csv("Chain_GRPS_2015_2016.csv")
+data.holidays <- read.csv("national_holiday_final.csv")
 
 # convert all entries to lower case
 data.store$RESTAURANT_CODE <- tolower(data.store$RESTAURANT_CODE)
@@ -894,14 +895,38 @@ tv.time.data.final$`45secondi_primetime.adstock.log`[is.infinite(tv.time.data.fi
 
 tv.time.data.final <- merge(tv.time.data.final, agg.sales.all.media, by="BUSINESS_DATE")
 
+agg.sales.tv2 <- merge(agg.sales.tv1, data.holidays[, c("name", "date_full2")],
+                       by.x = "BUSINESS_DATE", by.y = "date_full2", 
+                       all.x = TRUE)
+
+agg.sales.tv2$name <- as.character(agg.sales.tv2$name)
+agg.sales.tv2$name[is.na(agg.sales.tv2$name)] <- "No Holiday"
+agg.sales.tv2$name <- as.factor(agg.sales.tv2$name)
+
+agg.sales.radio2 <- merge(agg.sales.radio1, data.holidays[, c("name", "date_full2")],
+                       by.x = "BUSINESS_DATE", by.y = "date_full2", 
+                       all.x = TRUE)
+
+agg.sales.radio2$name <- as.character(agg.sales.radio2$name)
+agg.sales.radio2$name[is.na(agg.sales.radio2$name)] <- "No Holiday"
+agg.sales.radio2$name <- as.factor(agg.sales.radio2$name)
+
+
+tv.time.data.final2 <- merge(tv.time.data.final, data.holidays[, c("name", "date_full2")], 
+                            by.x = "BUSINESS_DATE", by.y = "date_full2",
+                            all.x = TRUE)
+tv.time.data.final2$name <- as.character(tv.time.data.final2$name)
+tv.time.data.final2$name[is.na(tv.time.data.final2$name)] <- "No Holiday"
+tv.time.data.final2$name <- as.factor(tv.time.data.final2$name)
+
 ##NEW MODELS
 #TV
 tv.sales.model.1 <- lm(log(sales) ~ weekday + month + trend + 
                           `10secondi.adstock.log` + `15secondi.adstock.log` + 
                           `20secondi.adstock.log` + `30secondi.adstock.log` + `45secondi.adstock.log` + log(visits) +
                           agg.sales.all.media$print.adstock.log + agg.sales.all.media$internet.adstock.log +
-                          agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log, 
-                          data = agg.sales.tv1)
+                          agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log + name, 
+                          data = agg.sales.tv2)
 summary(tv.sales.model.1)
 tv.sales.impact <- tv.sales.model.1$coefficients[20:24]
 
@@ -909,8 +934,8 @@ tv.visits.model.2 <- lm(log(visits) ~ weekday + month + trend +
                           `10secondi.adstock.log` + `15secondi.adstock.log` + 
                           `20secondi.adstock.log` + `30secondi.adstock.log` + `45secondi.adstock.log` +
                           agg.sales.all.media$print.adstock.log + agg.sales.all.media$internet.adstock.log +
-                          agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log, 
-                        data = agg.sales.tv1)
+                          agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log + name, 
+                        data = agg.sales.tv2)
 summary(tv.visits.model.2)
 tv.visits.impact <- tv.visits.model.2$coefficients[20:24]
 
@@ -919,8 +944,8 @@ tv.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend +
                           `10secondi.adstock.log` + `15secondi.adstock.log` + 
                           `20secondi.adstock.log` + `30secondi.adstock.log` + `45secondi.adstock.log` +
                           agg.sales.all.media$print.adstock.log + agg.sales.all.media$internet.adstock.log +
-                          agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log, 
-                        data = agg.sales.tv1)
+                          agg.sales.all.media$special.adstock.log + agg.sales.all.media$radio.adstock.log + name, 
+                        data = agg.sales.tv2)
 summary(tv.sales.visits.model.3)
 tv.salespervisit.impact <- tv.sales.visits.model.3$coefficients[20:24]
 
@@ -933,8 +958,8 @@ tv.times.sales.model.1 <- lm(log(sales.x) ~ weekday.x + month.x + trend.x +
                            `30secondi_primetime.adstock.log` + `45secondi_daytime.adstock.log` + `45secondi_morning.adstock.log` + `45secondi_night.adstock.log` +
                            `45secondi_primetime.adstock.log` + log(visits.x) +
                          print.adstock.log + internet.adstock.log +
-                         special.adstock.log + radio.adstock.log, 
-                       data = tv.time.data.final)
+                         special.adstock.log + radio.adstock.log + name, 
+                       data = tv.time.data.final2)
 summary(tv.times.sales.model.1)
 tv.times.sales.impact <- data.frame(tv.times.sales.model.1$coefficients[20:39])
 
@@ -946,8 +971,8 @@ tv.times.visits.model.2 <- lm(log(visits.x) ~ weekday.x + month.x + trend.x +
                                `30secondi_primetime.adstock.log` + `45secondi_daytime.adstock.log` + `45secondi_morning.adstock.log` + `45secondi_night.adstock.log` +
                                `45secondi_primetime.adstock.log` +
                                print.adstock.log + internet.adstock.log +
-                               special.adstock.log + radio.adstock.log, 
-                             data = tv.time.data.final)
+                               special.adstock.log + radio.adstock.log + name, 
+                             data = tv.time.data.final2)
 summary(tv.times.visits.model.2)
 
 tv.times.visits.impact <- data.frame(tv.times.visits.model.2$coefficients[20:39])
@@ -961,8 +986,8 @@ tv.times.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday.x + month.x +
                                 `30secondi_primetime.adstock.log` + `45secondi_daytime.adstock.log` + `45secondi_morning.adstock.log` + `45secondi_night.adstock.log` +
                                 `45secondi_primetime.adstock.log` +
                                 print.adstock.log + internet.adstock.log +
-                                special.adstock.log + radio.adstock.log, 
-                              data = tv.time.data.final)
+                                special.adstock.log + radio.adstock.log + name, 
+                              data = tv.time.data.final2)
 summary(tv.times.sales.visits.model.3)
 
 tv.times.salespervisit.impact <- data.frame(tv.times.sales.visits.model.3$coefficients[20:39]) 
@@ -972,8 +997,8 @@ radio.sales.model.1 <- lm(log(sales) ~ weekday + month + trend +
                           `15secondi.adstock.log` + `20secondi.adstock.log` + 
                           `30secondi.adstock.log` + log(visits) + 
                             agg.sales.all.media$print.adstock.log + agg.sales.all.media$internet.adstock.log +
-                            agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log, 
-                        data = agg.sales.radio1)
+                            agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log + name, 
+                        data = agg.sales.radio2)
 summary(radio.sales.model.1)
 
 radio.sales.impact <- radio.sales.model.1$coefficients[20:22]
@@ -981,8 +1006,8 @@ radio.sales.impact <- radio.sales.model.1$coefficients[20:22]
 radio.visits.model.2 <- lm(log(visits) ~ weekday + month + trend + 
                           `15secondi.adstock.log` + `20secondi.adstock.log` + 
                           `30secondi.adstock.log` + agg.sales.all.media$print.adstock.log + agg.sales.all.media$internet.adstock.log +
-                            agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log , 
-                        data = agg.sales.radio1)
+                            agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log + name, 
+                        data = agg.sales.radio2)
 summary(radio.visits.model.2)
 
 radio.visits.impact <- radio.visits.model.2$coefficients[20:22]
@@ -990,8 +1015,8 @@ radio.visits.impact <- radio.visits.model.2$coefficients[20:22]
 radio.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday + month + trend + 
                           `15secondi.adstock.log` + `20secondi.adstock.log` + 
                           `30secondi.adstock.log` + agg.sales.all.media$print.adstock.log + agg.sales.all.media$internet.adstock.log +
-                            agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log, 
-                        data = agg.sales.radio1)
+                            agg.sales.all.media$special.adstock.log + agg.sales.all.media$tv.adstock.log + name, 
+                        data = agg.sales.radio2)
 summary(radio.sales.visits.model.3)
 
 radio.salespervisit.impact <- radio.sales.visits.model.3$coefficients[20:22]
