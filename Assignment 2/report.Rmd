@@ -1,5 +1,5 @@
 ---
-title: "Report"
+title: "An Analysis of the Effectiveness of TV Advertizing Formats and Airtimes in the Italian Fast-Food Market"
 author: "Group 6"
 date: "3/21/2017"
 output:
@@ -100,9 +100,9 @@ TV, internet, and radio have an optimal $\alpha$ of over 0.90. This indicates th
 
 After setting up the data into a proper format, the analysis explores the effect of television advertising on two metrics that drive sales: visits and sales per visit. Certain types of advertising seek to increase traffic into restaurants, while others try to upsell promotions to increase spend per visit.
 
-Using visits as a dependent variable shows that most formats of TV advertising do not have a significant effect on a store's traffic. The number of visits is mainly driven by other factors including the day of the week and holidays. The formats that are significant in increasing visits are 15 second ads in the morning (6AM to 9AM) and 45 second ads during daytime (10AM to 5PM), both at the 5% level with a positive coefficient. Increasing 15 second morning adstock by 1% creates a 0.6% increase in visits and increasing 45 second daytime adstock by 1% results in a 0.18% increase in visits, making them effective in driving traffic into restaurants. In addition to the aforementioned formats, 20 second primetime ads (5PM to 9PM), although not statistically significant, have the second highest coefficient estimate of 0.08 and can therefore be considered effective.
+Using visits as a dependent variable shows that most formats of TV advertising do not have a significant effect on a store's traffic. The number of visits is mainly driven by other factors including the day of the week and holidays. The formats that are significant in increasing visits are 15 second ads in the morning (6AM to 10AM) and 45 second ads during daytime (10AM to 5PM), both at the 5% level with a positive coefficient. Increasing 15 second morning adstock by 1% creates a 0.6% increase in visits and increasing 45 second daytime adstock by 1% results in a 0.18% increase in visits, making them effective in driving traffic into restaurants. In addition to the aforementioned formats, 20 second primetime ads (5PM to 10PM), although not statistically significant, have the second highest coefficient estimate of 0.08 and can therefore be considered effective.
 
-Results differ slightly when sales per visit is used as a dependent variable. While most formats remain insignificant, one additional format gains significance, which is 45 second night advertising (10PM to 5AM). These ads have a negative effect on sales per visit with a negative coefficient of -0.13, meaning that a 1% increase in 45 second night adstock creates a 0.13% percentage decrease in sales per visit. Using sales per visit as a dependant variable as opposed to visits alone also changes the significance and coefficient estimates of 15 second morning ads and 45 second daytime ads. 15 second morning ads become significant at the 1% level (previously at the 5% level) with a smaller coefficient estimate of 0.04, and 45 second daytime ads remain significant at the 5% level, only with a smaller coefficient estimate of 0.08. 
+Results differ slightly when sales per visit is used as a dependent variable. While most formats remain insignificant, one additional format gains significance, which is 45 second night advertising (10PM to 6AM). These ads have a negative effect on sales per visit with a negative coefficient of -0.13, meaning that a 1% increase in 45 second night adstock creates a 0.13% percentage decrease in sales per visit. Using sales per visit as a dependant variable as opposed to visits alone also changes the significance and coefficient estimates of 15 second morning ads and 45 second daytime ads. 15 second morning ads become significant at the 1% level (previously at the 5% level) with a smaller coefficient estimate of 0.04, and 45 second daytime ads remain significant at the 5% level, only with a smaller coefficient estimate of 0.08. 
 
 Table 3 and 4 in the appendix include with full regression results.
 
@@ -173,7 +173,8 @@ tv.times.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday.x + month.x +
 
 stargazer(tv.times.visits.model.2, tv.times.sales.visits.model.3, header = FALSE, title = "Regression Results (Part 1)", single.row = TRUE, omit.table.layout = "sn", omit = c("trend.x", "weekday.xMonday", 
                                     "weekday.xTuesday", "weekday.xWednesday", 
-                                    "weekday.xThursday", "weekday.xFriday", "weekday.xSaturday","weekday.xSunday"))
+                                    "weekday.xThursday", "weekday.xFriday", "weekday.xSaturday","weekday.xSunday"),
+          dep.var.labels = c("log(Visits)", "log(Sales per Visit)"))
 ```
 
 \newpage
@@ -181,7 +182,8 @@ stargazer(tv.times.visits.model.2, tv.times.sales.visits.model.3, header = FALSE
 ```{r echo=FALSE, results='asis', message=FALSE, warning=FALSE}
 stargazer(tv.times.visits.model.2, tv.times.sales.visits.model.3, header = FALSE, title = "Regression Results (Part 2)", single.row = TRUE, keep = c("trend.x", "weekday.xMonday", 
                                     "weekday.xTuesday", "weekday.xWednesday", 
-                                    "weekday.xThursday", "weekday.xFriday", "weekday.xSaturday","weekday.xSunday"))
+                                    "weekday.xThursday", "weekday.xFriday", "weekday.xSaturday","weekday.xSunday"),
+          dep.var.labels = c("log(Visits)", "log(Sales per Visit)"))
 ```
 
 \newpage
