@@ -2,22 +2,27 @@
 title: "Report"
 author: "Group 6"
 date: "3/21/2017"
-output: pdf_document
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
-library(reshape)
 library(knitr)
 library(stargazer)
+library(dplyr)
+library(reshape2)
+library(dummies)
+library(chron)
+library(lubridate)
 ```
 
 ## Introduction
 
-Fast-food companies spent approximately $4.6B on media advertising in 2012 (Nielson, cited in Yale 2014), an 8% increase from 2009. The reason for this substantial spend is clear: advertising has a measurable and lasting effect on sales and brand awareness (Little, 1979). In 2012, the top 25 most popular fast-food companies in the United States directed an average of 90% of their advertising spend to television adverts (Nielson, cited in Yale 2014). The remaining expenditures were distributed among less popular media formats such as radio, Internet, and print. With such huge sums of money invested in advertising, marketing managers must carefully study where to direct their money to guarantee maximal return on investment. As one can imagine, this is no simple task. For example, within television media alone, marketing managers can choose from hundreds of format (length of ad), time of day, and channel combinations.
+Fast-food companies spent approximately $4.6B on media advertising in 2012 (Nielson, cited in Yale 2014), an 8% increase from 2009. The reason for this substantial spend is clear: advertising has a measurable and lasting effect on sales and brand awareness (Little, 1979). In 2012, the 25 most popular fast-food companies in the United States directed an average of 90% of their advertising spend to television adverts (Nielson, cited in Yale 2014). The remaining expenditures were distributed among less popular media formats such as radio, internet, and print. With such huge sums of money invested in advertising, marketing managers must carefully study where to direct their money to guarantee maximal return on investment. As one can imagine, this is no simple task. For example, within television media alone, marketing managers can choose from hundreds of format (length of ad), time of day, and channel combinations.
 
-Given the large amount of adverstising investment, the research community has spent significant time and effort on gaining a deeper understanding of the field. Generally, the methods for evaluating the impact of advertising can be grouped into two approaches: laboratory studies and empirical studies (Tellis, 2007). Where laboratory studies usually focus on the behavioral paradigms of consumers, empirical studies focus on modeling. Therefore, there exist numerous models that capture both the dynamic and diminishing returns of advertising, as well as varying effects of different media, content, and times of release.
+Given the large amount of adverstizing investment, it is no surpise that the research community has spent a lot of time and effort on gaining a deeper understanding of the field. Generally, the methods for evaluating the impact of advertising can be grouped into two approaches: laboratory studies and empirical studies (Tellis, 2007). Whereas laboratory studies usually focus on the behavioral paradigms of consumers, empirical studies focus on modeling. Therefore, there exist numerous models that capture both the dynamic and diminishing returns of advertising, as well as varying effects of different media, content, and times of release.
 
 The aim of this report is to provide support in the decision process of marketing managers in the fast-food market. More specifically, the report focuses on the Italian fast-food market. Similar to the US market, companies in the Italian market make heavy use television advertisements. As such, the report focuses on understanding the effects different TV advertising formats and airtime combinations. In order to analyze these effects, past responses to various levels of investments within different format and airtime combinations are analyzed using econometric techniques. Instead of using sales as the response variable, the report decomposes sales into its component parts: visits and spend per visit and uses these as repsonse variables. The subsequent sections describe the models, the data and transformations performed, and the results from applying econometric analysis. The report then concludes with relevent findings and recommendations.
 
@@ -27,19 +32,19 @@ The model used in the analysis captures the following effects that affect both s
 
 - average sales
 - trend
-- current advertising investment
+- current effects of advertising
 - carryover effects of advertising
-- diminishing returns
+- diminishing returns of advertising investment
 - media format
-- air time
+- airtime
 - seasonality
 
 The carryover effects of advertising are captured in the adstock variable. The adstock variable is calculated as follows:
 
 $$A_t = \alpha A_{t-1} + Adv_t$$
-In this formula, $A_t$ and $A_{t-1}$ are the adstock of time t and t-1 respectively. $Adv_t$ represents the level of investment at time t. The parameter $_alpha$ is between 0 and 1 and represents the memory of the system. Essentially, the alpha value serves as a proxy for the forgetfullness of consumers. Alpha of 1 indicates that consumers will always remember an ad, while an alpha of 0 means that consumers immediately forget an ad. Prior studies show that advertising for food usually carries an alpha between 0.9 and 1 when analyzed on a daily basis. (WE NEED A SOURCE.) Values closer to 1 indicate longer lagged effect of advertizing on sales. The adstock transformation has the advantage of summarizing both current and carryover effects of advertising thereby reducing the complexity of the model. The adstock variable is treated as a normal variable. As such, the log transform is used on the adstock in order to capture the diminishing returns of advertising investment on sales. Both transformations, adstock and log, are performed on all the media types available in the data in order to better isolate the effect of the media of interest (TV).
+In this formula, $A_t$ and $A_{t-1}$ are the adstock of time t and t-1 respectively. $Adv_t$ represents the level of investment at time t. The parameter $_alpha$ is between 0 and 1 and represents the memory of the system. $\alpha$ of 1 indicates that consumers always remember an ad, while an alpha of 0 means that consumers immediately forget an ad. Efficient campaigns usually have an alpha between 0.9 and 1 (Bartocha, 2015). Values closer to 1 indicate longer lagged effect of advertizing on sales. The adstock transformation has the advantage of summarizing both current and carryover effects of advertising thereby reducing the complexity of the model. The adstock variable is treated as a normal variable. As such, the log transform is used on the adstock in order to capture the diminishing returns of advertising investment. Both transformations, adstock and log, are performed on all the media types available in the data in order to better isolate the effect of the media of interest (TV).
 
-In addition to modeling the effects of different media types and air time combinations, the model controls for seasonal variations in consumer behavior by including variables for day of the week, month, and holidays. The model also includes a trend to capture any general increases in average sales.
+In addition to modeling the effects of different media types and air time combinations, the model controls for seasonal variations in consumer behavior by including variables for day of the week, month, and national holidays. The model also includes a trend to capture any general increases in average sales.
 
 The final model with visits as the repsonse variable looks as follows:
 
@@ -48,7 +53,7 @@ where
 
 $V_t$ = a vector of number of visits each day, 
 $\delta_t$ = a constant to be estimated,  
-$log(A)$ = a matrix of adstock variables for different media, formats, and air times (for TV only),  
+$log(A)$ = a matrix of adstock variables for different media, formats, and airtimes (for TV only),  
 $D$ = a matrix of factor variables for weekday, month of the year, and holidays, 
 $T_t$ = a trend variable,  
 $\beta_i$ = a vector of coefficients to be estimated,  
@@ -56,10 +61,10 @@ $\epsilon_t$ = a vector of error terms initially assumed to be IID normal.
 
 The final model with sales per visits as the repsonse variable looks as follows:
 
-$$V_t = \delta + \beta_A log(A) + \beta_D D + T_t + \epsilon_t$$
+$$SPV_t = \delta + \beta_A log(A) + \beta_D D + T_t + \epsilon_t$$
 where
 
-$V_t$ = a vector of the average sales per visit each day, 
+$SPV_t$ = a vector of sales per visit each day, 
 $\delta_t$ = a constant to be estimated,  
 $log(A)$ = a matrix of adstock variables for different media, formats, and air times (for TV only),  
 $D$ = a matrix of factor variables for weekday, month of the year, and holidays, 
@@ -73,9 +78,9 @@ The data used in this study are daily store level sales and visits for an Italia
 
 The analysis only considers stores open during the whole period of the data (15-May-2015 to 12-March-2017). By doing this, there are a constant number of stores for the analysis, isolating the impact of store openings and store closings. Analyzing same store sales data allows for a stable baseline of sales to be established. After filtering out new and closed stores, sales and store visits (indicated by receipts count) data are aggregated by date, resulting in daily total sales and visits for the entire restaurant chain in Italy.
 
-Campaign data originated at a chain-level aggregation level. For the analysis, it had to be aggregated by media type - TV, radio, internet, print, or other special type of campaign - to extract the daily investment for a particular media type. For print campaign, whose ads were issued in either weekly or monthly magazines/tabloids, the cost was distributed evenly over the duration of the campaign by dividing investment by the length of the campaign (7 for weekly or 30 for monthly).
+Campaign data originated at a chain-level aggregation level. For the analysis, it is aggregated by media type - TV, radio, internet, print, or other special type of campaign - to extract the daily investment for a particular media type. For print campaign, whose ads are issued in either weekly or monthly magazines/tabloids, the cost is distributed evenly over the duration of the campaign by dividing investment by the length of the campaign (7 for weekly or 30 for monthly).
 
-After aggregating the data, some of investment costs for television advertising were zero, but the GRP (gross rating points) indicated a positive value. Such observations indicated gifted campaigns that the television network ran for free. In order to deal with gifted campaigns, their costs were assessed by using the market rate for campaigns of similar structure. Where similar campaigns could not be determined, the investment cost for gifted campaigns was replaced using the average investment cost for that particular media.
+After aggregating the data, some of investment costs for television advertising are zero, but the GRP (gross rating points) indicated a positive value. Such observations indicate gifted campaigns that the television network runs for free. In order to deal with gifted campaigns, their costs are estimated using a linear regression. Where similar campaigns cannot be determined, the investment cost for gifted campaigns is replaced using the average investment cost for that particular media.
 
 ## Calculation of Adstock Variables
 
@@ -95,25 +100,37 @@ TV, internet, and radio have an optimal $\alpha$ of over 0.90. This indicates th
 
 After setting up the data into a proper format, the analysis explores the effect of television advertising on two metrics that drive sales: visits and sales per visit. Certain types of advertising seek to increase traffic into restaurants, while others try to upsell promotions to increase spend per visit.
 
-Using visits as a dependent variable shows that most formats of TV advertising do not have a significant effect on a store's traffic. The number of visits is mainly driven by other factors including the day of the week and holidays. The formats that are significant in increasing visits are 15 second ads in the morning and 45 second ads during daytime, both at the 5% level with a positive coefficient. Increasing 15 second morning adstock by 1% creates a 0.6 percent increase in visits and increasing 45 second daytime adstock by 1% results in a 0.18 percent increase in visits, making them effective in driving traffic into restaurants. In addition to the aforementioned formats, 20 second primetime ads, although not statistically significant, have the second highest coefficient estimate of 0.08 and can therefore be considered effective.
+Using visits as a dependent variable shows that most formats of TV advertising do not have a significant effect on a store's traffic. The number of visits is mainly driven by other factors including the day of the week and holidays. The formats that are significant in increasing visits are 15 second ads in the morning (6AM to 9AM) and 45 second ads during daytime (10AM to 5PM), both at the 5% level with a positive coefficient. Increasing 15 second morning adstock by 1% creates a 0.6% increase in visits and increasing 45 second daytime adstock by 1% results in a 0.18% increase in visits, making them effective in driving traffic into restaurants. In addition to the aforementioned formats, 20 second primetime ads (5PM to 9PM), although not statistically significant, have the second highest coefficient estimate of 0.08 and can therefore be considered effective.
 
-Results differ slightly when sales per visit are used as a dependent variable. While most formats remain insignificant, one additional format gains significance, which is 45 second night advertising. These ads have a negative effect on sales per visit with a negative coefficient of -0.13, meaning that a 1% increase in 45 second night adstock creates a 0.13% percentage decrease in sales per visit.  Using sales per visit as a dependant variable as opposed to visits alone also changes the significance and coefficient estimates of 15 second morning ads and 45 second daytime ads. 15 second morning ads become significant at the 1% level (previously at the 5% level) with a smaller coefficient estimate of 0.04, and 45 second daytime ads remain significant at the 5% level, only with a smaller coefficient estimate of 0.08.
+Results differ slightly when sales per visit is used as a dependent variable. While most formats remain insignificant, one additional format gains significance, which is 45 second night advertising (10PM to 5AM). These ads have a negative effect on sales per visit with a negative coefficient of -0.13, meaning that a 1% increase in 45 second night adstock creates a 0.13% percentage decrease in sales per visit. Using sales per visit as a dependant variable as opposed to visits alone also changes the significance and coefficient estimates of 15 second morning ads and 45 second daytime ads. 15 second morning ads become significant at the 1% level (previously at the 5% level) with a smaller coefficient estimate of 0.04, and 45 second daytime ads remain significant at the 5% level, only with a smaller coefficient estimate of 0.08. 
 
-*See Appendix XXX for full regression result
+Table 3 and 4 in the appendix include with full regression results.
 
 ## Findings and Concluding Discussion
 
-The report analyzed the impact of various television advertising formats and air time combinations in the Italian fast food market. It examined the effect of advertising on visits and transaction amounts, while controlling for day of the week, month, holidays, and trend. Based on the results, the restaurant chain should alter its advertising models to better spend its marketing budget.  
+The report analyzed the impact of various television advertising formats and air time combinations in the Italian fast-food market. It examined the effect of advertising on visits and sales per visit, while controlling for day of the week, month, holidays, and trend. Based on the results, the analyzed fast-food chain should alter its advertising models to better spend its marketing budget.  
 
-To increase visits into their stores, the restaurant should increase spend on 45 second advertisements during the daytime, 15 second adverts in the morning, and 20 seconds ads during primetime. Conversely, advertising for 45 seconds at night and during primetime actually decreases visitors, so these types of advertising should be cut immediately. Overall, most formats provide no effect on the retailer’s store volume and could be considered hygiene factors that are necessary to remain relevant in the market.
+To increase visits into stores, the restaurant chain should increase spend on 45 second advertisements during the daytime, 15 second adverts in the morning, and 20 seconds ads during primetime. Conversely, advertising for 45 seconds at night and during primetime actually decreases visitors, so these types of advertising should be cut immediately. Overall, most formats provide no effect on the retailer’s store volume and could be considered hygiene factors that are necessary to remain relevant in the market.
 
-To increase sales per visit, the restaurant should increase spending on 45 second advertisements during the day, 15 second adverts in the morning, and 20 second primetime ads. These match the three best formats for store volume so the chain should focus on these categories. As with visits, 45 second ads at night decrease sales per visit, so such ads should be avoided at all costs. Most formats provide no change in transaction amount, so marketing managers must justify such advertising to ensure the company does not waste its advertising budget.
+To increase sales per visit, the restaurant chain should increase spending on 45 second advertisements during the day, 15 second adverts in the morning, and 20 second primetime ads. These match the three best formats for store volume so the chain should focus on these categories. As with visits, 45 second ads at night decrease sales per visit, so such ads should be avoided at all costs. Most formats provide no change in transaction amount, so marketing managers must justify such advertising to ensure the company does not waste its advertising budget.
 
-These results provide some key insights into the fast food retailer’s advertising strategy. In particular, many of their advertising formats provide few, if any, benefits with regards to either visits or transaction amount. Such spend appears wasteful and should be more closely examined. Additionally, the effectiveness of a particular advertising format depends heavily on the time of day it is aired. The results could be used to gradually shift the company’s advertising into formats and air times that increase either visits or transaction amount.
+These results provide some key insights into the fast-food chain's advertising strategy. In particular, many of their advertising formats provide few, if any, benefits with regards to either visits or transaction amount. Such spend appears wasteful and should be more closely examined. Additionally, the effectiveness of a particular advertising format depends heavily on the time of day it is aired. The results could be used to gradually shift the company’s advertising into formats and air times that increase either visits or transaction amount.
 
-For further research into the client’s advertising campaigns, the above analysis could be extended into multiple channels such as Radio and Internet formats. We could also analyze advertising success across different television channels to see which provide the best returns on investment. The analysis could also incorporate price data to take into account promotions, and competitor advertising history to model competitive effects.
+For further research, the above analysis should be extended into multiple channels such as radio and internet formats. In addition, advertising success across different television channels should be analyzed to determine which provide the best returns on investment. The analysis should also be extended to control for own and competitor price promotions, as well as competitor advertising.
 
-\pagebreak  
+\newpage
+
+## Works Cited
+
+Bartocha, K. (2015) *Marketing Mix Modeling with Adstock for Offline Media*. Available from: http://www.marketingdistillery.com/2015/04/21/marketing-mix-modeling-with-adstock-for-offline-media/
+
+Little, J. (1979) Aggregate Advertising Models: The State of the Art. *Operations Research* 27(4), 629-667.
+
+Tellis, G. (2004) *Effective Advertising: Understanding When, How and Why Advertising Works*. Thousand Oaks CA, SAGE Publications.
+
+Yale Rudd Center for Food Policy & Obesity. (2012) *Fast Food Marketing Ranking Tables*. Available from: http://www.fastfoodmarketing.org/media/FastFoodFACTS_MarketingRankings.pdf
+
+\newpage
 
 ## Appendix
 
@@ -127,12 +144,44 @@ data.summary$date_to <- NULL
 stargazer(data.summary, header = FALSE, title = "Summary of Media Investment", summary = FALSE, digits = 0)
 ```
 
-\pagebreak  
+\newpage
 
-## Works Cited
+```{r echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+tv.time.data.final2 <- read.csv("final_data.csv")
 
-Little, J. (1979) Aggregate Advertising Models: The State of the Art. *Operations Research* 27(4), 629-667.
+tv.times.visits.model.2 <- lm(log(visits.x) ~ weekday.x + month.x + trend.x + 
+                               X10secondi_daytime.adstock.log + X10secondi_morning.adstock.log + X10secondi_night.adstock.log +
+                               X10secondi_primetime.adstock.log + X15secondi_daytime.adstock.log + X15secondi_morning.adstock.log + X15secondi_night.adstock.log +
+                               X15secondi_primetime.adstock.log + X20secondi_daytime.adstock.log + X20secondi_morning.adstock.log + X20secondi_night.adstock.log +
+                               X20secondi_primetime.adstock.log +X30secondi_daytime.adstock.log + X30secondi_morning.adstock.log + X30secondi_night.adstock.log +
+                               X30secondi_primetime.adstock.log + X45secondi_daytime.adstock.log + X45secondi_morning.adstock.log + X45secondi_night.adstock.log +
+                               X45secondi_primetime.adstock.log +
+                               print.adstock.log + internet.adstock.log +
+                               special.adstock.log + radio.adstock.log + name, 
+                             data = tv.time.data.final2)
 
-Tellis, G. (2004) *Effective Advertising: Understanding When, How and Why Advertising Works*. Thousand Oaks CA, SAGE Publications.
+tv.times.sales.visits.model.3 <- lm(log(sales_per_visit) ~ weekday.x + month.x + trend.x +
+                                X10secondi_daytime.adstock.log + X10secondi_morning.adstock.log + X10secondi_night.adstock.log +
+                                X10secondi_primetime.adstock.log + X15secondi_daytime.adstock.log + X15secondi_morning.adstock.log + X15secondi_night.adstock.log +
+                                X15secondi_primetime.adstock.log +X20secondi_daytime.adstock.log + X20secondi_morning.adstock.log + X20secondi_night.adstock.log +
+                                X20secondi_primetime.adstock.log +X30secondi_daytime.adstock.log + X30secondi_morning.adstock.log + X30secondi_night.adstock.log +
+                                X30secondi_primetime.adstock.log + X45secondi_daytime.adstock.log + X45secondi_morning.adstock.log + X45secondi_night.adstock.log +
+                                X45secondi_primetime.adstock.log +
+                                print.adstock.log + internet.adstock.log +
+                                special.adstock.log + radio.adstock.log + name,
+                              data = tv.time.data.final2)
 
-Yale Rudd Center for Food Policy & Obesity. (2012) *Fast Food Marketing Ranking Tables*. Available from: http://www.fastfoodmarketing.org/media/FastFoodFACTS_MarketingRankings.pdf
+stargazer(tv.times.visits.model.2, tv.times.sales.visits.model.3, header = FALSE, title = "Regression Results (Part 1)", single.row = TRUE, omit.table.layout = "sn", omit = c("trend.x", "weekday.xMonday", 
+                                    "weekday.xTuesday", "weekday.xWednesday", 
+                                    "weekday.xThursday", "weekday.xFriday", "weekday.xSaturday","weekday.xSunday"))
+```
+
+\newpage
+
+```{r echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+stargazer(tv.times.visits.model.2, tv.times.sales.visits.model.3, header = FALSE, title = "Regression Results (Part 2)", single.row = TRUE, keep = c("trend.x", "weekday.xMonday", 
+                                    "weekday.xTuesday", "weekday.xWednesday", 
+                                    "weekday.xThursday", "weekday.xFriday", "weekday.xSaturday","weekday.xSunday"))
+```
+
+\newpage

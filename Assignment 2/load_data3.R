@@ -9,8 +9,8 @@ rmse <- function(error) {
   sqrt(mean(error^2)) }
 
 # load data for  assignment 2
-data.campaign <- read.csv("Chain_Campaign_Details.csv", stringsAsFactors=FALSE)
-data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", stringsAsFactors=FALSE)
+data.campaign <- read.csv("Chain_Campaign_Details.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
+data.store <- read.csv("Chain_Store_Performance_2015_2016.csv", fileEncoding = "latin1", stringsAsFactors=FALSE)
 data.googletrends <- read.csv("GoogleTrends.csv")
 data.grp <- read.csv("Chain_GRPS_2015_2016.csv")
 data.holidays <- read.csv("national_holiday_final.csv")
@@ -1055,4 +1055,5 @@ ggplot(radio.scatterplot.data, aes(x = VisitsImpact, y = SalesPerVisitImpact, si
       geom_hline(aes(yintercept = 0)) +
       geom_vline(aes(xintercept = 0))
        
-
+# save data file regression
+# write.csv(tv.time.data.final2, file = "final_data.csv")
